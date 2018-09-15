@@ -1,6 +1,6 @@
 # Caldera
 
-A command line utility which provide a code generated boilerplate for the services inside of your container. It should helps to save 2 and more days of developers routine work whom decided to create them first (micro) service.
+A command line utility which provide a code generated boilerplate for the services inside of your container. It should help to save two and more days of developers routine work whom decided to create them first (micro) service.
 
 ## Features of Caldera
 
