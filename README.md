@@ -23,10 +23,10 @@ A command line utility which provide a code generated boilerplate for the servic
 ## Requirements
 
 - [Go compiler](https://golang.org/dl/) v1.9 or newer
+- [GNU make utility](https://en.wikipedia.org/wiki/Make_(software)) that probably already installed on your system
 
 ### Requirements for boilerplate service
 
-- [GNU make utility](https://en.wikipedia.org/wiki/Make_(software)) that probably already installed on your system
 - Docker service, version 18.03 or newer
 
 ## Setup
