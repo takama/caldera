@@ -24,8 +24,8 @@ REGISTRY ?= {{[ .Github ]}}
 
 # Common configuration
 {{[- if .API.Enabled ]}}
-{{[ toENV .Name ]}}_SERVER_PORT ?= 8000
-{{[ toENV .Name ]}}_EXTERNAL_PORT ?= 8000
+{{[ toENV .Name ]}}_SERVER_PORT ?= {{[ .API.Config.Port ]}}
+{{[ toENV .Name ]}}_EXTERNAL_PORT ?= {{[ .API.Config.Port ]}}
 {{[- end ]}}
 {{[ toENV .Name ]}}_INFO_PORT ?= 8080
 {{[ toENV .Name ]}}_INFO_EXTERNAL_PORT ?= 8080
