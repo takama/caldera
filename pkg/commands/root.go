@@ -6,6 +6,7 @@ import (
 	"github.com/takama/caldera/pkg/config"
 	"github.com/takama/caldera/pkg/generator"
 	"github.com/takama/caldera/pkg/helper"
+	"github.com/takama/caldera/pkg/input"
 	"github.com/takama/caldera/pkg/version"
 
 	"github.com/spf13/cobra"
@@ -28,6 +29,23 @@ Otherwise, the default settings will be used.`,
 		if err := viper.Unmarshal(&cfg); err != nil {
 			fmt.Println("Error parsing of configuration, used default:", err)
 		}
+		cfg = input.Inquire(cfg)
+		if cfg.Storage.MySQL &&
+			cfg.Storage.Driver.Port == config.DefaultPostgresPort {
+			cfg.Storage.Driver.Host = config.StorageMySQL
+			cfg.Storage.Driver.Port = config.DefaultMySQLPort
+			cfg.Storage.Driver.Name = config.StorageMySQL
+			cfg.Storage.Driver.Username = config.StorageMySQL
+			cfg.Storage.Driver.Password = config.StorageMySQL
+		}
+		if cfg.Storage.Postgres &&
+			cfg.Storage.Driver.Port == config.DefaultMySQLPort {
+			cfg.Storage.Driver.Host = config.StoragePostgres
+			cfg.Storage.Driver.Port = config.DefaultPostgresPort
+			cfg.Storage.Driver.Name = config.StoragePostgres
+			cfg.Storage.Driver.Username = config.StoragePostgres
+			cfg.Storage.Driver.Password = config.StoragePostgres
+		}
 		generator.Run(cfg)
 	},
 }
@@ -45,7 +63,7 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./default.yaml)")
 	RootCmd.PersistentFlags().String("templates", ".templates", "templates dir")
-	RootCmd.PersistentFlags().String("service", "my-service", "A boilerplate service repository dir")
+	RootCmd.PersistentFlags().String("service", "", "A boilerplate service repository dir")
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("directories.templates", RootCmd.PersistentFlags().Lookup("templates")),
