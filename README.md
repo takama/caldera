@@ -118,7 +118,7 @@ Flags:
 Save a common `API` parameters:
 
 ```sh
-./caldera api protocol [flags]
+./caldera api config [flags]
 
 Flags:
   -h, --help       help for protocol
