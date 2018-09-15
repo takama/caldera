@@ -2,13 +2,13 @@
 
 A command line utility which provide a code generated boilerplate for the services inside of your container. It should helps to save 2 and more days of developers routine work whom decided to create them first (micro) service.
 
-## Features of Caldera (service code generator)
+## Features of Caldera
 
 - Using of configuration file that contains your saved preferences for a new boilerplate service
 - Interactive mode to select preferred features for a new service
 - Using of CLI flags to create new service quickly
 
-### Features of boilerplate (generated service)
+### Features of boilerplate service
 
 - Implementation of the health checks
 - Configuring the service using config file, environment variables or flags
