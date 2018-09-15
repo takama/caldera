@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/takama/caldera/pkg/config"
 	"github.com/takama/caldera/pkg/helper"
@@ -30,6 +31,9 @@ func render(cfg *config.Config) error {
 					template.FuncMap{
 						"toENV": func(str string) string {
 							return strings.ToUpper(strings.Replace(str, "-", "_", -1))
+						},
+						"currentYear": func() int {
+							return time.Now().Year()
 						},
 						"randStr": func() string {
 							var ch = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
