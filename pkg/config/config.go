@@ -9,8 +9,6 @@ const (
 	DefaultMySQLPort = 3306
 	// Base declared base templates
 	Base = "base"
-	// Gen declared templates for code generation
-	Gen = "gen"
 	// API declared type API
 	API = "api"
 	// APIREST declared type API: REST
@@ -41,7 +39,7 @@ type Config struct {
 		Enabled  bool
 		Postgres bool
 		MySQL    bool
-		Config   struct {
+		Driver   struct {
 			Host        string
 			Port        int
 			Name        string
