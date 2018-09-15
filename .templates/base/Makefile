@@ -41,6 +41,9 @@ REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
+{{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
+{{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
+{{[ toENV .Name ]}}_DB_PASSWOED ?= {{[ .Storage.Config.Password ]}}
 {{[- end ]}}
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/docker/{{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
@@ -48,11 +51,8 @@ REGISTRY ?= {{[ .Github ]}}
 {{[- else ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/{{[ .Storage.Config.Driver ]}}
 {{[- end ]}}
-{{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
 {{[ toENV .Name ]}}_DB_HOST ?= {{[ .Storage.Config.Host ]}}
 {{[ toENV .Name ]}}_DB_PORT ?= {{[ .Storage.Config.Port ]}}
-{{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
-{{[ toENV .Name ]}}_DB_PASSWOED ?= {{[ .Storage.Config.Password ]}}
 {{[ toENV .Name ]}}_DB_FIXTURES_DIR ?= fixtures
 
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","{{[ .Storage.Config.Driver ]}}")
@@ -225,7 +225,7 @@ deploy: push cluster
 HAS_DB_RUNNED := $(shell docker ps | grep $({{[ toENV .Name ]}}_DB_HOST))
 HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
 
-GO_LIST_FILES=$(shell go list $(PROJECT)/...)
+GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
 charts:
 	@echo "+ $@"
@@ -233,17 +233,17 @@ charts:
 
 test:
 	@echo "+ $@"
-	@go test -race -cover $(GO_LIST_FILES)
+	@go test -race -cover $(GO_PACKAGES)
 
 cover:
 	@echo "+ $@"
 	@echo "mode: set" > coverage.txt
 	@go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
-		cat {{.Dir}}/.coverprofile | sed 1d >> coverage.txt"{{end}}' $(GO_LIST_FILES) | xargs -L 1 sh -c
+		cat {{.Dir}}/.coverprofile | sed 1d >> coverage.txt"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 fmt:
 	@echo "+ $@"
-	@go list -f '"gofmt -w -s -l {{.Dir}}"' $(GO_LIST_FILES) | xargs -L 1 sh -c
+	@go list -f '"gofmt -w -s -l {{.Dir}}"' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 lint: bootstrap
 	@echo "+ $@"
