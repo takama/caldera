@@ -13,6 +13,12 @@ import (
 
 // Run generator
 func Run(cfg *config.Config) {
+	if cfg.Storage.MySQL {
+		cfg.Storage.Config.Driver = config.StorageMySQL
+	}
+	if cfg.Storage.Postgres {
+		cfg.Storage.Config.Driver = config.StoragePostgres
+	}
 	helper.LogF("Copy base templates", copyTemplates(
 		path.Join(cfg.Directories.Templates, config.Base),
 		cfg.Directories.Service,

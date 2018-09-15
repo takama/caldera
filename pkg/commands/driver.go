@@ -48,30 +48,30 @@ func init() {
 	driverCmd.PersistentFlags().Int("idle-conn", 1, "Count of idle connections")
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.host", driverCmd.PersistentFlags().Lookup("host")),
+		viper.BindPFlag("storage.config.host", driverCmd.PersistentFlags().Lookup("host")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.port", driverCmd.PersistentFlags().Lookup("port")),
+		viper.BindPFlag("storage.config.port", driverCmd.PersistentFlags().Lookup("port")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.name", driverCmd.PersistentFlags().Lookup("name")),
+		viper.BindPFlag("storage.config.name", driverCmd.PersistentFlags().Lookup("name")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.username", driverCmd.PersistentFlags().Lookup("username")),
+		viper.BindPFlag("storage.config.username", driverCmd.PersistentFlags().Lookup("username")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.password", driverCmd.PersistentFlags().Lookup("password")),
+		viper.BindPFlag("storage.config.password", driverCmd.PersistentFlags().Lookup("password")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.connections.max", driverCmd.PersistentFlags().Lookup("max-conn")),
+		viper.BindPFlag("storage.config.connections.max", driverCmd.PersistentFlags().Lookup("max-conn")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.driver.connections.idle", driverCmd.PersistentFlags().Lookup("idle-conn")),
+		viper.BindPFlag("storage.config.connections.idle", driverCmd.PersistentFlags().Lookup("idle-conn")),
 	)
 }

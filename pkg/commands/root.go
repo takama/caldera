@@ -31,20 +31,22 @@ Otherwise, the default settings will be used.`,
 		}
 		cfg = input.Inquire(cfg)
 		if cfg.Storage.MySQL &&
-			cfg.Storage.Driver.Port == config.DefaultPostgresPort {
-			cfg.Storage.Driver.Host = config.StorageMySQL
-			cfg.Storage.Driver.Port = config.DefaultMySQLPort
-			cfg.Storage.Driver.Name = config.StorageMySQL
-			cfg.Storage.Driver.Username = config.StorageMySQL
-			cfg.Storage.Driver.Password = config.StorageMySQL
+			cfg.Storage.Config.Port == config.DefaultPostgresPort {
+			cfg.Storage.Config.Driver = config.StorageMySQL
+			cfg.Storage.Config.Host = config.StorageMySQL
+			cfg.Storage.Config.Port = config.DefaultMySQLPort
+			cfg.Storage.Config.Name = config.StorageMySQL
+			cfg.Storage.Config.Username = config.StorageMySQL
+			cfg.Storage.Config.Password = config.StorageMySQL
 		}
 		if cfg.Storage.Postgres &&
-			cfg.Storage.Driver.Port == config.DefaultMySQLPort {
-			cfg.Storage.Driver.Host = config.StoragePostgres
-			cfg.Storage.Driver.Port = config.DefaultPostgresPort
-			cfg.Storage.Driver.Name = config.StoragePostgres
-			cfg.Storage.Driver.Username = config.StoragePostgres
-			cfg.Storage.Driver.Password = config.StoragePostgres
+			cfg.Storage.Config.Port == config.DefaultMySQLPort {
+			cfg.Storage.Config.Driver = config.StoragePostgres
+			cfg.Storage.Config.Host = config.StoragePostgres
+			cfg.Storage.Config.Port = config.DefaultPostgresPort
+			cfg.Storage.Config.Name = config.StoragePostgres
+			cfg.Storage.Config.Username = config.StoragePostgres
+			cfg.Storage.Config.Password = config.StoragePostgres
 		}
 		generator.Run(cfg)
 	},

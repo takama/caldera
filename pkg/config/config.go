@@ -39,7 +39,8 @@ type Config struct {
 		Enabled  bool
 		Postgres bool
 		MySQL    bool
-		Driver   struct {
+		Config   struct {
+			Driver      string
 			Host        string
 			Port        int
 			Name        string
