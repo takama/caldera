@@ -11,7 +11,7 @@ import (
 
 // protocolCmd represents the rest command
 var protocolCmd = &cobra.Command{
-	Use:   "rest",
+	Use:   "protocol",
 	Short: "Setup API protocol settings",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := viper.WriteConfig()
