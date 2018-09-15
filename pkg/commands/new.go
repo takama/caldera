@@ -44,7 +44,7 @@ func init() {
 	RootCmd.AddCommand(newCmd)
 
 	newCmd.PersistentFlags().String("name", "my-service", "A name of your new service")
-	newCmd.PersistentFlags().String("description", "my-service description", "A description of your new service")
+	newCmd.PersistentFlags().String("description", "My service", "A description of your new service")
 	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
 	RootCmd.PersistentFlags().Bool("grpc-client", false, "A gRPC client using")
 	helper.LogF("Flag error", viper.BindPFlag("name", newCmd.PersistentFlags().Lookup("name")))
