@@ -43,12 +43,12 @@ Otherwise, the default settings will be used.`,
 func init() {
 	RootCmd.AddCommand(newCmd)
 
-	RootCmd.PersistentFlags().Bool("client", false, "A gRPC client using")
-	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
 	newCmd.PersistentFlags().String("name", "my-service", "A name of your new service")
 	newCmd.PersistentFlags().String("description", "my-service description", "A description of your new service")
-	helper.LogF("Flag error", viper.BindPFlag("client", RootCmd.PersistentFlags().Lookup("client")))
-	helper.LogF("Flag error", viper.BindPFlag("github", RootCmd.PersistentFlags().Lookup("github")))
+	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
+	RootCmd.PersistentFlags().Bool("grpc-client", false, "A gRPC client using")
 	helper.LogF("Flag error", viper.BindPFlag("name", newCmd.PersistentFlags().Lookup("name")))
 	helper.LogF("Flag error", viper.BindPFlag("description", newCmd.PersistentFlags().Lookup("description")))
+	helper.LogF("Flag error", viper.BindPFlag("github", RootCmd.PersistentFlags().Lookup("github")))
+	helper.LogF("Flag error", viper.BindPFlag("client", RootCmd.PersistentFlags().Lookup("grpc-client")))
 }
