@@ -268,6 +268,9 @@ ifdef HAS_EXITED
 	@docker rm $(CONTAINER_NAME)
 endif
 
+version:
+	@./bumper.sh
+
 clean: stop rm
 	@rm -f bin/$(GOOS)-$(GOARCH)/$(APP)
 
@@ -306,5 +309,6 @@ endif
 	stop \
 	start \
 	rm \
+	version \
 	clean \
 	bootstrap

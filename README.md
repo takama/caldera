@@ -202,7 +202,7 @@ To properly work with dependencies, we need to select a package manager. [dep](h
 Using a special script to increment the release version
 
 ```sh
-./bumper.sh
+make version
 Current version 0.0.1.
 Please enter new version [0.0.2]:
 ```
