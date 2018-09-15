@@ -145,6 +145,15 @@ type Signals struct {
 }
 ```
 
+## Database integration
+
+Boilerplate service is provided database drivers and optional `stub` driver for testing purposes.
+The database drivers are using in local container environment as well. Corresponded `make` commands `db, migrate-up, migrate-down` allow to run database engine and migrate data into database.
+Supported the following database drivers:
+
+- Postgres
+- MySQL
+
 ## Build automation
 
 In the CI/CD pipeline, there is a series of commands for the static cross-compilation of the service for the specified OS. Build a docker image and push it into the container registry. Optimal and compact `docker` image `FROM SCRATCH`.
