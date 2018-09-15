@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,17 @@ func render(cfg *config.Config) error {
 				Delims("{{[", "]}}").
 				Funcs(
 					template.FuncMap{
-						"toUpper": strings.ToUpper,
+						"toENV": func(str string) string {
+							return strings.ToUpper(strings.Replace(str, "-", "_", -1))
+						},
+						"randStr": func() string {
+							var ch = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+							b := make([]rune, 32)
+							for i := range b {
+								b[i] = ch[rand.Intn(len(ch))]
+							}
+							return string(b)
+						},
 					},
 				).ParseFiles(path)
 			if err != nil {
