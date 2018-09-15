@@ -22,10 +22,16 @@ func Run(cfg *config.Config) {
 	if cfg.Storage.Postgres {
 		cfg.Storage.Config.Driver = config.StoragePostgres
 	}
-	helper.LogF("Copy base templates", copyTemplates(
+	helper.LogF("Base templates", copyTemplates(
 		path.Join(cfg.Directories.Templates, config.Base),
 		cfg.Directories.Service,
 	))
+	if cfg.Storage.Enabled {
+		helper.LogF("Storage base templates", copyTemplates(
+			path.Join(cfg.Directories.Templates, config.Storage, config.Base),
+			cfg.Directories.Service,
+		))
+	}
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
 	log.Println("Vendors initialization")
