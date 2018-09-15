@@ -3,6 +3,7 @@ package input
 import (
 	"os"
 	"path"
+	"strings"
 
 	"github.com/takama/caldera/pkg/config"
 )
@@ -17,7 +18,8 @@ func Inquire(cfg *config.Config) *config.Config {
 		cfg.GKE.Cluster = StringAnswer("Provide cluster name in the GKE", cfg.GKE.Cluster)
 	}
 	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)
-	cfg.Description = StringAnswer("Provide description for your service", cfg.Name+" description")
+	cfg.Description = StringAnswer("Provide description for your service",
+		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
 	apis := []string{config.APIREST, config.APIgRPC}
 	var count int
 	question := "Do you need API for the service? "

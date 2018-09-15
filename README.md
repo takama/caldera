@@ -52,8 +52,8 @@ Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
 Provide compute zone of your project on the GCP (europe-west1-b):
 Provide cluster name in the GKE (my-cluster-name):
-Provide name for your service (service): my-service
-Provide description for your service (my-service description):
+Provide name for your service (my-service): new-service
+Provide description for your service (My service): Very new service
 Do you need API for the service? (y/n): y
 What kind of API do you need? (rest,grpc): grpc
 Do you need one more API for the service? (y/n): y
