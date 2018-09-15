@@ -83,8 +83,8 @@ For example of save a `storage` parameters in Caldera configuration file:
 Flags:
   -h, --help       help for storage
       --enabled    A Storage modules using
-      --mysql      A mysql module using
       --postgres   A postgres module using
+      --mysql      A mysql module using
 ```
 
 Save a `storage` parameters for database driver in Caldera configuration file:
