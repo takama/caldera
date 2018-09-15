@@ -45,6 +45,8 @@ In this mode, you'll be asked about the general properties associated with the n
 
 ```txt
 ./caldera
+Caldera boilerplate version: v0.0.1 build date: 2018-09-15T12:02:17+07
+
 Provide name for your Github account: my-account
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
@@ -66,7 +68,6 @@ New service directory (~/go/src/github.com/my-account/my-service):
 ### CLI mode
 
 In this mode, you'll be not asked about everything. The configuration file will be used for all other data, such as the host, port, etc., if you have saved it before. Otherwise, the default settings will be used.
-
 
 ```sh
 ./caldera new [ --service <name> --description <description> ]
