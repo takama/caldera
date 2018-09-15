@@ -1,6 +1,4 @@
 // Package commands process flags/environment variables/config file
-//
-// nolint: dupl
 package commands
 
 import (
