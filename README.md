@@ -70,45 +70,59 @@ New service directory (~/go/src/github.com/my-account/my-service):
 In this mode, you'll be not asked about everything. The configuration file will be used for all other data, such as the host, port, etc., if you have saved it before. Otherwise, the default settings will be used.
 
 ```sh
-./caldera new [ --service <name> --description <description> ]
+./caldera new [ --service <name> --description <description> --github <account> --grpc-client ]
 ```
 
-### Save configuration
+### Save configuration for future use
 
-Save a `storage` parameters in Caldera configuration file:
+For example of save a `storage` parameters in Caldera configuration file:
 
 ```sh
 ./caldera storage [flags]
 
 Flags:
-  -h, --help              help for storage
-  -d, --driver            driver name (default "postgres")
+  -h, --help       help for storage
+      --enabled    A Storage modules using
+      --mysql      A mysql module using
+      --postgres   A postgres module using
 ```
 
-Save a storage parameters for `postgres` in Caldera configuration file:
+Save a `storage` parameters for database driver in Caldera configuration file:
 
 ```sh
-./caldera storage postgres [flags]
+./caldera storage driver [flags]
 
 Flags:
-  -h, --help              help for postgres
+  -h, --help              help for driver
       --host string       A host name (default "postgres")
       --port int          A port number (default 5432)
       --name string       A database name (default "postgres")
   -u, --username string   A name of database user (default "postgres")
-  -p, --password string   A user password (default "postgres")
-      --idle-conn int     Count of idle connections (default 1)
+  -p, --password string   An user password (default "postgres")
       --max-conn int      Maximum available connections (default 10)
+      --idle-conn int     Count of idle connections (default 1)
 ```
 
-Save an API parameters for `REST/gRPC` as example:
+Save an API parameters for `REST/gRPC` (REST always used gRCP gateway):
 
 ```sh
-./caldera api rest [flags]
+./caldera api [flags]
 
 Flags:
-  -h, --help          help for rest
-      --port int      A service port number (default 8000)
+  -h, --help      help for api
+      --enabled   An API modules using
+      --grpc      A gRPC module using
+      --rest      A REST module using
+```
+
+Save a common API parameters:
+
+```sh
+./caldera api protocol [flags]
+
+Flags:
+  -h, --help       help for protocol
+      --port int   A service port number (default 8000)
 ```
 
 ## Health checks
