@@ -13,6 +13,9 @@ import (
 
 // Run generator
 func Run(cfg *config.Config) {
+	if cfg.Storage.Config.Name == "" {
+		cfg.Storage.Config.Name = cfg.Name
+	}
 	if cfg.Storage.MySQL {
 		cfg.Storage.Config.Driver = config.StorageMySQL
 	}

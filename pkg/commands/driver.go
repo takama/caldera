@@ -41,7 +41,7 @@ func init() {
 
 	driverCmd.PersistentFlags().String("host", databaseDriver, "A host name")
 	driverCmd.PersistentFlags().Int("port", databasePort, "A port number")
-	driverCmd.PersistentFlags().String("name", databaseDriver, "A database name")
+	driverCmd.PersistentFlags().String("name", "", "A database name")
 	driverCmd.PersistentFlags().StringP("username", "u", databaseDriver, "A name of database user")
 	driverCmd.PersistentFlags().StringP("password", "p", databaseDriver, "An user password")
 	driverCmd.PersistentFlags().Int("max-conn", 10, "Maximum available connections")

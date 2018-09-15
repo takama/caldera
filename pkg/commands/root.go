@@ -35,7 +35,6 @@ Otherwise, the default settings will be used.`,
 			cfg.Storage.Config.Driver = config.StorageMySQL
 			cfg.Storage.Config.Host = config.StorageMySQL
 			cfg.Storage.Config.Port = config.DefaultMySQLPort
-			cfg.Storage.Config.Name = config.StorageMySQL
 			cfg.Storage.Config.Username = config.StorageMySQL
 			cfg.Storage.Config.Password = config.StorageMySQL
 		}
@@ -44,7 +43,6 @@ Otherwise, the default settings will be used.`,
 			cfg.Storage.Config.Driver = config.StoragePostgres
 			cfg.Storage.Config.Host = config.StoragePostgres
 			cfg.Storage.Config.Port = config.DefaultPostgresPort
-			cfg.Storage.Config.Name = config.StoragePostgres
 			cfg.Storage.Config.Username = config.StoragePostgres
 			cfg.Storage.Config.Password = config.StoragePostgres
 		}
