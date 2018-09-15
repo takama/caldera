@@ -39,7 +39,7 @@ func Run() {
 }
 
 func init() {
-	fmt.Printf("%s version: %s build date: %s\n\n", config.ServiceName, version.RELEASE, version.DATE)
+	fmt.Printf("%s version: %s, build date: %s\n\n", config.ServiceName, version.RELEASE, version.DATE)
 
 	cobra.OnInitialize(initConfig)
 

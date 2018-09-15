@@ -2,7 +2,7 @@ package config
 
 const (
 	// ServiceName defines short service name
-	ServiceName = "Caldera boilerplate"
+	ServiceName = "Caldera boilerplate generator"
 	// DefaultPostgresPort defines default port for PostgreSQL
 	DefaultPostgresPort = 5432
 	// DefaultMySQLPort defines default port for MySQL
