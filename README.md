@@ -103,7 +103,7 @@ Flags:
       --idle-conn int     Count of idle connections (default 1)
 ```
 
-Save an API parameters for `REST/gRPC` (REST always used gRCP gateway):
+Save an `API` parameters for `REST/gRPC` (REST always used gRCP gateway):
 
 ```sh
 ./caldera api [flags]
@@ -115,7 +115,7 @@ Flags:
       --rest      A REST module using
 ```
 
-Save a common API parameters:
+Save a common `API` parameters:
 
 ```sh
 ./caldera api protocol [flags]
