@@ -31,6 +31,10 @@ fmt:
 	@echo "+ $@"
 	@go list -f '"gofmt -w -s -l {{.Dir}}"' $(GO_PKG) | xargs -L 1 sh -c
 
+imports:
+	@echo "+ $@"
+	@go list -f '"goimports -w {{.Dir}}"' ${GO_PKG} | xargs -L 1 sh -c
+
 lint: bootstrap
 	@echo "+ $@"
 	@golangci-lint run --enable-all ./...
@@ -63,6 +67,7 @@ endif
 	build \
 	test \
 	fmt \
+	imports \
 	lint \
 	version \
 	clean \
