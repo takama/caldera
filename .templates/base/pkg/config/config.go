@@ -1,0 +1,66 @@
+package config
+
+import (
+	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
+	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/migrations"
+	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/info"
+	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/logger"
+	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/server"
+
+	"github.com/spf13/viper"
+)
+
+// Default values: host, port, etc
+const (
+	// ServiceName - default service name
+	ServiceName = "{{[ .Name ]}}"
+
+	APIVersion = "v1alpha"
+
+	DefaultConfigPath = "config/default.conf"
+
+	{{[- if .API.Enabled ]}}
+
+	DefaultServerPort     = {{[ .API.Config.Port ]}}
+	{{[- end ]}}
+	DefaultInfoPort       = 8080
+	DefaultInfoStatistics = true
+	DefaultLoggerLevel    = logger.LevelInfo
+)
+
+// Config -- Base config structure
+type Config struct {
+	{{[- if .API.Enabled ]}}
+	Server     server.Config
+	{{[- end ]}}
+	Info       info.Config
+	{{[- if .Storage.Enabled ]}}
+	Database   db.Config
+	Migrations migrations.Config
+	{{[- end ]}}
+	Logger     logger.Config
+}
+
+// New - returns new config record initialized with default values
+func New() (*Config, error) {
+	cfg := &Config{
+		{{[- if .API.Enabled ]}}
+		Server: server.Config{
+			Port: DefaultServerPort,
+		},
+		{{[- end ]}}
+		Info: info.Config{
+			Port:       DefaultInfoPort,
+			Statistics: DefaultInfoStatistics,
+		},
+		Logger: logger.Config{
+			Level: DefaultLoggerLevel,
+		},
+	}
+
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
