@@ -61,6 +61,7 @@ What kind of API do you need? (rest): rest
 Do you need gRPC client for the service? (y/n): y
 Do you need storage driver? (y/n): y
 What kind of storage driver do you need? (postgres,mysql): postgres
+Do you need Contract API example for the service? (y/n): y
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
 New service directory (~/go/src/github.com/my-account/my-service):
 ```
