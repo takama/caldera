@@ -65,6 +65,10 @@ func Inquire(cfg *config.Config) *config.Config {
 	} else {
 		cfg.Storage.Enabled = false
 	}
+	if cfg.API.Enabled && cfg.Storage.Enabled &&
+		BoolAnswer("Do you need Contract API example for the service?") {
+		cfg.Contract = true
+	}
 	if !path.IsAbs(cfg.Directories.Templates) {
 		if currentDir, err := os.Getwd(); err == nil {
 			cfg.Directories.Templates = path.Join(currentDir, cfg.Directories.Templates)

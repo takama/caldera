@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package events;
+
+import "request/request.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option go_package = "github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events";
+
+// Interface exported by the server
+service Events {
+  // Get Event object by ID
+  rpc GetEvent (request.ByID) returns (Event) {
+    option (google.api.http).get = "/v1alpha/events/id/{ID}";
+  }
+
+  // Find Events objects by name
+  rpc FindEventsByName (request.ByName) returns (stream Event) {
+    option (google.api.http).get = "/v1alpha/events/name/{name}";
+  }
+
+  // List all Events
+  rpc ListEvents (google.protobuf.Empty) returns (stream Event) {
+    option (google.api.http).get = "/v1alpha/events";
+  }
+
+  // Create a new Event object
+  rpc NewEvent (Event) returns (Event) {
+    option (google.api.http) = {
+      post: "/v1alpha/events",
+      body: "*"
+    };
+  }
+
+  // Update a Events object
+  rpc SaveEvent (Event) returns (Event) {
+    option (google.api.http) = {
+      put: "/v1alpha/events/id/{ID}",
+      body: "*"
+    };
+  }
+
+  // Delete Event object by ID
+  rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v1alpha/events/id/{ID}";
+  }
+
+  // Delete Events objects by Event name
+  rpc DeleteEventsByName (request.ByName) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v1alpha/events/name/{name}";
+  }
+}
+
+// A Events (Company department/accreditation)
+message Event {
+  // The ID of the Events
+  string ID = 1;
+
+  // The name of the Events
+  string name = 2;
+}
+  

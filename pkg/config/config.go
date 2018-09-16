@@ -15,6 +15,8 @@ const (
 	APIREST = "rest"
 	// APIgRPC declared type API: gRPC
 	APIgRPC = "grpc"
+	// Contract declared contract API example
+	Contract = "contract"
 	// Storage declared type Storage
 	Storage = "storage"
 	// StoragePostgres declared storage driver type: postgres
@@ -29,6 +31,7 @@ type Config struct {
 	Description string
 	Github      string
 	Client      bool
+	Contract    bool
 	GKE         struct {
 		Enabled bool
 		Project string

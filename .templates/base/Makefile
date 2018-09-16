@@ -1,4 +1,4 @@
-PROJECT = {{[ .Name ]}}
+PROJECT = github.com/{{[ .Github ]}}/{{[ .Name ]}}
 APP = {{[ .Name ]}}
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
@@ -30,7 +30,7 @@ REGISTRY ?= {{[ .Github ]}}
 {{[ toENV .Name ]}}_INFO_PORT ?= 8080
 {{[ toENV .Name ]}}_INFO_EXTERNAL_PORT ?= 8080
 {{[ toENV .Name ]}}_LOG_LEVEL ?= 0
-{{[ toENV .Name ]}}_CONFIG_PATH ?= /etc/$(shell echo "$(PROJECT)" | tr - _)/default.conf
+{{[ toENV .Name ]}}_CONFIG_PATH ?= /etc/$(shell echo "$(APP)" | tr - _)/default.conf
 
 {{[- if .Storage.Enabled ]}}
 
@@ -41,10 +41,10 @@ REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
+{{[- end ]}}
 {{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
 {{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
-{{[ toENV .Name ]}}_DB_PASSWOED ?= {{[ .Storage.Config.Password ]}}
-{{[- end ]}}
+{{[ toENV .Name ]}}_DB_PASSWORD ?= {{[ .Storage.Config.Password ]}}
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/docker/{{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/postgresql/data
@@ -64,8 +64,8 @@ endif
 NAMESPACE ?= dev
 VALUES ?= values-$(NAMESPACE)
 
-CONTAINER_IMAGE ?= $(REGISTRY)/$(PROJECT)
-CONTAINER_NAME ?= $(PROJECT)
+CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
+CONTAINER_NAME ?= $(APP)
 
 REPO_INFO=$(shell git config --get remote.origin.url)
 REPO_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -90,6 +90,8 @@ LDFLAGS = "-s -w \
 BUILDTAGS=
 
 all: build
+
+check-all: fmt imports test lint
 
 {{[- if .GKE.Enabled ]}}
 
@@ -119,10 +121,17 @@ vendor: bootstrap
 	@echo "+ $@"
 	@dep ensure -vendor-only
 
-compile: vendor test lint
+{{[- if .Contract ]}}
+
+contracts:
+	@echo "+ $@"
+	@$(MAKE) -C contracts generate
+{{[- end ]}}
+
+compile: {{[- if .Contract ]}} contracts {{[- end ]}} vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
-		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(APP) $(PROJECT)/cmd
+		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/service $(PROJECT)/cmd
 
 certs:
 ifeq ("$(wildcard $(CA_DIR)/ca-certificates.crt)","")
@@ -145,6 +154,9 @@ push: build project
 
 {{[- if .Storage.Enabled ]}}
 
+HAS_DB_RUNNED := $(shell docker ps | grep $({{[ toENV .Name ]}}_DB_HOST))
+HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
+
 db:
 	@echo "+ $@"
 ifndef HAS_DB_RUNNED
@@ -158,8 +170,14 @@ ifndef HAS_DB_EXITED
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
 {{[- end ]}}
+{{[- if .Storage.Postgres ]}}
+	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
+	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
+	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
+{{[- end ]}}
 	-v $({{[ toENV .Name ]}}_DB_LOCATION):$({{[ toENV .Name ]}}_DB_PATH) \
 	$({{[ toENV .Name ]}}_DB_DRIVER):$({{[ toENV .Name ]}}_DB_DRIVER_VERSION)
+	@sleep {{[- if .Storage.Postgres ]}} 20 {{[ else ]}} 60 {{[- end ]}}
 else
 	@docker start $({{[ toENV .Name ]}}_DB_HOST)
 endif
@@ -222,9 +240,6 @@ deploy: push cluster
 	@helm upgrade $(CONTAINER_NAME) -f charts/$(VALUES).yaml charts --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i --wait
 
-HAS_DB_RUNNED := $(shell docker ps | grep $({{[ toENV .Name ]}}_DB_HOST))
-HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
-
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
 charts:
@@ -244,6 +259,10 @@ cover:
 fmt:
 	@echo "+ $@"
 	@go list -f '"gofmt -w -s -l {{.Dir}}"' $(GO_PACKAGES) | xargs -L 1 sh -c
+
+imports:
+	@echo "+ $@"
+	@go list -f '"goimports -w {{.Dir}}"' ${GO_PACKAGES} | xargs -L 1 sh -c
 
 lint: bootstrap
 	@echo "+ $@"
@@ -276,6 +295,7 @@ clean: stop rm
 
 HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
+HAS_IMPORTS := $(shell command -v goimports;)
 
 bootstrap:
 ifndef HAS_DEP
@@ -284,11 +304,17 @@ endif
 ifndef HAS_LINT
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 endif
+ifndef HAS_IMPORTS
+	go get -u golang.org/x/tools/cmd/goimports
+endif
 
 .PHONY: all \
 	project \
 	cluster \
 	vendor \
+{{[- if .Contract ]}}
+	contracts \
+{{[- end ]}}
 	compile \
 	build \
 	certs \

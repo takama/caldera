@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package request;
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option go_package = "github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/request";
+
+// A request by name
+message ByName {
+  // Specified name
+  string name = 1;
+}
+
+// A request by ID
+message ByID {
+  // Specified ID
+  string ID = 1;
+}
