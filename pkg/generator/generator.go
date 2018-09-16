@@ -26,20 +26,62 @@ func Run(cfg *config.Config) {
 		path.Join(cfg.Directories.Templates, config.Base),
 		cfg.Directories.Service,
 	))
+	if cfg.API.Enabled {
+		helper.LogF("Storage base templates", copyTemplates(
+			path.Join(cfg.Directories.Templates, config.API, config.Base),
+			cfg.Directories.Service,
+		))
+	}
 	if cfg.Storage.Enabled {
 		helper.LogF("Storage base templates", copyTemplates(
 			path.Join(cfg.Directories.Templates, config.Storage, config.Base),
 			cfg.Directories.Service,
 		))
+		if cfg.Storage.Postgres {
+			helper.LogF("Storage templates for postgres", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.Storage, config.StoragePostgres),
+				cfg.Directories.Service,
+			))
+		}
+		if cfg.Storage.MySQL {
+			helper.LogF("Storage templates for mysql", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.Storage, config.StorageMySQL),
+				cfg.Directories.Service,
+			))
+		}
+	}
+	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Contract {
+		helper.LogF("Contract example templates", copyTemplates(
+			path.Join(cfg.Directories.Templates, config.Contract, config.Base),
+			cfg.Directories.Service,
+		))
+		if cfg.Storage.Postgres {
+			helper.LogF("Contract templates for postgres", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.Contract, config.StoragePostgres),
+				cfg.Directories.Service,
+			))
+		}
+		if cfg.Storage.MySQL {
+			helper.LogF("Contract templates for mysql", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.Contract, config.StorageMySQL),
+				cfg.Directories.Service,
+			))
+		}
 	}
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
-	log.Println("Vendors initialization")
+	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Contract {
+		log.Println("Prepare contracts:")
+		helper.LogF("Generate contracts", Exec("make", "contracts"))
+	}
+	log.Println("Initialize vendors:")
+	helper.LogF("Init dep", Exec("dep", "init", "-skip-tools"))
+	helper.LogF("Tests", Exec("make", "check-all"))
 
-	log.Println("Git repository initialization")
-	helper.LogF("Could not init git", Exec("git", "init"))
-	helper.LogF("Could not add git files", Exec("git", "add", "--all"))
-	helper.LogF("Could not commit git files", Exec("git", "commit", "-m", "'Initial commit'"))
+	log.Println("Initialize Git repository:")
+	helper.LogF("Init git", Exec("git", "init"))
+	helper.LogF("Add repo files", Exec("git", "add", "--all"))
+	helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
 	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
 }
 
