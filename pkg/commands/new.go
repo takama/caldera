@@ -46,11 +46,9 @@ func init() {
 	newCmd.PersistentFlags().String("name", "my-service", "A name of your new service")
 	newCmd.PersistentFlags().String("description", "My service", "A description of your new service")
 	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
-	RootCmd.PersistentFlags().Bool("grpc-client", false, "A gRPC client using")
 	RootCmd.PersistentFlags().Bool("contract-example", false, "A example of contract API using")
 	helper.LogF("Flag error", viper.BindPFlag("name", newCmd.PersistentFlags().Lookup("name")))
 	helper.LogF("Flag error", viper.BindPFlag("description", newCmd.PersistentFlags().Lookup("description")))
 	helper.LogF("Flag error", viper.BindPFlag("github", RootCmd.PersistentFlags().Lookup("github")))
-	helper.LogF("Flag error", viper.BindPFlag("client", RootCmd.PersistentFlags().Lookup("grpc-client")))
 	helper.LogF("Flag error", viper.BindPFlag("contract", RootCmd.PersistentFlags().Lookup("contract-example")))
 }

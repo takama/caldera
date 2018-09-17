@@ -11,12 +11,6 @@ import (
 // Inquire for configuration
 func Inquire(cfg *config.Config) *config.Config {
 	cfg.Github = StringAnswer("Provide name for your Github account", cfg.Github)
-	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
-		cfg.GKE.Enabled = true
-		cfg.GKE.Project = StringAnswer("Provide ID of your project on the GCP", cfg.GKE.Project)
-		cfg.GKE.Zone = StringAnswer("Provide compute zone of your project on the GCP", cfg.GKE.Zone)
-		cfg.GKE.Cluster = StringAnswer("Provide cluster name in the GKE", cfg.GKE.Cluster)
-	}
 	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
@@ -47,9 +41,6 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 		count++
 	}
-	if BoolAnswer("Do you need gRPC client for the service?") {
-		cfg.Client = true
-	}
 	storages := []string{config.StoragePostgres, config.StorageMySQL}
 	question = "Do you need storage driver?"
 	if BoolAnswer(question) {
@@ -68,6 +59,12 @@ func Inquire(cfg *config.Config) *config.Config {
 	if cfg.API.Enabled && cfg.Storage.Enabled &&
 		BoolAnswer("Do you need Contract API example for the service?") {
 		cfg.Contract = true
+	}
+	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
+		cfg.GKE.Enabled = true
+		cfg.GKE.Project = StringAnswer("Provide ID of your project on the GCP", cfg.GKE.Project)
+		cfg.GKE.Zone = StringAnswer("Provide compute zone of your project on the GCP", cfg.GKE.Zone)
+		cfg.GKE.Cluster = StringAnswer("Provide cluster name in the GKE", cfg.GKE.Cluster)
 	}
 	if !path.IsAbs(cfg.Directories.Templates) {
 		if currentDir, err := os.Getwd(); err == nil {

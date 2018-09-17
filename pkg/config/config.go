@@ -9,6 +9,8 @@ const (
 	DefaultMySQLPort = 3306
 	// Base declared base templates
 	Base = "base"
+	// GKE declared GKE accounts/cluster/deployment
+	GKE = "gke"
 	// API declared type API
 	API = "api"
 	// APIGateway declared type API gateway: REST
@@ -30,7 +32,6 @@ type Config struct {
 	Name        string
 	Description string
 	Github      string
-	Client      bool
 	Contract    bool
 	GKE         struct {
 		Enabled bool
