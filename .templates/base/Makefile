@@ -91,6 +91,8 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
 	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
+GO_PACKAGES=$(shell go list $(PROJECT)/...)
+
 BUILDTAGS=
 
 all: build
@@ -247,14 +249,12 @@ logs:
 
 deploy: push cluster
 	@echo "+ $@"
-	@helm upgrade $(CONTAINER_NAME) -f charts/$(VALUES).yaml charts --kube-context $(KUBE_CONTEXT) \
+	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i --wait
-
-GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
 charts:
 	@echo "+ $@"
-	@helm template charts -n ${NAMESPACE} -f charts/${VALUES}.yaml
+	@helm template .helm -n ${NAMESPACE} -f .helm/${VALUES}.yaml
 
 test:
 	@echo "+ $@"
