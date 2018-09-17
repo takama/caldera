@@ -10,7 +10,7 @@ INSERT INTO events (id, name)
 {{[- if .Storage.MySQL ]}}
     ON DUPLICATE KEY UPDATE name = 'First event';
 {{[- end ]}}
-INSERT INTO branch (id, name)
+INSERT INTO events (id, name)
     VALUES ('9800a9d0-3af9-4c7f-8059-44eeb4876592', 'Second event')
 {{[- if .Storage.Postgres ]}}
     ON CONFLICT(id) DO NOTHING;
