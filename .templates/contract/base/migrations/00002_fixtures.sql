@@ -3,7 +3,7 @@
 
 -- Setup reseller branch.
 INSERT INTO events (id, name)
-    VALUES ('00000000-0000-0000-0000-000000000000', 'First event"')
+    VALUES ('00000000-0000-0000-0000-000000000000', 'First event')
 {{[- if .Storage.Postgres ]}}
     ON CONFLICT(id) DO NOTHING;
 {{[- end ]}}
