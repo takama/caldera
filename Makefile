@@ -1,6 +1,6 @@
 APP = caldera
 RELEASE ?= v0.0.1
-RELEASE_DATE=$(shell date +%FT%T%Z)
+RELEASE_DATE = $(shell date +%FT%T%Z)
 PROJECT = github.com/takama/caldera
 
 LDFLAGS = "-s -w \
