@@ -48,20 +48,19 @@ In this mode, you'll be asked about the general properties associated with the n
 Caldera boilerplate version: v0.0.1 build date: 2018-09-15T12:02:17+07
 
 Provide name for your Github account: my-account
-Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
-Provide ID of your project on the GCP (my-project-id):
-Provide compute zone of your project on the GCP (europe-west1-b):
-Provide cluster name in the GKE (my-cluster-name):
 Provide name for your service (my-service): new-service
 Provide description for your service (My service): Very new service
 Do you need API for the service? (y/n): y
 What kind of API do you need? (rest,grpc): grpc
 Do you need one more API for the service? (y/n): y
 What kind of API do you need? (rest): rest
-Do you need gRPC client for the service? (y/n): y
 Do you need storage driver? (y/n): y
 What kind of storage driver do you need? (postgres,mysql): postgres
 Do you need Contract API example for the service? (y/n): y
+Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
+Provide ID of your project on the GCP (my-project-id):
+Provide compute zone of your project on the GCP (europe-west1-b):
+Provide cluster name in the GKE (my-cluster-name):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
 New service directory (~/go/src/github.com/my-account/my-service):
 ```
@@ -110,10 +109,10 @@ Save an `API` parameters for `REST/gRPC` (REST always used gRCP gateway):
 ./caldera api [flags]
 
 Flags:
-  -h, --help      help for api
-      --enabled   An API modules using
-      --grpc      A gRPC module using
-      --rest      A REST module using
+  -h, --help           help for api
+      --enabled        An API modules using
+      --grpc           A gRPC module using
+      --rest-gateway   A REST gateway module using
 ```
 
 Save a common `API` parameters:
@@ -122,8 +121,9 @@ Save a common `API` parameters:
 ./caldera api config [flags]
 
 Flags:
-  -h, --help       help for protocol
-      --port int   A service port number (default 8000)
+  -h, --help               help for config
+      --port int           A service port number (default 8000)
+      --gateway-port int   A service rest gateway port number (default 8001)
 ```
 
 ## Health checks
