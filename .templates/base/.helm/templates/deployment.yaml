@@ -1,0 +1,95 @@
+{{- $serviceName := .Values.service.name -}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "name" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    component: "{{ .Values.service.name }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  minReadySeconds: {{ .Values.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.maxUnavailable }}
+      maxSurge: {{ .Values.maxSurge }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+    spec:
+      {{- if .Values.image.pullSecretName }}
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecretName }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.gracePeriod }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.ports.server }}
+          name: grpc
+        - containerPort: {{ .Values.service.ports.internal }}
+          name: http
+        - containerPort: {{ .Values.service.info.port }}
+          name: info
+        env:
+        - name: {{ printf "%s_CONFIG_PATH" .Values.service.name | upper | replace "-" "_" }}
+          value: /etc/{{ .Values.service.name | replace "-" "_" }}/default.conf
+        {{- if .Values.service.database.enabled }}
+        {{- if .Values.service.database.name }}
+        - name: {{ printf "%s_DB_NAME" $serviceName | upper | replace "-" "_" }}
+          valueFrom:
+            secretKeyRef:
+              key: database
+              name: {{ .Values.service.database.name }}
+        {{- end }}
+        {{- if .Values.service.database.username }}
+        - name: {{ printf "%s_DB_USERNAME" $serviceName | upper | replace "-" "_" }}
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ .Values.service.database.username }}
+        {{- end }}
+        {{- if .Values.service.database.password }}
+        - name: {{ printf "%s_DB_PASSWORD" $serviceName | upper | replace "-" "_" }}
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Values.service.database.password }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.service.info.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: {{ .Values.service.info.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        - name: {{ template "name" . }}-config
+          mountPath: /etc/{{ .Values.service.name | replace "-" "_" }}/
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+     volumes:
+        - name: {{ template "name" . }}-config
+          configMap:
+            name: {{ template "name" . }}-config

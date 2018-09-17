@@ -1,0 +1,225 @@
+## Default values for {{[ .Name ]}}.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+## Count of instances
+##
+replicaCount: 2
+
+## Count of revisions saved in release history
+##
+revisionHistoryLimit: 1
+
+## Time of accepting requests to the service ( seconds )
+##
+minReadySeconds: 10
+
+## Value which provide max unavailable state ( percents )
+##
+maxUnavailable: 50%
+
+## Max count of surge replicas
+##
+maxSurge: 1
+
+## Termination grace period
+## It's value of period in seconds between SIGTERM and SIGKILL signals
+##
+gracePeriod: 30
+
+image:
+  ## Docker Registry/Hub image name and tag
+  ##
+  {{[- if .GKE.Enabled ]}}
+  registry: gcr.io/{{[ .GKE.Project ]}}
+  {{[- else ]}}
+  registry: {{[ .Github ]}}
+  {{[- end ]}}
+  name: {{[ .Name ]}}
+  tag: v0.0.0
+
+  ## Docker Registry/Hub auth secret name, always use `registry-pull-secret` if registry inside if k8s
+  ##
+  # pullSecretName: registry-pull-secret
+
+  ## Docker Registry/Hub image pull policy
+  ##
+  pullPolicy: Always
+
+ingress:
+  ## If true, Ingress will be created
+  ##
+  enabled: false
+  tls:
+    enabled: false
+
+  ## Prefix for API (Example: /api/v1/)
+  ##
+  prefix: /
+
+  ## Ingress annotations (e.g. `Let's encrypt` annotations to generating certs)
+  ##
+  annotations:
+    ## kubernetes.io/ingress.class: nginx
+    ## kubernetes.io/tls-acme: 'true'
+
+  ## Ingress host feature allow access to service through host
+  ## example: https://hostname
+  ## Must be provided if Ingress is enabled
+  ##
+  hostBased:
+    hosts:
+    - {{[ .Name ]}}.example.net
+
+    ## Ingress TLS configuration
+    ## Secrets must be manually created in the namespace
+    ##
+    tls:
+    - secretName: {{[ .Name ]}}.example.net-secret
+      hosts:
+      - {{[ .Name ]}}.example.net
+
+  # ## Ingress path feature allow access to service through path
+  # ## example: https://hostname/namespace/servicename
+  # ## Must be provided if Ingress is enabled
+  # ##
+  pathBased:
+    hosts:
+    - services.example.net
+
+    ## Ingress TLS configuration
+    ## Secrets must be manually created in the namespace
+    ## except of case when annotatoon `kubernetes.io/tls-acme: 'true'` is present
+    ##
+    tls:
+    - secretName: services.example.net-secret
+      hosts:
+      - services.example.net
+
+service:
+  ## App container name
+  ##
+  name: {{[ .Name ]}}
+
+  ## Service Type
+  ## For minikube, recommended value NodePort,
+  ## For GKE - LoadBalancer
+  ## elsewhere - ClusterIP
+  ##
+  type: LoadBalancer
+
+  ## Static IP of load balancer
+  ##
+  # loadBalancerIP: "133.133.133.133"
+
+  ## IP ranges with access to the service (via load balancer)
+  ## By default, all have access to it (if the list is empty)
+  ##
+  # loadBalancerSourceRanges:
+  # - 100.100.100.32/32 # VPN
+
+  ports:
+
+    ## External service port
+    ##
+    external: 80
+
+    ## Pod exposed port
+    ##
+    internal: {{[ .API.Config.Gateway.Port ]}}
+
+    ## Server gRPC exposed port
+    ##
+    server: {{[ .API.Config.Port ]}}
+
+  ## Service information
+  ##
+  info:
+    ## Pod exposed info/health port
+    ##
+    port: 8080
+
+    ## Include a statistics in information details
+    ##
+    statistics: true
+
+  ## Database attributes
+  ##
+  database:
+
+    enabled: {{[ printf "%t" .Storage.Enabled ]}}
+
+    ## Database driver (postgres, mysql, etc)
+    ##
+    driver: {{[ .Storage.Config.Driver ]}}
+
+    ## Database name
+    ##
+    name: {{[ .Storage.Config.Name ]}}
+
+    ## Database host name
+    ##
+    host: {{[ .Storage.Config.Host ]}}
+
+    ## Database port number
+    ##
+    port: {{[ .Storage.Config.Port ]}}
+
+    ## Database username secret
+    ##
+    username: {{[ .Storage.Config.Username ]}}
+
+    ## Database password
+    ##
+    password: {{[ .Storage.Config.Password ]}}
+
+    ## Connection properties like ssl-mode, sslkey and others
+    ##
+    properties:
+      - sslmode=disable
+
+    ## Database connections
+    ##
+    connections:
+      max: {{[ .Storage.Config.Connections.Max ]}}
+      idle: {{[ .Storage.Config.Connections.Idle ]}}
+
+  ## Logger format and level
+  ##
+  logger:
+    ## logging format (available formats: json, txt)
+    format: json
+    ## logging level (0 - debug, 1 - info, 2 - warning, etc)
+    level: 0
+
+    ## logging time
+    time: false
+
+livenessProbe:
+  ## Liveness Probe
+  ## If enabled k8s check http end-point /healthz for "Ok" status 200
+  ##
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  ## Rediness Probe
+  ## If enabled k8s check http end-point /readyz for "Ok" status 200
+  ##
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+## Resource requests and limits
+## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  limits:
+    cpu: 30m
+    memory: 64Mi
+  requests:
+    cpu: 30m
+    memory: 32Mi
