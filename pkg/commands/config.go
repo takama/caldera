@@ -26,5 +26,10 @@ func init() {
 	apiCmd.AddCommand(configCmd)
 
 	configCmd.PersistentFlags().Int("port", 8000, "A service port number")
+	configCmd.PersistentFlags().Int("gateway-port", 8001, "A service rest gateway port number")
 	helper.LogF("Flag error", viper.BindPFlag("api.config.port", configCmd.PersistentFlags().Lookup("port")))
+	helper.LogF(
+		"Flag error",
+		viper.BindPFlag("api.config.gateway.port", configCmd.PersistentFlags().Lookup("gateway-port")),
+	)
 }

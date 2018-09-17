@@ -31,6 +31,12 @@ func Run(cfg *config.Config) {
 			path.Join(cfg.Directories.Templates, config.API, config.Base),
 			cfg.Directories.Service,
 		))
+		if cfg.API.Gateway {
+			helper.LogF("Gateway templates for API", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.API, config.APIGateway),
+				cfg.Directories.Service,
+			))
+		}
 	}
 	if cfg.Storage.Enabled {
 		helper.LogF("Storage base templates", copyTemplates(

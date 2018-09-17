@@ -64,6 +64,8 @@ func (s *Server) Run(ctx context.Context) error {
 		return err
 	}
 	{{[- end ]}}
+
+	// Register gRPC server
 	s.srv = grpc.NewServer()
 	{{[- if .Contract ]}}
 	events.RegisterEventsServer(s.srv, s.es)

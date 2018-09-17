@@ -35,7 +35,7 @@ func init() {
 	RootCmd.AddCommand(apiCmd)
 
 	apiCmd.PersistentFlags().Bool("enabled", false, "An API modules using")
-	apiCmd.PersistentFlags().Bool("rest", false, "A REST module using")
+	apiCmd.PersistentFlags().Bool("rest-gateway", false, "A REST gateway module using")
 	apiCmd.PersistentFlags().Bool("grpc", false, "A gRPC module using")
 	helper.LogF(
 		"Flag error",
@@ -43,7 +43,7 @@ func init() {
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("api.rest", apiCmd.PersistentFlags().Lookup("rest")),
+		viper.BindPFlag("api.gateway", apiCmd.PersistentFlags().Lookup("rest-gateway")),
 	)
 	helper.LogF(
 		"Flag error",

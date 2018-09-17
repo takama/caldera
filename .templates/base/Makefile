@@ -26,6 +26,10 @@ REGISTRY ?= {{[ .Github ]}}
 {{[- if .API.Enabled ]}}
 {{[ toENV .Name ]}}_SERVER_PORT ?= {{[ .API.Config.Port ]}}
 {{[ toENV .Name ]}}_EXTERNAL_PORT ?= {{[ .API.Config.Port ]}}
+{{[- if .API.Gateway ]}}
+{{[ toENV .Name ]}}_SERVER_GATEWAY_PORT ?= {{[ .API.Config.Gateway.Port ]}}
+{{[ toENV .Name ]}}_GATEWAY_EXTERNAL_PORT ?= {{[ .API.Config.Gateway.Port ]}}
+{{[- end ]}}
 {{[- end ]}}
 {{[ toENV .Name ]}}_INFO_PORT ?= 8080
 {{[ toENV .Name ]}}_INFO_EXTERNAL_PORT ?= 8080
@@ -214,10 +218,16 @@ run: clean build db
 {{[- end ]}}
 {{[- if .API.Enabled ]}}
 		-p $({{[ toENV .Name ]}}_EXTERNAL_PORT):$({{[ toENV .Name ]}}_SERVER_PORT) \
+{{[- if .API.Gateway ]}}
+		-p $({{[ toENV .Name ]}}_GATEWAY_EXTERNAL_PORT):$({{[ toENV .Name ]}}_SERVER_GATEWAY_PORT) \
+{{[- end ]}}
 {{[- end ]}}
 		-p $({{[ toENV .Name ]}}_INFO_EXTERNAL_PORT):$({{[ toENV .Name ]}}_INFO_PORT) \
 {{[- if .API.Enabled ]}}
 		-e "{{[ toENV .Name ]}}_SERVER_PORT=$({{[ toENV .Name ]}}_SERVER_PORT)" \
+{{[- if .API.Gateway ]}}
+		-e "{{[ toENV .Name ]}}_GATEWAY_PORT=$({{[ toENV .Name ]}}_SERVER_GATEWAY_PORT)" \
+{{[- end ]}}
 {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_INFO_PORT=$({{[ toENV .Name ]}}_INFO_PORT)" \
 		-e "{{[ toENV .Name ]}}_LOG_LEVEL=$({{[ toENV .Name ]}}_LOG_LEVEL)" \

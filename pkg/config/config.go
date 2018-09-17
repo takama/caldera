@@ -11,8 +11,8 @@ const (
 	Base = "base"
 	// API declared type API
 	API = "api"
-	// APIREST declared type API: REST
-	APIREST = "rest"
+	// APIGateway declared type API gateway: REST
+	APIGateway = "rest"
 	// APIgRPC declared type API: gRPC
 	APIgRPC = "grpc"
 	// Contract declared contract API example
@@ -57,10 +57,13 @@ type Config struct {
 	}
 	API struct {
 		Enabled bool
-		Rest    bool
 		GRPC    bool
+		Gateway bool
 		Config  struct {
-			Port int
+			Port    int
+			Gateway struct {
+				Port int
+			}
 		}
 	}
 	Directories struct {

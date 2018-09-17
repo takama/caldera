@@ -74,6 +74,15 @@ func Run(cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
+
+	{{[- if .API.Gateway ]}}
+
+	// Create gateway server
+	gw, err := server.NewGateway(context.Background(), &cfg.Server, log)
+	if err != nil {
+		return err
+	}
+	{{[- end ]}}
 	{{[- end ]}}
 
 	{{[- if .Contract ]}}
@@ -87,6 +96,10 @@ func Run(cfg *config.Config) error {
 	{{[- if .API.Enabled ]}}
 	is.RegisterLivenessProbe(srv.LivenessProbe)
 	is.RegisterReadinessProbe(srv.ReadinessProbe)
+	{{[- if .API.Gateway ]}}
+	is.RegisterLivenessProbe(gw.LivenessProbe)
+	is.RegisterReadinessProbe(gw.ReadinessProbe)
+	{{[- end ]}}
 	{{[- end ]}}
 	{{[- if .Storage.Enabled ]}}
 	is.RegisterReadinessProbe(database.Check)
@@ -100,11 +113,16 @@ func Run(cfg *config.Config) error {
 		infoServer,
 		{{[- if .API.Enabled ]}}
 		srv,
+		{{[- if .API.Gateway ]}}
+		gw,
+		{{[- end ]}}
 		{{[- end ]}}
 		{{[- if .Storage.Enabled ]}}
 		database,
 		{{[- end ]}}
 	)
+
+	{{[- if .API.Enabled ]}}
 
 	// Run core server
 	go func() {
@@ -118,6 +136,21 @@ func Run(cfg *config.Config) error {
 			log.Error(err.Error())
 		}
 	}()
+
+	{{[- if .API.Gateway ]}}
+
+	// Run gateway server
+	go func() {
+		if err := gw.Run(context.Background()); err != nil {
+			// Check for known errors
+			if err != http.ErrServerClosed {
+				log.Fatal(err.Error())
+			}
+			log.Error(err.Error())
+		}
+	}()
+	{{[- end ]}}
+	{{[- end ]}}
 
 	// Wait signals
 	return system.NewSignals().Wait(log, operator)

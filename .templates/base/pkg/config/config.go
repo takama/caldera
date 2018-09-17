@@ -22,6 +22,9 @@ const (
 	{{[- if .API.Enabled ]}}
 
 	DefaultServerPort     = {{[ .API.Config.Port ]}}
+	{{[- if .API.Gateway ]}}
+	DefaultGatewayPort    = {{[ .API.Config.Gateway.Port ]}}
+	{{[- end ]}}
 	{{[- end ]}}
 	DefaultInfoPort       = 8080
 	DefaultInfoStatistics = true
@@ -47,6 +50,11 @@ func New() (*Config, error) {
 		{{[- if .API.Enabled ]}}
 		Server: server.Config{
 			Port: DefaultServerPort,
+			{{[- if .API.Gateway ]}}
+			Gateway: server.Gateway{
+				Port: DefaultGatewayPort,
+			},
+			{{[- end ]}}
 		},
 		{{[- end ]}}
 		Info: info.Config{

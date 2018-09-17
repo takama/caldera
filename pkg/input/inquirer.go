@@ -20,7 +20,7 @@ func Inquire(cfg *config.Config) *config.Config {
 	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
-	apis := []string{config.APIREST, config.APIgRPC}
+	apis := []string{config.APIGateway, config.APIgRPC}
 	var count int
 	question := "Do you need API for the service? "
 	for len(apis) > 0 {
@@ -30,10 +30,10 @@ func Inquire(cfg *config.Config) *config.Config {
 		if BoolAnswer(question) {
 			cfg.API.Enabled = true
 			switch OptionAnswer("What kind of API do you need?", apis...) {
-			case config.APIREST:
-				apis = delete(apis, config.APIREST)
+			case config.APIGateway:
+				apis = delete(apis, config.APIGateway)
 				apis = delete(apis, config.APIgRPC)
-				cfg.API.Rest = true
+				cfg.API.Gateway = true
 				cfg.API.GRPC = true
 			case config.APIgRPC:
 				apis = delete(apis, config.APIgRPC)
