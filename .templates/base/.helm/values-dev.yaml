@@ -118,19 +118,27 @@ service:
   # loadBalancerSourceRanges:
   # - 100.100.100.32/32 # VPN
 
-  ports:
+  {{[- if .API.Enabled ]}}
 
-    ## External service port
+  ## gRPC protocol attributes
+  ##
+  grpc:
+    ## gRPC exposed port
     ##
-    external: 80
+    port: {{[ .API.Config.Port ]}}
 
-    ## Pod exposed port
-    ##
-    internal: {{[ .API.Config.Gateway.Port ]}}
+  {{[- if .API.Gateway ]}}
 
-    ## Server gRPC exposed port
+  ## HTTP protocol attributes
+  ##
+  http:
+
+    ## HTTP exposed port and external port
     ##
-    server: {{[ .API.Config.Port ]}}
+    port: {{[ .API.Config.Gateway.Port ]}}
+    externalPort: 80
+  {{[- end ]}}
+  {{[- end ]}}
 
   ## Service information
   ##

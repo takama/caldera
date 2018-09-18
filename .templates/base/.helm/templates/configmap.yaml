@@ -11,12 +11,16 @@ metadata:
 data:
   default.conf: |-
     {
+      {{[- if .API.Enabled ]}}
       "server": {
+      {{[- if .API.Gateway ]}}
         "gateway": {
-          "port": {{ .Values.service.ports.server }}
+          "port": {{ .Values.service.http.port }}
         },
-        "port": {{ .Values.service.ports.internal }}
+      {{[- end ]}}
+        "port": {{ .Values.service.grpc.port }}
       },
+      {{[- end ]}}
       "info": {
         "port": {{ .Values.service.info.port }},
         "statistics": {{ .Values.service.info.statistics }}

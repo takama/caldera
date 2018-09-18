@@ -33,10 +33,14 @@ spec:
         image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.service.ports.server }}
+        {{[- if .API.Enabled ]}}
+        - containerPort: {{ .Values.service.grpc.port }}
           name: grpc
-        - containerPort: {{ .Values.service.ports.internal }}
+        {{[- if .API.Gateway ]}}
+        - containerPort: {{ .Values.service.http.port }}
           name: http
+        {{[- end ]}}
+        {{[- end ]}}
         - containerPort: {{ .Values.service.info.port }}
           name: info
         env:

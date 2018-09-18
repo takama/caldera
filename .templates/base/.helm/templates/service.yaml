@@ -10,14 +10,18 @@ metadata:
     release: "{{ .Release.Name }}"
 spec:
   ports:
-  - port: {{ .Values.service.ports.server }}
-    targetPort: {{ .Values.service.ports.server }}
+  {{[- if .API.Enabled ]}}
+  - port: {{ .Values.service.grpc.port }}
+    targetPort: {{ .Values.service.grpc.port }}
     protocol: TCP
     name: grpc
-  - port: {{ .Values.service.ports.external }}
-    targetPort: {{ .Values.service.ports.internal }}
+  {{[- if .API.Gateway ]}}
+  - port: {{ .Values.service.http.externalPort }}
+    targetPort: {{ .Values.service.http.port }}
     protocol: TCP
     name: http
+  {{[- end ]}}
+  {{[- end ]}}
   - port: {{ .Values.service.info.port }}
     targetPort: {{ .Values.service.info.port }}
     protocol: TCP
