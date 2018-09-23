@@ -204,8 +204,8 @@ Using a special script to increment the release version
 
 ```sh
 make version
-Current version 0.0.1.
-Please enter new version [0.0.2]:
+Current version v0.0.1.
+Please enter new version [v0.0.2]:
 ```
 
 ## Contributing to the project
