@@ -9,25 +9,25 @@ import (
 )
 
 type eventsProvider struct {
-	*provider.Provider
+	*provider.SQLProvider
 }
 
 func newEventsProvider(db *sql.DB) *eventsProvider {
-	return &eventsProvider{Provider: provider.New(db)}
+	return &eventsProvider{SQLProvider: provider.New(db)}
 }
 
 // Transaction returns provider with transaction
 func (ep *eventsProvider) TransactProvider() (provider.EventsTransact, error) {
-	p, err := ep.Provider.TransactProvider()
+	p, err := ep.SQLProvider.TransactProvider()
 	if err != nil {
 		return ep, err
 	}
-	return &eventsProvider{Provider: p}, nil
+	return &eventsProvider{SQLProvider: p}, nil
 }
 
 // Context returns provider with context
 func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
-	return &eventsProvider{Provider: ep.Provider.Context(ctx)}
+	return &eventsProvider{SQLProvider: ep.SQLProvider.Context(ctx)}
 }
 
 // New creates new Event object
