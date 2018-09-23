@@ -38,13 +38,13 @@ func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 	return ep
 }
 
-// New creates new Branch object
-func (ep *eventsProvider) New(model *events.Event) (*events.Event, error) {
+// Create new Event object
+func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
 
-	if model.ID != "" {
-		ind, item := ep.findByID(model.ID)
+	if model.Id != "" {
+		ind, item := ep.findByID(model.Id)
 		if ind == -1 {
 			return nil, provider.ErrNotExistingEvent
 		}
@@ -56,7 +56,7 @@ func (ep *eventsProvider) New(model *events.Event) (*events.Event, error) {
 	return model, nil
 }
 
-// Find returns Branch requested by ID
+// Find returns Event requested by ID
 func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	ind, item := ep.findByID(id)
 	if ind == -1 {
@@ -66,13 +66,13 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	return item, nil
 }
 
-// FindByName returns Branches requested by Branch name
+// FindByName returns Events requested by Event name
 func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
 	_, items := ep.findByName(name)
 	return items, nil
 }
 
-// List returns all Branch objects
+// List returns all Event objects
 func (ep *eventsProvider) List() ([]events.Event, error) {
 	items := make([]events.Event, len(ep.Data))
 	ep.mutex.RLock()
@@ -81,9 +81,9 @@ func (ep *eventsProvider) List() ([]events.Event, error) {
 	return items, nil
 }
 
-// Save updates Branch object
-func (ep *eventsProvider) Save(model *events.Event) (*events.Event, error) {
-	ind, _ := ep.findByID(model.ID)
+// Update Event object
+func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
+	ind, _ := ep.findByID(model.Id)
 	if ind == -1 {
 		return nil, provider.ErrNotExistingEvent
 	}
@@ -94,7 +94,7 @@ func (ep *eventsProvider) Save(model *events.Event) (*events.Event, error) {
 	return model, nil
 }
 
-// Delete removes Branch object by ID
+// Delete removes Event object by ID
 func (ep *eventsProvider) Delete(id string) error {
 	ind, _ := ep.findByID(id)
 	if ind == -1 {
@@ -107,7 +107,7 @@ func (ep *eventsProvider) Delete(id string) error {
 	return nil
 }
 
-// DeleteByName removes Branch objects by Branch name
+// DeleteByName removes Event objects by Event name
 func (ep *eventsProvider) DeleteByName(name string) error {
 	indices, _ := ep.findByName(name)
 	if len(indices) == 0 {
@@ -128,7 +128,7 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 	defer ep.mutex.RUnlock()
 
 	for k, v := range ep.Data {
-		if v.ID == id {
+		if v.Id == id {
 			return k, &v
 		}
 	}

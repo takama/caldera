@@ -18,7 +18,7 @@ func (es eventsServer) GetEvent(
 	ctx context.Context,
 	req *request.ByID,
 ) (*events.Event, error) {
-	return es.Context(ctx).Find(req.ID)
+	return es.Context(ctx).Find(req.Id)
 }
 
 // FindEventsByName returns Event objects requested by event name
@@ -55,20 +55,20 @@ func (es eventsServer) ListEvents(
 	return nil
 }
 
-// NewEvent creates a new Event object
-func (es eventsServer) NewEvent(
+// CreateEvent creates a new Event object
+func (es eventsServer) CreateEvent(
 	ctx context.Context,
 	event *events.Event,
 ) (*events.Event, error) {
-	return es.Context(ctx).New(event)
+	return es.Context(ctx).Create(event)
 }
 
-// SaveEvent updates an existing Event object
-func (es eventsServer) SaveEvent(
+// UpdateEvent updates an existing Event object
+func (es eventsServer) UpdateEvent(
 	ctx context.Context,
 	event *events.Event,
 ) (*events.Event, error) {
-	return es.Context(ctx).Save(event)
+	return es.Context(ctx).Update(event)
 }
 
 // DeleteEvent removes Event object requested by ID
@@ -76,7 +76,7 @@ func (es eventsServer) DeleteEvent(
 	ctx context.Context,
 	req *request.ByID,
 ) (*empty.Empty, error) {
-	return new(empty.Empty), es.Context(ctx).Delete(req.ID)
+	return new(empty.Empty), es.Context(ctx).Delete(req.Id)
 }
 
 // DeleteEventsByName removes Event objects requested by event name

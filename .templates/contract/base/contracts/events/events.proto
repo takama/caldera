@@ -13,50 +13,50 @@ option go_package = "github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events";
 service Events {
   // Get Event object by ID
   rpc GetEvent (request.ByID) returns (Event) {
-    option (google.api.http).get = "/v1alpha/events/id/{ID}";
+    option (google.api.http).get = "/v1/events/id/{id}";
   }
 
   // Find Events objects by name
   rpc FindEventsByName (request.ByName) returns (stream Event) {
-    option (google.api.http).get = "/v1alpha/events/name/{name}";
+    option (google.api.http).get = "/v1/events/name/{name}";
   }
 
   // List all Events
   rpc ListEvents (google.protobuf.Empty) returns (stream Event) {
-    option (google.api.http).get = "/v1alpha/events";
+    option (google.api.http).get = "/v1/events";
   }
 
   // Create a new Event object
-  rpc NewEvent (Event) returns (Event) {
+  rpc CreateEvent (Event) returns (Event) {
     option (google.api.http) = {
-      post: "/v1alpha/events",
+      post: "/v1/events",
       body: "*"
     };
   }
 
   // Update a Events object
-  rpc SaveEvent (Event) returns (Event) {
+  rpc UpdateEvent (Event) returns (Event) {
     option (google.api.http) = {
-      put: "/v1alpha/events/id/{ID}",
+      put: "/v1/events/id/{id}",
       body: "*"
     };
   }
 
   // Delete Event object by ID
   rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v1alpha/events/id/{ID}";
+    option (google.api.http).delete = "/v1/events/id/{id}";
   }
 
   // Delete Events objects by Event name
   rpc DeleteEventsByName (request.ByName) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v1alpha/events/name/{name}";
+    option (google.api.http).delete = "/v1/events/name/{name}";
   }
 }
 
-// A Events (Company department/accreditation)
+// An Events example
 message Event {
   // The ID of the Events
-  string ID = 1;
+  string id = 1;
 
   // The name of the Events
   string name = 2;

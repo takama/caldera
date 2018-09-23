@@ -32,18 +32,18 @@ func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 	return &eventsProvider{SQLProvider: ep.SQLProvider.Context(ctx)}
 }
 
-// New creates new Event object
-func (ep *eventsProvider) New(model *events.Event) (*events.Event, error) {
+// Create new Event object
+func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	if model.Name == "" {
 		return nil, provider.ErrNotDefinedName
 	}
-	model.ID = uuid.NewV4().String()
+	model.Id = uuid.NewV4().String()
 	stmt, err := ep.Prepare(queryInsertEvent)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(model.ID, model.Name)
+	_, err = stmt.Exec(model.Id, model.Name)
 	return model, err
 }
 
@@ -51,7 +51,7 @@ func (ep *eventsProvider) New(model *events.Event) (*events.Event, error) {
 func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	event := new(events.Event)
 	row := ep.QueryRow(queryEventByID, id)
-	return event, row.Scan(&event.ID, &event.Name)
+	return event, row.Scan(&event.Id, &event.Name)
 }
 
 // FindByName returns Events requested by Event name
@@ -64,9 +64,9 @@ func (ep *eventsProvider) List() ([]events.Event, error) {
 	return ep.find(queryEvents)
 }
 
-// Save updates Event object
-func (ep *eventsProvider) Save(model *events.Event) (*events.Event, error) {
-	if model.ID == "" {
+// Update Event object
+func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
+	if model.Id == "" {
 		return nil, provider.ErrNotDefinedID
 	}
 	if model.Name == "" {
@@ -77,7 +77,7 @@ func (ep *eventsProvider) Save(model *events.Event) (*events.Event, error) {
 		return nil, err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(model.ID, model.Name)
+	_, err = stmt.Exec(model.Id, model.Name)
 	return model, err
 }
 
@@ -118,7 +118,7 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]events.Even
 	defer rows.Close()
 	for rows.Next() {
 		item := events.Event{}
-		if err := rows.Scan(&item.ID, &item.Name); err != nil {
+		if err := rows.Scan(&item.Id, &item.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, item)

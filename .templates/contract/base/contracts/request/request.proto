@@ -16,5 +16,5 @@ message ByName {
 // A request by ID
 message ByID {
   // Specified ID
-  string ID = 1;
+  string id = 1;
 }
