@@ -20,7 +20,7 @@ const (
 	Driver = "mysql"
 )
 
-// MySQL controls mysql driver connetcion and providers
+// MySQL controls mysql driver connection and providers
 type MySQL struct {
 	pool *sql.DB
 	cfg  *db.Config

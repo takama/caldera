@@ -20,7 +20,7 @@ const (
 	Driver = "postgres"
 )
 
-// Postgres controls postgres driver connetcion and providers
+// Postgres controls postgres driver connection and providers
 type Postgres struct {
 	pool *sql.DB
 	cfg  *db.Config
