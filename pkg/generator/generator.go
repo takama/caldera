@@ -84,10 +84,12 @@ func Run(cfg *config.Config) {
 	helper.LogF("Init dep", Exec("dep", "init", "-skip-tools"))
 	helper.LogF("Tests", Exec("make", "check-all"))
 
-	log.Println("Initialize Git repository:")
-	helper.LogF("Init git", Exec("git", "init"))
-	helper.LogF("Add repo files", Exec("git", "add", "--all"))
-	helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
+	if cfg.GitInit {
+		log.Println("Initialize Git repository:")
+		helper.LogF("Init git", Exec("git", "init"))
+		helper.LogF("Add repo files", Exec("git", "add", "--all"))
+		helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
+	}
 	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
 }
 

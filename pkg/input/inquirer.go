@@ -82,6 +82,11 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 	}
 	cfg.Directories.Service = StringAnswer("New service directory", cfg.Directories.Service)
+	if BoolAnswer("Do you want initialize service repository with git") {
+		cfg.GitInit = true
+	} else {
+		cfg.GitInit = false
+	}
 
 	return cfg
 }
