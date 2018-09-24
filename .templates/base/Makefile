@@ -212,7 +212,7 @@ migrate-down: build db
 		$(CONTAINER_IMAGE):$(RELEASE) /dcm migrate down
 {{[- end ]}}
 
-run: clean build db
+run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 	@echo "+ $@"
 	@docker run --name $(CONTAINER_NAME) \
 {{[- if .Storage.Enabled ]}}
@@ -319,8 +319,10 @@ ifndef HAS_IMPORTS
 endif
 
 .PHONY: all \
+{{[- if .GKE.Enabled ]}}
 	project \
 	cluster \
+{{[- end ]}}
 	vendor \
 {{[- if .Contract ]}}
 	contracts \
