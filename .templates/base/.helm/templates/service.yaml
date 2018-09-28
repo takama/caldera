@@ -8,6 +8,10 @@ metadata:
     component: "{{ .Values.service.name }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
+  annotations:
+  {{- range $key, $value := .Values.service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
 spec:
   ports:
   {{[- if .API.Enabled ]}}
