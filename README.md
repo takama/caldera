@@ -47,9 +47,9 @@ In this mode, you'll be asked about the general properties associated with the n
 ./caldera
 Caldera boilerplate version: v0.0.1 build date: 2018-09-15T12:02:17+07
 
-Provide name for your Github account: my-account
+Provide name for your Github account (my-account):
 Provide name for your service (my-service): new-service
-Provide description for your service (My service): Very new service
+Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
 What kind of API do you need? (rest,grpc): grpc
 Do you need one more API for the service? (y/n): y
@@ -63,6 +63,7 @@ Provide compute zone of your project on the GCP (europe-west1-b):
 Provide cluster name in the GKE (my-cluster-name):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
 New service directory (~/go/src/github.com/my-account/my-service):
+Do you want initialize service repository with git (y/n): y
 ```
 
 ### CLI mode
