@@ -51,11 +51,11 @@ func Run(cfg *config.Config) error {
 	switch cfg.Database.Driver {
 	{{[- if .Storage.Postgres ]}}
 	case postgres.Driver:
-		database, err = postgres.New(&cfg.Database, migrations.New(&cfg.Migrations), log)
+		database, err = postgres.New(&cfg.Database, log, migrations.New(&cfg.Migrations))
 	{{[- end ]}}
 	{{[- if .Storage.MySQL ]}}
 	case mysql.Driver:
-		database, err = mysql.New(&cfg.Database, migrations.New(&cfg.Migrations), log)
+		database, err = mysql.New(&cfg.Database, log, migrations.New(&cfg.Migrations))
 	{{[- end ]}}
 	case stub.Driver:
 		fallthrough

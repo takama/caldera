@@ -32,7 +32,7 @@ type Postgres struct {
 }
 
 // New creates new postgres DB connection
-func New(cfg *db.Config, mig migrations.Migrator, log *zap.Logger) (*Postgres, error) {
+func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*Postgres, error) {
 	p := &Postgres{
 		cfg: cfg,
 		log: log,
