@@ -183,7 +183,7 @@ ifndef HAS_DB_EXITED
 {{[- end ]}}
 	-v $({{[ toENV .Name ]}}_DB_LOCATION):$({{[ toENV .Name ]}}_DB_PATH) \
 	$({{[ toENV .Name ]}}_DB_DRIVER):$({{[ toENV .Name ]}}_DB_DRIVER_VERSION)
-	@sleep {{[- if .Storage.Postgres ]}} 20 {{[ else ]}} 60 {{[- end ]}}
+	@sleep {{[- if .Storage.Postgres ]}} 30 {{[ else ]}} 60 {{[- end ]}}
 else
 	@docker start $({{[ toENV .Name ]}}_DB_HOST)
 endif
