@@ -1,15 +1,10 @@
 # Caldera
 
-A command-line utility that provides the code generated boilerplate for the services inside your container. This should help save two or more days of a routine work of developers who decided to create their first (micro) service.
+A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
-## Features of Caldera
+## Features of the boilerplate service
 
-- Using of configuration file that contains your saved preferences for a new boilerplate service
-- Interactive mode to select preferred features for a new service
-- Using of CLI flags to create new service quickly
-
-### Features of boilerplate service
-
+- Contract API example (REST/gRPC/protobuf)
 - Implementation of the health checks
 - Configuring the service using config file, environment variables or flags
 - Processing of graceful shutdown for every registered component
@@ -19,6 +14,12 @@ A command-line utility that provides the code generated boilerplate for the serv
 - Container SSL certificates integration for using a secure client
 - Integration of the package manager
 - Versioning automation
+
+### Features of the command line utility Caldera
+
+- Using of configuration file that contains your saved preferences for a new boilerplate service
+- Interactive mode to select preferred features for a new service
+- Using of CLI flags to create new service quickly
 
 ## Requirements
 
@@ -126,6 +127,10 @@ Flags:
       --port int           A service port number (default 8000)
       --gateway-port int   A service rest gateway port number (default 8001)
 ```
+
+## Contract API example
+
+This example contains a good approach to using the API with the code-generated Client/Server from the interfaces in the `.proto` definitions using the Go language. In addition, it contains a gRPC gateway that can be used to access the API via REST.
 
 ## Health checks
 
