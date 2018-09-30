@@ -49,7 +49,7 @@ func (s *Service) RegisterLivenessProbe(checker ProbeChecker) {
 
 // RegisterReadinessProbe defines readiness probe function
 func (s *Service) RegisterReadinessProbe(checker ProbeChecker) {
-	s.readinessProbes = append(s.livenessProbes, checker)
+	s.readinessProbes = append(s.readinessProbes, checker)
 }
 
 // Run info/health-check service
