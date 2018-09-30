@@ -4,7 +4,7 @@ A command line utility Caldera allows you to create a boilerplate service that r
 
 ## Features of the boilerplate service
 
-- Contract API example (REST/gRPC/protobuf)
+- gRPC/REST API example using protobuf
 - Implementation of the health checks
 - Configuring the service using config file, environment variables or flags
 - Processing of graceful shutdown for every registered component
@@ -128,9 +128,55 @@ Flags:
       --gateway-port int   A service rest gateway port number (default 8001)
 ```
 
-## Contract API example
+## gRPC/REST API example
 
 This example contains a good approach to using the API with the code-generated Client/Server from the interfaces in the `.proto` definitions using the Go language. In addition, it contains a gRPC gateway that can be used to access the API via REST.
+
+```proto
+// Interface exported by the server
+service Events {
+  // Get the Event object by ID
+  rpc GetEvent (request.ByID) returns (Event) {
+    option (google.api.http).get = "/v1/events/id/{id}";
+  }
+
+  // Find the Event objects by name
+  rpc FindEventsByName (request.ByName) returns (stream Event) {
+    option (google.api.http).get = "/v1/events/name/{name}";
+  }
+
+  // List all Events
+  rpc ListEvents (google.protobuf.Empty) returns (stream Event) {
+    option (google.api.http).get = "/v1/events";
+  }
+
+  // Create a new Event object
+  rpc CreateEvent (Event) returns (Event) {
+    option (google.api.http) = {
+      post: "/v1/events",
+      body: "*"
+    };
+  }
+
+  // Update the Event object
+  rpc UpdateEvent (Event) returns (Event) {
+    option (google.api.http) = {
+      put: "/v1/events/id/{id}",
+      body: "*"
+    };
+  }
+
+  // Delete the Event object by ID
+  rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v1/events/id/{id}";
+  }
+
+  // Delete The Event objects by Event name
+  rpc DeleteEventsByName (request.ByName) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v1/events/name/{name}";
+  }
+}
+```
 
 ## Health checks
 
