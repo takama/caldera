@@ -25,7 +25,7 @@ bootstrap:
 ifndef HAS_PROTOC
 	@echo "Protobuf compiler should be installed (v >= 3)"
 	@echo "Pre-compiled binaries for your platform: https://github.com/google/protobuf/releases"
-	@echo "Do not forget to copy content of `include` directory into `/usr/local/include`"
+	@echo "Do not forget to copy content of 'include' directory into '/usr/local/include'"
 	@exit 1
 endif
 ifndef HAS_PROTOC_GO
