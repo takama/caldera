@@ -156,7 +156,11 @@ build: compile certs
 
 push: build project
 	@echo "+ $@"
+{{[- if .GKE.Enabled ]}}
 	@gcloud docker -- push $(CONTAINER_IMAGE):$(BUILD)
+{{[- else ]}}
+	@docker push $(CONTAINER_IMAGE):$(BUILD)
+{{[- end ]}}
 
 {{[- if .Storage.Enabled ]}}
 
@@ -306,6 +310,9 @@ clean: stop rm
 HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
+{{[- if .GKE.Enabled ]}}
+HAS_GCLOUD := $(shell command -v gcloud;)
+{{[- end ]}}
 
 bootstrap:
 ifndef HAS_DEP
@@ -317,6 +324,13 @@ endif
 ifndef HAS_IMPORTS
 	go get -u golang.org/x/tools/cmd/goimports
 endif
+{{[- if .GKE.Enabled ]}}
+ifndef HAS_GCLOUD
+	@echo "gcloud cli utility should be installed"
+	@echo "Pre-compiled binaries for your platform: https://cloud.google.com/sdk/docs/"
+	@exit 1
+endif
+{{[- end ]}}
 
 .PHONY: all \
 {{[- if .GKE.Enabled ]}}
