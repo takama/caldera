@@ -262,7 +262,7 @@ charts:
 
 test:
 	@echo "+ $@"
-	@go test -race -cover $(GO_PACKAGES)
+	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 cover:
 	@echo "+ $@"
