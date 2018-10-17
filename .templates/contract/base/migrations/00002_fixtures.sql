@@ -1,7 +1,7 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
--- Setup reseller branch.
+-- Setup events
 INSERT INTO events (id, name)
     VALUES ('00000000-0000-0000-0000-000000000000', 'First event')
 {{[- if .Storage.Postgres ]}}

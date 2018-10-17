@@ -8,7 +8,7 @@ ENV {{[ toENV .Name ]}}_SERVER_GATEWAY_PORT {{[ .API.Config.Gateway.Port ]}}
 {{[- end ]}}
 {{[- end ]}}
 ENV {{[ toENV .Name ]}}_INFO_PORT 8080
-ENV {{[ toENV .Name ]}}_LOG_LEVEL 0
+ENV {{[ toENV .Name ]}}_LOGGER_LEVEL 0
 
 # Exposing ports
 {{[- if .API.Enabled ]}}

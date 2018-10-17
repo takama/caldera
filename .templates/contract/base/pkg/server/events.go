@@ -38,7 +38,7 @@ func (es eventsServer) FindEventsByName(
 	return nil
 }
 
-// ListEvents returns all Branch objects
+// ListEvents returns all Event objects
 func (es eventsServer) ListEvents(
 	empty *empty.Empty,
 	stream events.Events_ListEventsServer,
