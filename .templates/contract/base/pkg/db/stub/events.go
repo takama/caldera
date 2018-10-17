@@ -138,18 +138,18 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 
 func (ep *eventsProvider) findByName(name string) ([]int, []events.Event) {
 	indices := make([]int, 0)
-	branches := make([]events.Event, 0)
+	items := make([]events.Event, 0)
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
 
 	for k, v := range ep.Data {
 		if v.Name == name {
 			indices = append(indices, k)
-			branches = append(branches, v)
+			items = append(items, v)
 		}
 	}
 
-	return indices, branches
+	return indices, items
 }
 
 func (ep *eventsProvider) load() error {
