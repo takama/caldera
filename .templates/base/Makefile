@@ -33,7 +33,7 @@ REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 {{[ toENV .Name ]}}_INFO_PORT ?= 8080
 {{[ toENV .Name ]}}_INFO_EXTERNAL_PORT ?= 8080
-{{[ toENV .Name ]}}_LOG_LEVEL ?= 0
+{{[ toENV .Name ]}}_LOGGER_LEVEL ?= 0
 {{[ toENV .Name ]}}_CONFIG_PATH ?= /etc/$(shell echo "$(APP)" | tr - _)/default.conf
 
 {{[- if .Storage.Enabled ]}}
@@ -196,7 +196,7 @@ endif
 migrate-up: build db
 	@echo "+ $@"
 	@docker run --rm $({{[ toENV .Name ]}}_DB_LINK) \
-		-e "{{[ toENV .Name ]}}_LOG_LEVEL=$({{[ toENV .Name ]}}_LOG_LEVEL)" \
+		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
@@ -207,7 +207,7 @@ migrate-up: build db
 migrate-down: build db
 	@echo "+ $@"
 	@docker run --rm $({{[ toENV .Name ]}}_DB_LINK) \
-		-e "{{[ toENV .Name ]}}_LOG_LEVEL=$({{[ toENV .Name ]}}_LOG_LEVEL)" \
+		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
@@ -236,7 +236,7 @@ run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 {{[- end ]}}
 {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_INFO_PORT=$({{[ toENV .Name ]}}_INFO_PORT)" \
-		-e "{{[ toENV .Name ]}}_LOG_LEVEL=$({{[ toENV .Name ]}}_LOG_LEVEL)" \
+		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
