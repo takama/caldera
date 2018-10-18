@@ -10,9 +10,9 @@ CA_DIR ?= certs
 {{[- if .GKE.Enabled ]}}
 
 # Configs for GKE
-GKE_CLUSTER_NAME ?= {{[ .GKE.Project ]}}
+GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
 GKE_PROJECT_ZONE ?= {{[ .GKE.Zone ]}}
-GKE_PROJECT_ID ?= {{[ .GKE.Cluster ]}}
+GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
 
 KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_ZONE)_$(GKE_CLUSTER_NAME)
 
