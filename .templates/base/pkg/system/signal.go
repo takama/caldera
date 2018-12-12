@@ -163,6 +163,7 @@ func isSignalAvailable(signal os.Signal, list []os.Signal) bool {
 func removeSignal(signal os.Signal, list []os.Signal) (signals []os.Signal) {
 	for ind, sig := range list {
 		if sig == signal {
+			// nolint: gocritic
 			signals = append(list[:ind], list[ind+1:]...)
 			return
 		}
