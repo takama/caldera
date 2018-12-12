@@ -1,4 +1,6 @@
 // Package commands process flags/environment variables/config file
+// It contains global variables with configs and commands
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
