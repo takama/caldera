@@ -160,6 +160,8 @@ service:
     ##
     statistics: true
 
+  {{[- if .Storage.Enabled ]}}
+
   ## Database attributes
   ##
   database:
@@ -200,6 +202,7 @@ service:
     connections:
       max: {{[ .Storage.Config.Connections.Max ]}}
       idle: {{[ .Storage.Config.Connections.Idle ]}}
+  {{[- end ]}}
 
   ## Logger format and level
   ##

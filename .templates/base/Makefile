@@ -115,7 +115,7 @@ endif
 
 cluster:
 	@echo "+ $@"
-ifneq ("$(GKE_CLUSTER_NAME)", "$(shell gcloud container clusters list | grep $(GKE_CLUSTER_NAME) | cut -d ' ' -f1)")
+ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config get-clusters | grep $(KUBE_CONTEXT))")
 	@gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --zone $(GKE_PROJECT_ZONE) --project $(GKE_PROJECT_ID)
 endif
 ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
@@ -238,11 +238,13 @@ run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_INFO_PORT=$({{[ toENV .Name ]}}_INFO_PORT)" \
 		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
+{{[- if .Storage.Enabled ]}}
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
-		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
 		-v $(shell pwd)/fixtures:/$({{[ toENV .Name ]}}_DB_FIXTURES_DIR):ro \
+{{[- end ]}}
+		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
 		-d $(CONTAINER_IMAGE):$(BUILD)
 	@sleep 1
 	@docker logs $(CONTAINER_NAME)
@@ -253,12 +255,12 @@ logs:
 
 deploy: push cluster
 	@echo "+ $@"
-	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
+	@helm upgrade $(APP)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i --wait
 
 charts:
 	@echo "+ $@"
-	@helm template .helm -n ${NAMESPACE} -f .helm/${VALUES}.yaml
+	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml
 
 test:
 	@echo "+ $@"
