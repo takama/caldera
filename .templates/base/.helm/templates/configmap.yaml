@@ -25,6 +25,7 @@ data:
         "port": {{ .Values.service.info.port }},
         "statistics": {{ .Values.service.info.statistics }}
       },
+      {{[- if .Storage.Enabled ]}}
       {{- if .Values.service.database.enabled }}
       "database": {
         "driver": "{{ .Values.service.database.driver }}",
@@ -51,6 +52,7 @@ data:
         "dir": "migrations",
         "active": true
       },
+      {{[- end ]}}
       "logger": {
         "format": "{{ .Values.service.logger.format }}",
         "level": {{ .Values.service.logger.level }},

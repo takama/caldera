@@ -1,3 +1,5 @@
+// Package version contains global variables for
+// nolint: gochecknoglobals, gochecknoinits
 package version
 
 var (

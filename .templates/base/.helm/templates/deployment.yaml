@@ -46,6 +46,7 @@ spec:
         env:
         - name: {{ printf "%s_CONFIG_PATH" .Values.service.name | upper | replace "-" "_" }}
           value: /etc/{{ .Values.service.name | replace "-" "_" }}/default.conf
+        {{[- if .Storage.Enabled ]}}
         {{- if .Values.service.database.enabled }}
         {{- if .Values.service.database.name }}
         - name: {{ printf "%s_DB_NAME" $serviceName | upper | replace "-" "_" }}
@@ -69,6 +70,7 @@ spec:
               name: {{ .Values.service.database.password }}
         {{- end }}
         {{- end }}
+        {{[- end ]}}
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
@@ -93,7 +95,7 @@ spec:
           mountPath: /etc/{{ .Values.service.name | replace "-" "_" }}/
         resources:
 {{ toYaml .Values.resources | indent 12 }}
-     volumes:
+      volumes:
         - name: {{ template "name" . }}-config
           configMap:
             name: {{ template "name" . }}-config

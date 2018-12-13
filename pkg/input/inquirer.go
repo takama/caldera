@@ -94,6 +94,7 @@ func Inquire(cfg *config.Config) *config.Config {
 func delete(src []string, value string) (dst []string) {
 	for i, v := range src {
 		if v == value {
+			// nolint: gocritic
 			dst = append(src[:i], src[i+1:]...)
 		}
 	}
