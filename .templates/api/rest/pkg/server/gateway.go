@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
+	{{[- if .Contract ]}}
+
 	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events"
+	{{[- end ]}}
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.uber.org/zap"
+	{{[- if .Contract ]}}
 	"google.golang.org/grpc"
+	{{[- end ]}}
 )
 
 // GatewayServer contains gateway functionality of the service
@@ -43,13 +48,15 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	addr := fmt.Sprintf(":%d", gw.cfg.Gateway.Port)
 
 	// Register REST/gRPC gateway
-	opts := []grpc.DialOption{grpc.WithInsecure()}
 	gateway := runtime.NewServeMux()
+	{{[- if .Contract ]}}
+	opts := []grpc.DialOption{grpc.WithInsecure()}
 	if err := events.RegisterEventsHandlerFromEndpoint(
 		ctx, gateway, fmt.Sprintf("localhost:%d", gw.cfg.Port), opts,
 	); err != nil {
 		return err
 	}
+	{{[- end ]}}
 
 	// Add gateway handler
 	mux := http.NewServeMux()
