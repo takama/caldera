@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-option go_package = "github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events";
+option go_package = "{{[ .Project ]}}/contracts/events";
 
 // Interface exported by the server
 service Events {

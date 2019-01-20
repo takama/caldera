@@ -2,5 +2,5 @@ name: {{[ .Name ]}}
 description: A Helm charts for Kubernetes application
 version: v0.0.0
 sources:
-  - https://github.com/{{[ .Github ]}}/{{[ .Name ]}}
+  - https://{{[ .Project ]}}
 engine: gotpl

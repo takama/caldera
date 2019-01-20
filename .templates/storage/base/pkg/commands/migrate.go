@@ -4,10 +4,10 @@
 package commands
 
 import (
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/config"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/migrations"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/helper"
+	"{{[ .Project ]}}/pkg/config"
+	"{{[ .Project ]}}/pkg/db"
+	"{{[ .Project ]}}/pkg/db/migrations"
+	"{{[ .Project ]}}/pkg/helper"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

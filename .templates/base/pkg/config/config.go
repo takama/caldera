@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/migrations"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/info"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/logger"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/server"
+	"{{[ .Project ]}}/pkg/db"
+	"{{[ .Project ]}}/pkg/db/migrations"
+	"{{[ .Project ]}}/pkg/info"
+	"{{[ .Project ]}}/pkg/logger"
+	"{{[ .Project ]}}/pkg/server"
 
 	"github.com/spf13/viper"
 )

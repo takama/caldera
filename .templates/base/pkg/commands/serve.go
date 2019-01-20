@@ -4,9 +4,9 @@
 package commands
 
 import (
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/config"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/helper"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/service"
+	"{{[ .Project ]}}/pkg/config"
+	"{{[ .Project ]}}/pkg/helper"
+	"{{[ .Project ]}}/pkg/service"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

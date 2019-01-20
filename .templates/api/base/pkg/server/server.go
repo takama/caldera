@@ -7,8 +7,8 @@ import (
 
 	{{[- if .Contract ]}}
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/provider"
+	"{{[ .Project ]}}/contracts/events"
+	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
 	"go.uber.org/zap"

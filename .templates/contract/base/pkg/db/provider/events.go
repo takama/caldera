@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events"
+	"{{[ .Project ]}}/contracts/events"
 )
 
 // Events defines data store Events provider methods

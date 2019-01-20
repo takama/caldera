@@ -1,6 +1,6 @@
 package main
 
-import "github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/commands"
+import "{{[ .Project ]}}/pkg/commands"
 
 func main() {
 	commands.Run()

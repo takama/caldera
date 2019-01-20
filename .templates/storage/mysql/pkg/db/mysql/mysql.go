@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/migrations"
+	"{{[ .Project ]}}/pkg/db"
+	"{{[ .Project ]}}/pkg/db/migrations"
 	{{[- if .Contract ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/provider"
+	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
 	// MySQL driver

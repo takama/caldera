@@ -1,5 +1,7 @@
-PROJECT = github.com/{{[ .Github ]}}/{{[ .Name ]}}
+PROJECT = {{[ .Project ]}}
 APP = {{[ .Name ]}}
+BIN = {{[ .Bin ]}}
+SERVICE_NAME ?= $(shell echo "$(APP)" | tr - _)
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.0.0
@@ -34,7 +36,7 @@ REGISTRY ?= {{[ .Github ]}}
 {{[ toENV .Name ]}}_INFO_PORT ?= 8080
 {{[ toENV .Name ]}}_INFO_EXTERNAL_PORT ?= 8080
 {{[ toENV .Name ]}}_LOGGER_LEVEL ?= 0
-{{[ toENV .Name ]}}_CONFIG_PATH ?= /etc/$(shell echo "$(APP)" | tr - _)/default.conf
+{{[ toENV .Name ]}}_CONFIG_PATH ?= /etc/$(SERVICE_NAME)/default.conf
 
 {{[- if .Storage.Enabled ]}}
 
@@ -80,8 +82,10 @@ REPO_COMMIT = git-$(shell git rev-parse --short HEAD)
 endif
 
 BUILD =? $(RELEASE)
+DEPLOY_PARAMS ?= --wait
 ifneq ("$(NAMESPACE)","prod")
 BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
+DEPLOY_PARAMS = --wait --recreate-pods --force
 endif
 
 LDFLAGS = "-s -w \
@@ -137,7 +141,7 @@ contracts:
 compile: {{[- if .Contract ]}} contracts {{[- end ]}} vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
-		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/service $(PROJECT)/cmd
+		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
 
 certs:
 ifeq ("$(wildcard $(CA_DIR)/ca-certificates.crt)","")
@@ -156,11 +160,7 @@ build: compile certs
 
 push: build project
 	@echo "+ $@"
-{{[- if .GKE.Enabled ]}}
-	@gcloud docker -- push $(CONTAINER_IMAGE):$(BUILD)
-{{[- else ]}}
 	@docker push $(CONTAINER_IMAGE):$(BUILD)
-{{[- end ]}}
 
 {{[- if .Storage.Enabled ]}}
 
@@ -255,8 +255,8 @@ logs:
 
 deploy: push cluster
 	@echo "+ $@"
-	@helm upgrade $(APP)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
-		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i --wait
+	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
+		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
 
 charts:
 	@echo "+ $@"
@@ -307,13 +307,14 @@ version:
 	@./bumper.sh
 
 clean: stop rm
-	@rm -f bin/$(GOOS)-$(GOARCH)/$(APP)
+	@rm -f bin/$(GOOS)-$(GOARCH)/$(BIN)
 
 HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
 {{[- if .GKE.Enabled ]}}
 HAS_GCLOUD := $(shell command -v gcloud;)
+HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr)
 {{[- end ]}}
 
 bootstrap:
@@ -332,6 +333,12 @@ ifndef HAS_GCLOUD
 	@echo "Pre-compiled binaries for your platform:
 	@echo https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
 	@exit 1
+endif
+ifdef HAS_GCLOUD
+ifndef HAS_DOCKER_GCR
+	@gcloud components install docker-credential-gcr -q
+	@docker-credential-gcr configure-docker
+endif
 endif
 {{[- end ]}}
 

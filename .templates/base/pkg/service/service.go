@@ -5,25 +5,25 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/config"
+	"{{[ .Project ]}}/pkg/config"
 	{{[- if .Storage.Enabled ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/migrations"
+	"{{[ .Project ]}}/pkg/db"
+	"{{[ .Project ]}}/pkg/db/migrations"
 	{{[- if .Storage.Postgres ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/postgres"
+	"{{[ .Project ]}}/pkg/db/postgres"
 	{{[- end ]}}
 	{{[- if .Storage.MySQL ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/mysql"
+	"{{[ .Project ]}}/pkg/db/mysql"
 	{{[- end ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/stub"
+	"{{[ .Project ]}}/pkg/db/stub"
 	{{[- end ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/info"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/logger"
+	"{{[ .Project ]}}/pkg/info"
+	"{{[ .Project ]}}/pkg/logger"
 	{{[- if .API.Enabled ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/server"
+	"{{[ .Project ]}}/pkg/server"
 	{{[- end ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/system"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/version"
+	"{{[ .Project ]}}/pkg/system"
+	"{{[ .Project ]}}/pkg/version"
 
 	"go.uber.org/zap"
 )
