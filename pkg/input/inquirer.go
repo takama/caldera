@@ -14,6 +14,8 @@ func Inquire(cfg *config.Config) *config.Config {
 	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
+	cfg.Project = StringAnswer("Provide project name", path.Join("github.com", cfg.Github, cfg.Name))
+	cfg.Bin = StringAnswer("Provide binary file name", cfg.Name)
 	apis := []string{config.APIGateway, config.APIgRPC}
 	var count int
 	question := "Do you need API for the service? "
@@ -73,12 +75,8 @@ func Inquire(cfg *config.Config) *config.Config {
 	}
 	cfg.Directories.Templates = StringAnswer("Templates directory", cfg.Directories.Templates)
 	if cfg.Directories.Service == "" {
-		if currentDir, err := os.Getwd(); err == nil {
-			if cfg.Github != "" {
-				cfg.Directories.Service = path.Join(path.Dir(path.Dir(currentDir)), cfg.Github, cfg.Name)
-			} else {
-				cfg.Directories.Service = path.Join(path.Dir(currentDir), cfg.Name)
-			}
+		if goPath := os.Getenv("GOPATH"); goPath != "" {
+			cfg.Directories.Service = path.Join(goPath, "src", cfg.Project)
 		}
 	}
 	cfg.Directories.Service = StringAnswer("New service directory", cfg.Directories.Service)
