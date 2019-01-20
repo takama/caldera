@@ -32,6 +32,8 @@ type Config struct {
 	Name        string
 	Description string
 	Github      string
+	Project     string
+	Bin         string
 	GitInit     bool
 	Contract    bool
 	GKE         struct {

@@ -7,7 +7,7 @@ import (
 
 	{{[- if .Contract ]}}
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events"
+	"{{[ .Project ]}}/contracts/events"
 	{{[- end ]}}
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"

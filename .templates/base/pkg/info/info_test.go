@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/logger"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/version"
+	"{{[ .Project ]}}/pkg/logger"
+	"{{[ .Project ]}}/pkg/version"
 )
 
 var ErrReturnError = errors.New("Test of return Error")

@@ -24,6 +24,6 @@ COPY certs /etc/ssl/certs/
 {{[- if .Storage.Enabled ]}}
 COPY migrations /migrations/
 {{[- end ]}}
-COPY bin/linux-amd64/service /
+COPY bin/linux-amd64/{{[ .Bin ]}} /
 
-CMD ["/service", "serve"]
+CMD ["/{{[ .Bin ]}}", "serve"]

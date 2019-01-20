@@ -5,7 +5,7 @@ package request;
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-option go_package = "github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/request";
+option go_package = "{{[ .Project ]}}/contracts/request";
 
 // A request by name
 message ByName {

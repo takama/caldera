@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/config"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/helper"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/logger"
+	"{{[ .Project ]}}/pkg/config"
+	"{{[ .Project ]}}/pkg/helper"
+	"{{[ .Project ]}}/pkg/logger"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

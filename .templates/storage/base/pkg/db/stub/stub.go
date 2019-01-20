@@ -4,9 +4,9 @@ import (
 	"context"
 	"os"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db"
+	"{{[ .Project ]}}/pkg/db"
 	{{[- if .Contract ]}}
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/provider"
+	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
 	"go.uber.org/zap"

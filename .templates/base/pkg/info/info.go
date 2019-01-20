@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/version"
+	"{{[ .Project ]}}/pkg/version"
 
 	"go.uber.org/zap"
 )
@@ -74,10 +74,6 @@ func (s *Service) Run(addr string) *http.Server {
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.logger.Debug(r.Method,
-		zap.String("addr", r.RemoteAddr),
-		zap.String("url", r.URL.Path),
-	)
 	route := strings.TrimRight(r.URL.Path, " /")
 	switch r.Method {
 	case "GET":

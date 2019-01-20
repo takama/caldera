@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/provider"
+	"{{[ .Project ]}}/pkg/db/provider"
 )
 
 // Store design database interface with providers

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/contracts/events"
-	"github.com/{{[ .Github ]}}/{{[ .Name ]}}/pkg/db/provider"
+	"{{[ .Project ]}}/contracts/events"
+	"{{[ .Project ]}}/pkg/db/provider"
 )
 
 type eventsProvider struct {
