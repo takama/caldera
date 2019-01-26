@@ -16,21 +16,19 @@ func copyTemplates(src, dst string) error {
 		src,
 		func(srcPath string, info os.FileInfo, err error) error {
 			if err != nil {
-				return fmt.Errorf("Failed to scan template directory: %s", err)
+				return fmt.Errorf("failed to scan template directory: %s", err)
 			}
 			dstPath := strings.Replace(srcPath, src, dst, 1)
 			if info.IsDir() {
 				fi, err := os.Stat(srcPath)
 				if err != nil {
-					return fmt.Errorf("Could not get source directory info: %s", err)
+					return fmt.Errorf("could not get source directory info: %s", err)
 				}
 				if err := os.MkdirAll(dstPath, fi.Mode()); err != nil {
-					return fmt.Errorf("Could not create destination directory: %s", err)
+					return fmt.Errorf("could not create destination directory: %s", err)
 				}
-			} else {
-				if err := copyFile(srcPath, dstPath, info); err != nil {
-					return fmt.Errorf("Could not copy file: %s", err)
-				}
+			} else if err := copyFile(srcPath, dstPath, info); err != nil {
+				return fmt.Errorf("could not copy file: %s", err)
 			}
 			return nil
 		},
@@ -40,22 +38,22 @@ func copyTemplates(src, dst string) error {
 func copyFile(src, dst string, info os.FileInfo) error {
 	srcF, err := os.Open(src) // nolint: gosec
 	if err != nil {
-		return fmt.Errorf("Could not open source file: %s", err)
+		return fmt.Errorf("could not open source file: %s", err)
 	}
 	defer func() {
-		helper.LogE("Could not close file", srcF.Close())
+		helper.LogE("could not close file", srcF.Close())
 	}()
 
 	dstF, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("Could not create destination file: %s", err)
+		return fmt.Errorf("could not create destination file: %s", err)
 	}
 	defer func() {
-		helper.LogE("Could not close file", dstF.Close())
+		helper.LogE("could not close file", dstF.Close())
 	}()
 
 	if _, err = io.Copy(dstF, srcF); err != nil {
-		return fmt.Errorf("Could not copy file: %s", err)
+		return fmt.Errorf("could not copy file: %s", err)
 	}
 	return os.Chmod(dst, info.Mode())
 }
