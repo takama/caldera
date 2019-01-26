@@ -30,8 +30,8 @@ func (es eventsServer) FindEventsByName(
 	if err != nil {
 		return err
 	}
-	for _, r := range data {
-		if err := stream.Send(&r); err != nil {
+	for ind := range data {
+		if err := stream.Send(&data[ind]); err != nil {
 			return err
 		}
 	}
@@ -47,8 +47,8 @@ func (es eventsServer) ListEvents(
 	if err != nil {
 		return err
 	}
-	for _, r := range data {
-		if err := stream.Send(&r); err != nil {
+	for ind := range data {
+		if err := stream.Send(&data[ind]); err != nil {
 			return err
 		}
 	}

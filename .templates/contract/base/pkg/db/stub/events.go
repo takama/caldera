@@ -127,9 +127,9 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
 
-	for k, v := range ep.Data {
-		if v.Id == id {
-			return k, &v
+	for ind := range ep.Data {
+		if ep.Data[ind].Id == id {
+			return ind, &ep.Data[ind]
 		}
 	}
 
