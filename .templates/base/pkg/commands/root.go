@@ -110,13 +110,12 @@ func initConfig() {
 	// enable ability to specify config file via flag or via env
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
-	} else {
-		// Check for env variable with config path
-		if cfgPath := os.Getenv(
-			strings.ToUpper(strings.Replace(config.ServiceName, "-", "_", -1)) + "_CONFIG_PATH",
-		); cfgPath != "" {
-			viper.SetConfigFile(cfgPath)
-		}
+	} else
+	// Check for env variable with config path
+	if cfgPath := os.Getenv(
+		strings.ToUpper(strings.Replace(config.ServiceName, "-", "_", -1)) + "_CONFIG_PATH",
+	); cfgPath != "" {
+		viper.SetConfigFile(cfgPath)
 	}
 
 	// If a config file is found, read it in.

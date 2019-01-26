@@ -7,10 +7,10 @@ import (
 )
 
 // ErrNotImplemented declares error for method that isn't implemented
-var ErrNotImplemented = errors.New("This method is not implemented")
+var ErrNotImplemented = errors.New("this method is not implemented")
 
 // ErrEmptyServerPointer declares error for nil pointer
-var ErrEmptyServerPointer = errors.New("Server pointer should not be nil")
+var ErrEmptyServerPointer = errors.New("server pointer should not be nil")
 
 // Operations implements simplest Operator interface
 type Operations struct {

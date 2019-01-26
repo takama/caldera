@@ -11,7 +11,7 @@ import (
 	"{{[ .Project ]}}/pkg/version"
 )
 
-var ErrReturnError = errors.New("Test of return Error")
+var ErrReturnError = errors.New("test of return Error")
 
 func testHandler(
 	t *testing.T, handler http.HandlerFunc, method, path string, code int, body string) {
@@ -88,6 +88,7 @@ func TestNotFound(t *testing.T) {
 func TestAddHandler(t *testing.T) {
 	service := NewService(logger.New(new(logger.Config)))
 	service.AddHandler(
+		// nolint: unparam
 		"/handler", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte("Handler"))
 			if err != nil {
