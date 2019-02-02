@@ -56,28 +56,27 @@ func Run(cfg *config.Config) {
 			))
 		}
 	}
-	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Contract {
+	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Example {
 		helper.LogF("Contract example templates", copyTemplates(
-			path.Join(cfg.Directories.Templates, config.Contract, config.Base),
+			path.Join(cfg.Directories.Templates, config.Example, config.Base),
 			cfg.Directories.Service,
 		))
 		if cfg.Storage.Postgres {
 			helper.LogF("Contract templates for postgres", copyTemplates(
-				path.Join(cfg.Directories.Templates, config.Contract, config.StoragePostgres),
+				path.Join(cfg.Directories.Templates, config.Example, config.StoragePostgres),
 				cfg.Directories.Service,
 			))
 		}
 		if cfg.Storage.MySQL {
 			helper.LogF("Contract templates for mysql", copyTemplates(
-				path.Join(cfg.Directories.Templates, config.Contract, config.StorageMySQL),
+				path.Join(cfg.Directories.Templates, config.Example, config.StorageMySQL),
 				cfg.Directories.Service,
 			))
 		}
 	}
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
-	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Contract {
-		log.Println("Prepare contracts:")
+	if cfg.API.Enabled {
 		helper.LogF("Generate contracts", Exec("make", "contracts"))
 	}
 	log.Println("Initialize vendors:")

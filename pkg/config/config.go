@@ -17,8 +17,8 @@ const (
 	APIGateway = "rest"
 	// APIgRPC declared type API: gRPC
 	APIgRPC = "grpc"
-	// Contract declared contract API example
-	Contract = "contract"
+	// Example declared contract API example
+	Example = "example"
 	// Storage declared type Storage
 	Storage = "storage"
 	// StoragePostgres declared storage driver type: postgres
@@ -35,7 +35,7 @@ type Config struct {
 	Project     string
 	Bin         string
 	GitInit     bool
-	Contract    bool
+	Example     bool
 	GKE         struct {
 		Enabled bool
 		Project string

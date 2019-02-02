@@ -10,7 +10,7 @@ import (
 type Store interface {
 	Check() error
 	Shutdown(ctx context.Context) error
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	EventsProvider() provider.Events
 	{{[- end ]}}
 }

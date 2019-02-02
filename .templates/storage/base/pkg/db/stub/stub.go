@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"{{[ .Project ]}}/pkg/db"
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
@@ -21,7 +21,7 @@ const (
 type Stub struct {
 	cfg *db.Config
 	log *zap.Logger
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	// Contract providers
 	events *eventsProvider
 	{{[- end ]}}
@@ -36,7 +36,7 @@ func New(cfg *db.Config, log *zap.Logger) (*Stub, error) {
 		log: log,
 	}
 
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 
 	conn.events = &eventsProvider{cfg: cfg}
 
@@ -59,7 +59,7 @@ func (s Stub) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-{{[- if .Contract ]}}
+{{[- if .Example ]}}
 
 // EventsProvider returns data store provider for Events
 func (s Stub) EventsProvider() provider.Events {
