@@ -95,7 +95,7 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
 	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
-GO_PACKAGES=$(shell go list $(PROJECT)/...)
+GO_PACKAGES=$(shell go list $(PROJECT)/pkg/...)
 
 BUILDTAGS=
 
@@ -131,14 +131,14 @@ vendor: bootstrap
 	@echo "+ $@"
 	@dep ensure -vendor-only
 
-{{[- if .Contract ]}}
+{{[- if .API.Enabled ]}}
 
 contracts:
 	@echo "+ $@"
 	@$(MAKE) -C contracts generate
 {{[- end ]}}
 
-compile: {{[- if .Contract ]}} contracts {{[- end ]}} vendor test lint
+compile: {{[- if .API.Enabled ]}} contracts {{[- end ]}} vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
 		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
@@ -348,7 +348,7 @@ endif
 	cluster \
 {{[- end ]}}
 	vendor \
-{{[- if .Contract ]}}
+{{[- if .API.Enabled ]}}
 	contracts \
 {{[- end ]}}
 	compile \

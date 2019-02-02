@@ -85,7 +85,7 @@ func Run(cfg *config.Config) error {
 	{{[- end ]}}
 	{{[- end ]}}
 
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 
 	// Register data store providers
 	srv.RegisterEventsProvider(database.EventsProvider())

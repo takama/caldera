@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 
 	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/pkg/db/provider"
@@ -20,7 +20,8 @@ type Server struct {
 	cfg *Config
 	log *zap.Logger
 	srv *grpc.Server
-	{{[- if .Contract ]}}
+	is  *infoServer
+	{{[- if .Example ]}}
 	// Contract provider servers
 	es *eventsServer
 	{{[- end ]}}
@@ -31,13 +32,14 @@ func New(ctx context.Context, cfg *Config, log *zap.Logger) (*Server, error) {
 	return &Server{
 		cfg: cfg,
 		log: log,
-		{{[- if .Contract ]}}
+		is:  new(infoServer),
+		{{[- if .Example ]}}
 		es:  new(eventsServer),
 		{{[- end ]}}
 	}, nil
 }
 
-{{[- if .Contract ]}}
+{{[- if .Example ]}}
 
 // RegisterEventsProvider assign data store provider for Events
 func (s *Server) RegisterEventsProvider(provider provider.Events) {
@@ -59,7 +61,7 @@ func (s Server) ReadinessProbe() error {
 
 // Run starts the server
 func (s *Server) Run(ctx context.Context) error {
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	if err := s.checkProviders(); err != nil {
 		return err
 	}
@@ -67,7 +69,8 @@ func (s *Server) Run(ctx context.Context) error {
 
 	// Register gRPC server
 	s.srv = grpc.NewServer()
-	{{[- if .Contract ]}}
+	info.RegisterInfoServer(s.srv, s.is)
+	{{[- if .Example ]}}
 	events.RegisterEventsServer(s.srv, s.es)
 	{{[- end ]}}
 
@@ -88,7 +91,7 @@ func (s Server) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-{{[- if .Contract ]}}
+{{[- if .Example ]}}
 
 func (s Server) checkProviders() error {
 	if s.es.Events == nil {

@@ -60,7 +60,7 @@ func Inquire(cfg *config.Config) *config.Config {
 	}
 	if cfg.API.Enabled && cfg.Storage.Enabled &&
 		BoolAnswer("Do you need Contract API example for the service?") {
-		cfg.Contract = true
+		cfg.Example = true
 	}
 	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
 		cfg.GKE.Enabled = true
