@@ -5,7 +5,7 @@ import "errors"
 var (
 	// ErrNotDefinedTransaction defines error for nilable transaction
 	ErrNotDefinedTransaction = errors.New("transaction does not defined")
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	// ErrNotDefinedID defines error when ID does not defined
 	ErrNotDefinedID = errors.New("ID does not defined")
 	// ErrNotDefinedName defines error when Name does not defined

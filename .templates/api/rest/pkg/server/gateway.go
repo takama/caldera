@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"net/http"
 
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 
 	"{{[ .Project ]}}/contracts/events"
 	{{[- end ]}}
+	"{{[ .Project ]}}/contracts/info"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.uber.org/zap"
-	{{[- if .Contract ]}}
+	{{[- if .Example ]}}
 	"google.golang.org/grpc"
 	{{[- end ]}}
 )
@@ -44,31 +45,31 @@ func (gw GatewayServer) ReadinessProbe() error {
 
 // Run starts the gateway server
 func (gw *GatewayServer) Run(ctx context.Context) error {
-	// Listening http -> gRPC address
-	addr := fmt.Sprintf(":%d", gw.cfg.Gateway.Port)
+	forward := fmt.Sprintf("localhost:%d", gw.cfg.Port)
 
 	// Register REST/gRPC gateway
-	gateway := runtime.NewServeMux()
-	{{[- if .Contract ]}}
 	opts := []grpc.DialOption{grpc.WithInsecure()}
+	gateway := runtime.NewServeMux(
+		runtime.WithMarshalerOption(
+			runtime.MIMEWildcard,
+			&runtime.JSONPb{EmitDefaults: true},
+		),
+	)
+	// Register all gateways
+	if err := info.RegisterInfoHandlerFromEndpoint(
+		ctx, gateway, forward, opts,
+	); err != nil {
+		return err
+	}
+	{{[- if .Example ]}}
 	if err := events.RegisterEventsHandlerFromEndpoint(
-		ctx, gateway, fmt.Sprintf("localhost:%d", gw.cfg.Port), opts,
+		ctx, gateway, forward, opts,
 	); err != nil {
 		return err
 	}
 	{{[- end ]}}
-
-	// Add gateway handler
-	mux := http.NewServeMux()
-	mux.Handle("/", gateway)
-
-	// Create gateway server
-	gw.srv = &http.Server{
-		Addr:    addr,
-		Handler: mux,
-	}
-
-	return gw.srv.ListenAndServe()
+	
+	return gw.Serve(gateway)
 }
 
 // Shutdown process graceful shutdown for the gateway server
@@ -78,4 +79,19 @@ func (gw GatewayServer) Shutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// Serve prepares server and listen
+func (gw *GatewayServer) Serve(handler http.Handler) error {
+	// Create gateway server
+	gw.srv = &http.Server{
+		// Listening http -> gRPC address
+		Addr: fmt.Sprintf(":%d", gw.cfg.Gateway.Port),
+	}
+
+	// Add gateway handler
+	mux := http.NewServeMux()
+	mux.Handle("/", handler)
+	gw.srv.Handler = mux
+	return gw.srv.ListenAndServe()
 }

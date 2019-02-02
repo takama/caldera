@@ -2,7 +2,15 @@ INCLUDE_GRPC_PROTO ?= -I. -I $(GOPATH)/src -I /usr/local/include -I $(GOPATH)/sr
 
 all: generate
 
-generate: bootstrap events
+generate: bootstrap info{{[- if .Example ]}} events{{[- end ]}}
+
+info:
+	@echo "+ $@"
+	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc:$(GOPATH)/src info/info.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true:$(GOPATH)/src info/info.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. info/info.proto
+
+{{[- if .Example ]}}
 
 request:
 	@echo "+ $@"
@@ -15,6 +23,7 @@ events: request
 	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc:$(GOPATH)/src events/events.proto
 	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true:$(GOPATH)/src events/events.proto
 	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. events/events.proto
+{{[- end ]}}
 
 HAS_PROTOC := $(shell command -v protoc;)
 HAS_PROTOC_GO := $(shell command -v protoc-gen-go;)
@@ -40,6 +49,9 @@ endif
 
 .PHONY: all \
 	generate \
+	info \
+{{[- if .Example ]}}
 	request \
 	events \
+{{[- end ]}}
 	bootstrap
