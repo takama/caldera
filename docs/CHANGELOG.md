@@ -1,4 +1,10 @@
-# Version v0.1.0
+# Version v0.1.1
+
+## v0.1.1
+
+### Codebase changes in v0.1.1
+
+- Added info and health gRPC handlers ([#18](https://github.com/takama/k8sapp/pull/18), [@takama](https://github.com/takama))
 
 ## v0.1.0
 
