@@ -2,6 +2,9 @@ package server
 
 import (
 	"context"
+	{{[- if not .API.Config.Insecure ]}}
+	"crypto/tls"
+	{{[- end ]}}
 	"fmt"
 	"net"
 
@@ -13,6 +16,9 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	{{[- if not .API.Config.Insecure ]}}
+	"google.golang.org/grpc/credentials"
+	{{[- end ]}}
 )
 
 // Server contains core functionality of the service
@@ -68,7 +74,11 @@ func (s *Server) Run(ctx context.Context) error {
 	{{[- end ]}}
 
 	// Register gRPC server
+	{{[- if .API.Config.Insecure ]}}
 	s.srv = grpc.NewServer()
+	{{[- else ]}}
+	s.srv = grpc.NewServer(s.ServerOptions()...)
+	{{[- end ]}}
 	info.RegisterInfoServer(s.srv, s.is)
 	{{[- if .Example ]}}
 	events.RegisterEventsServer(s.srv, s.es)
@@ -99,5 +109,22 @@ func (s Server) checkProviders() error {
 	}
 
 	return nil
+}
+{{[- end ]}}
+
+{{[- if not .API.Config.Insecure ]}}
+
+// ServerOptions gives server authentication and secure/insecure options
+func (s Server) ServerOptions() []grpc.ServerOption {
+	options := []grpc.ServerOption{}
+	if !s.cfg.Insecure {
+		cert, err := tls.LoadX509KeyPair(s.cfg.Certificates.Crt, s.cfg.Certificates.Key)
+		if err != nil {
+			s.log.Fatal("Failed to load key pair", zap.Error(err))
+		}
+		// Enable TLS for all incoming connections.
+		options = append(options, grpc.Creds(credentials.NewServerTLSFromCert(&cert)))
+	}
+	return options
 }
 {{[- end ]}}
