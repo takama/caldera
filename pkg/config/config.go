@@ -64,7 +64,12 @@ type Config struct {
 		GRPC    bool
 		Gateway bool
 		Config  struct {
-			Port    int
+			Port         int
+			Insecure     bool
+			Certificates struct {
+				Crt string
+				Key string
+			}
 			Gateway struct {
 				Port int
 			}
