@@ -13,7 +13,7 @@ all: run
 
 vendor: bootstrap
 	@echo "+ $@"
-	@dep ensure -vendor-only
+	@go mod tidy
 
 run: clean build
 	@echo "+ $@"
@@ -45,14 +45,10 @@ version:
 clean:
 	@rm -f ./${APP}
 
-HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
 
 bootstrap:
-ifndef HAS_DEP
-	go get -u github.com/golang/dep/cmd/dep
-endif
 ifndef HAS_LINT
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 endif

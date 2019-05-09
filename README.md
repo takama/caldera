@@ -248,7 +248,7 @@ A set of basic templates for the deployment of the service in Kubernetes has bee
 
 ## Package manager
 
-To properly work with dependencies, we need to select a package manager. [dep](https://github.com/golang/dep) is one of the popular dependency management tools for Go.
+To properly work with dependencies, we need to select a package manager. `go mod` is dependency management tools for Go.
 
 ## Versioning automation
 
