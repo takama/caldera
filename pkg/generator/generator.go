@@ -80,7 +80,7 @@ func Run(cfg *config.Config) {
 		helper.LogF("Generate contracts", Exec("make", "contracts"))
 	}
 	log.Println("Initialize vendors:")
-	helper.LogF("Init dep", Exec("dep", "init", "-skip-tools"))
+	helper.LogF("Init modules", Exec("go", "mod", "init", cfg.Project))
 	helper.LogF("Tests", Exec("make", "check-all"))
 
 	if cfg.GitInit {

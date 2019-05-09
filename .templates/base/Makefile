@@ -129,7 +129,7 @@ endif
 
 vendor: bootstrap
 	@echo "+ $@"
-	@dep ensure -vendor-only
+	@go mod tidy
 
 {{[- if .API.Enabled ]}}
 
@@ -309,7 +309,6 @@ version:
 clean: stop rm
 	@rm -f bin/$(GOOS)-$(GOARCH)/$(BIN)
 
-HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
 {{[- if .GKE.Enabled ]}}
@@ -318,9 +317,6 @@ HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr)
 {{[- end ]}}
 
 bootstrap:
-ifndef HAS_DEP
-	go get -u github.com/golang/dep/cmd/dep
-endif
 ifndef HAS_LINT
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 endif
