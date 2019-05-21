@@ -129,7 +129,7 @@ endif
 
 vendor: bootstrap
 	@echo "+ $@"
-	@dep ensure -vendor-only
+	@go mod tidy
 
 {{[- if .API.Enabled ]}}
 
@@ -202,7 +202,7 @@ migrate-up: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /dcm migrate up
+		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate up
 
 migrate-down: build db
 	@echo "+ $@"
@@ -213,7 +213,7 @@ migrate-down: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /dcm migrate down
+		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate down
 {{[- end ]}}
 
 run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
@@ -309,7 +309,6 @@ version:
 clean: stop rm
 	@rm -f bin/$(GOOS)-$(GOARCH)/$(BIN)
 
-HAS_DEP := $(shell command -v dep;)
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
 {{[- if .GKE.Enabled ]}}
@@ -318,9 +317,6 @@ HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr)
 {{[- end ]}}
 
 bootstrap:
-ifndef HAS_DEP
-	go get -u github.com/golang/dep/cmd/dep
-endif
 ifndef HAS_LINT
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 endif

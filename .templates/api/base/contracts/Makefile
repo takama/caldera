@@ -6,22 +6,22 @@ generate: bootstrap info{{[- if .Example ]}} events{{[- end ]}}
 
 info:
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc:$(GOPATH)/src info/info.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true:$(GOPATH)/src info/info.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. info/info.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. info/info.proto
 	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. info/info.proto
 
 {{[- if .Example ]}}
 
 request:
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc:$(GOPATH)/src request/request.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true:$(GOPATH)/src request/request.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. request/request.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. request/request.proto
 	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. request/request.proto
 
 events: request
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc:$(GOPATH)/src events/events.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true:$(GOPATH)/src events/events.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. events/events.proto
+	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. events/events.proto
 	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. events/events.proto
 {{[- end ]}}
 
