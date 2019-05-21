@@ -1,57 +1,37 @@
-INCLUDE_GRPC_PROTO ?= -I. -I $(GOPATH)/src -I /usr/local/include -I $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway -I $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
+PROTOC_IMAGE ?= takama/protoc:v0.1.0 
+
+PROTOC_RUN = docker run --rm -v $(shell pwd):/contracts -w /contracts $(PROTOC_IMAGE) -I.
 
 all: generate
 
-generate: bootstrap info{{[- if .Example ]}} events{{[- end ]}}
+generate: info{{[- if .Example ]}} events{{[- end ]}}
 
 info:
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. info/info.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. info/info.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. info/info.proto
+	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. info/info.proto
+	@$(PROTOC_RUN) --grpc-gateway_out=logtostderr=true,paths=source_relative:. info/info.proto
+	@$(PROTOC_RUN) --swagger_out=logtostderr=true:. info/info.proto
 
 {{[- if .Example ]}}
 
 request:
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. request/request.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. request/request.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. request/request.proto
+	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. request/request.proto
+	@$(PROTOC_RUN) --grpc-gateway_out=logtostderr=true,paths=source_relative:. request/request.proto
+	@$(PROTOC_RUN) --swagger_out=logtostderr=true:. request/request.proto
 
 events: request
 	@echo "+ $@"
-	@protoc $(INCLUDE_GRPC_PROTO) --go_out=plugins=grpc,paths=source_relative:. events/events.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --grpc-gateway_out=logtostderr=true,paths=source_relative:. events/events.proto
-	@protoc $(INCLUDE_GRPC_PROTO) --swagger_out=logtostderr=true:. events/events.proto
+	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. events/events.proto
+	@$(PROTOC_RUN) --grpc-gateway_out=logtostderr=true,paths=source_relative:. events/events.proto
+	@$(PROTOC_RUN) --swagger_out=logtostderr=true:. events/events.proto
 {{[- end ]}}
 
-HAS_PROTOC := $(shell command -v protoc;)
-HAS_PROTOC_GO := $(shell command -v protoc-gen-go;)
-HAS_PROTOC_GRPC_GATEWAY := $(shell command -v protoc-gen-grpc-gateway;)
-HAS_PROTOC_SWAGGER := $(shell command -v protoc-gen-swagger;)
-
-bootstrap:
-ifndef HAS_PROTOC
-	@echo "Protobuf compiler should be installed (v >= 3)"
-	@echo "Pre-compiled binaries for your platform: https://github.com/google/protobuf/releases"
-	@echo "Do not forget to copy content of 'include' directory into '/usr/local/include'"
-	@exit 1
-endif
-ifndef HAS_PROTOC_GO
-	go get -u github.com/golang/protobuf/protoc-gen-go
-endif
-ifndef HAS_PROTOC_GRPC_GATEWAY
-	go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-endif
-ifndef HAS_PROTOC_SWAGGER
-	go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-endif
 
 .PHONY: all \
-	generate \
 	info \
 {{[- if .Example ]}}
 	request \
 	events \
 {{[- end ]}}
-	bootstrap
+	generate
