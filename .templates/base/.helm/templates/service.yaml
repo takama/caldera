@@ -20,16 +20,17 @@ spec:
     protocol: TCP
     name: grpc
   {{[- if .API.Gateway ]}}
-  - port: {{ .Values.service.http.externalPort }}
-    targetPort: {{ .Values.service.http.port }}
+  - port: {{ .Values.service.gateway.port }}
     protocol: TCP
     name: http
   {{[- end ]}}
   {{[- end ]}}
   - port: {{ .Values.service.info.port }}
-    targetPort: {{ .Values.service.info.port }}
     protocol: TCP
     name: info
+{{- if .Values.service.headless }}
+  clusterIP: None
+{{- end }}
   selector:
     app: {{ template "fullname" . }}
   type: "{{ .Values.service.type }}"

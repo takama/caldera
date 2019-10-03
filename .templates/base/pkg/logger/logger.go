@@ -85,7 +85,6 @@ func New(cfg *Config) *zap.Logger {
 	if cfg.Time {
 		timeKey = "ts"
 	}
-
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        timeKey,
 		LevelKey:       "level",

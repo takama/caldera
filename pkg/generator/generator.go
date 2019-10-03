@@ -12,6 +12,7 @@ import (
 )
 
 // Run generator
+// nolint: funlen
 func Run(cfg *config.Config) {
 	if cfg.Storage.Config.Name == "" {
 		cfg.Storage.Config.Name = cfg.Name

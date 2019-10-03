@@ -29,6 +29,7 @@ import (
 )
 
 // Run the service
+// nolint: funlen
 func Run(cfg *config.Config) error {
 	// Setup zap logger
 	log := logger.New(&cfg.Logger)
