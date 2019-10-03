@@ -28,6 +28,9 @@ spec:
   - port: {{ .Values.service.info.port }}
     protocol: TCP
     name: info
+{{- if .Values.service.headless }}
+  clusterIP: None
+{{- end }}
   selector:
     app: {{ template "fullname" . }}
   type: "{{ .Values.service.type }}"

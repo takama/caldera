@@ -149,7 +149,8 @@ service:
   ## For GKE - LoadBalancer
   ## elsewhere - ClusterIP
   ##
-  type: LoadBalancer
+  type: ClusterIP
+  headless: false
 
   ## Static IP of load balancer
   ##
