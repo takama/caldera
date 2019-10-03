@@ -142,14 +142,13 @@ service:
 
   {{[- if .API.Gateway ]}}
 
-  ## HTTP protocol attributes
+  ## Gateway attributes
   ##
-  http:
+  gateway:
 
-    ## HTTP exposed port and external port
+    ## Gateway exposed port
     ##
     port: {{[ .API.Config.Gateway.Port ]}}
-    externalPort: 80
   {{[- end ]}}
   {{[- end ]}}
 
