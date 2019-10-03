@@ -105,9 +105,20 @@ spec:
         volumeMounts:
         - name: {{ template "name" . }}-config
           mountPath: /etc/{{ .Values.service.name | replace "-" "_" }}/
+        {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled  }}
+        - name: {{ template "name" . }}-db-ssl-certs
+          mountPath: {{ .Values.service.database.tls.mountPath }}
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: {{ template "name" . }}-config
           configMap:
             name: {{ template "name" . }}-config
+        {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled }}
+        - name: {{ template "name" . }}-db-ssl-certs
+          secret:
+            secretName: {{ .Values.service.database.tls.secret }}
+            defaultMode: 0400
+        {{- end }}

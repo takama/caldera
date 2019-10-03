@@ -171,6 +171,21 @@ service:
 
     enabled: {{[ printf "%t" .Storage.Enabled ]}}
 
+    tls:
+      ## If true, TLS certs will be used for connection to database
+      ##
+      ## Should be false when Cloud SQL Proxy provides secure connection
+      ##
+      enabled: false
+
+      ## Secret with TLS certificates (client's cert, key and server's CA)
+      ##
+      secret: {{[ .Name ]}}-db-ssl-certs
+
+      ## Mount path of certs from the secret
+      ##
+      mountPath: /etc/ssl/postgres/
+
     ## Database driver (postgres, mysql, etc)
     ##
     driver: {{[ .Storage.Config.Driver ]}}
@@ -197,8 +212,14 @@ service:
 
     ## Connection properties like ssl-mode, sslkey and others
     ##
+    ## sslmode should equal "disable" when we use Cloud SQL Proxy
+    ## which provides secure connection to Cloud SQL
     properties:
       - sslmode=disable
+      # - sslmode=verify-ca
+      # - sslrootcert=/etc/ssl/postgres/server-ca.pem
+      # - sslcert=/etc/ssl/postgres/client-cert.pem
+      # - sslkey=/etc/ssl/postgres/client-key.pem
 
     ## Database connections
     ##
