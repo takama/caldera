@@ -72,7 +72,6 @@ func (s *Server) Run(ctx context.Context) error {
 		return err
 	}
 	{{[- end ]}}
-
 	// Register gRPC server
 	{{[- if .API.Config.Insecure ]}}
 	s.srv = grpc.NewServer()
