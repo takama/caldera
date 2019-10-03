@@ -102,6 +102,10 @@ service:
   ##
   name: {{[ .Name ]}}
 
+  ## Anti Affinity Pods requirements
+  ##
+  antiAffinity: true
+
   ## Service Type
   ## For minikube, recommended value NodePort,
   ## For GKE - LoadBalancer
