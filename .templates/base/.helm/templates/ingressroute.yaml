@@ -1,0 +1,39 @@
+{{- if .Values.ingressRoute.enabled -}}
+{{- $serviceName := .Values.service.name }}
+{{- $release := .Release }}
+{{- $fullname := include "fullname" . }}
+{{- $name := include "name" . }}
+{{- $chart := .Chart }}
+{{- $ingressRoute := .Values.ingressRoute }}
+
+{{- range $key, $service := $ingressRoute.hosts }}
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  annotations:
+  {{- range $key, $value := $ingressRoute.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    app: {{ $fullname }}
+    chart: "{{ $chart.Name }}-{{ $chart.Version }}"
+    component: "{{ $serviceName }}"
+    heritage: "{{ $release.Service }}"
+    release: "{{ $release.Name }}"
+  name: {{ $name }}-{{ $service.name }}
+spec:
+  virtualhost:
+    fqdn: {{ $service.host }}
+    {{- if $ingressRoute.tls.enabled }}
+    tls:
+      secretName: {{ $ingressRoute.tls.secretName }}
+    {{- end }}
+  routes:
+    - match: {{ $service.path }}
+      services:
+        - name: {{ $serviceName }}
+          port: {{ $service.port }}
+
+{{- end }}
+{{- end }}
