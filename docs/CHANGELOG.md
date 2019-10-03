@@ -1,4 +1,13 @@
-# Version v0.1.2
+# Version v0.1.3
+
+## v0.1.3
+
+- Changed protobuf/gateway versions ([@takama](https://github.com/takama))
+- Added TLS support in the database ([@takama](https://github.com/takama))
+- Added anti affinity attribute ([@takama](https://github.com/takama))
+- Added support of Contour ingress routes ([@takama](https://github.com/takama))
+- Added support of headless service ([@takama](https://github.com/takama))
+- Other small fixes and changes ([@takama](https://github.com/takama))
 
 ## v0.1.1
 

@@ -73,19 +73,19 @@ VALUES ?= values-$(NAMESPACE)
 CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
 CONTAINER_NAME ?= $(APP)
 
-REPO_INFO=$(shell git config --get remote.origin.url)
+REPO_INFO = $(shell git config --get remote.origin.url)
 REPO_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
-RELEASE_DATE=$(shell date +%FT%T%Z)
+RELEASE_DATE = $(shell date +%FT%T%Z)
 
 ifndef REPO_COMMIT
 REPO_COMMIT = git-$(shell git rev-parse --short HEAD)
 endif
 
-BUILD =? $(RELEASE)
+BUILD ?= $(RELEASE)
 DEPLOY_PARAMS ?= --wait
 ifneq ("$(NAMESPACE)","prod")
 BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
-DEPLOY_PARAMS = --wait --recreate-pods --force
+DEPLOY_PARAMS = --wait --recreate-pods --force --atomic
 endif
 
 LDFLAGS = "-s -w \
@@ -95,7 +95,7 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
 	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
-GO_PACKAGES=$(shell go list $(PROJECT)/pkg/...)
+GO_PACKAGES = $(shell go list $(PROJECT)/pkg/...)
 
 BUILDTAGS=
 

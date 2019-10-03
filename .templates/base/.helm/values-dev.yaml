@@ -70,15 +70,15 @@ ingress:
   ##
   hostBased:
     hosts:
-    - {{[ .Name ]}}.example.net
+    - {{[ .Name ]}}.dev.net
 
     ## Ingress TLS configuration
     ## Secrets must be manually created in the namespace
     ##
     tls:
-    - secretName: {{[ .Name ]}}.example.net-secret
+    - secretName: {{[ .Name ]}}.dev.net-secret
       hosts:
-      - {{[ .Name ]}}.example.net
+      - {{[ .Name ]}}.dev.net
 
   # ## Ingress path feature allow access to service through path
   # ## example: https://hostname/namespace/servicename
@@ -86,28 +86,71 @@ ingress:
   # ##
   pathBased:
     hosts:
-    - services.example.net
+    - services.dev.net
 
     ## Ingress TLS configuration
     ## Secrets must be manually created in the namespace
     ## except of case when annotatoon `kubernetes.io/tls-acme: 'true'` is present
     ##
     tls:
-    - secretName: services.example.net-secret
+    - secretName: services.dev.net-secret
       hosts:
-      - services.example.net
+      - services.dev.net
+
+## Ingress Route (Contour, Heptio) - custom Ingress controller with Envoy
+## to proxy all services via 1 IP address.
+##
+ingressRoute:
+  ## If true, Ingress Route will be created
+  ##
+  enabled: false
+
+  ## TLS configs
+  ##
+  tls:
+    ##
+    enabled: true
+    ##
+    secretName: {{[ .Name ]}}.dev.net-secret
+
+  ## Annotations
+  ##
+  annotations:
+    contour.heptio.com/ingress.class: contour
+    contour.heptio.com/tls-minimum-protocol-version: TLSv1_2
+    kubernetes.io/ingress.allow-http: false
+
+  ## Ingress route hosts
+  ##
+  hosts:
+    ## gRPC service host
+    - name: grpc
+      host: {{[ .Name ]}}-grpc.dev.net
+      path: /
+      port: {{[ .API.Config.Port ]}}
+
+    ## REST service host
+    - name: rest
+      host: {{[ .Name ]}}-rest.dev.net
+      path: /
+      port: {{[ .API.Config.Gateway.Port ]}}
 
 service:
   ## App container name
   ##
   name: {{[ .Name ]}}
 
+  ## Anti Affinity Pods requirements
+  ##
+  antiAffinity: false
+
   ## Service Type
   ## For minikube, recommended value NodePort,
   ## For GKE - LoadBalancer
   ## elsewhere - ClusterIP
   ##
-  type: LoadBalancer
+  type: ClusterIP
+  headless: false
 
   ## Static IP of load balancer
   ##
@@ -122,10 +165,12 @@ service:
   ## Service annotations (e.g. Prometheus annotations)
   ##
   annotations:
-    prometheus.io/scrape: 'true'
-    prometheus.io/probe: 'true'
-    prometheus.io/port: '8080'
-    prometheus.io/path: '/metrics'
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/probe: "true"
+    prometheus.io/probe-path: "/v1/health"
+    prometheus.io/probe-scheme: "http"
+    contour.heptio.com/upstream-protocol.h2c: "{{[ .API.Config.Port ]}},grpc"
 
   {{[- if .API.Enabled ]}}
 
@@ -138,14 +183,13 @@ service:
 
   {{[- if .API.Gateway ]}}
 
-  ## HTTP protocol attributes
+  ## Gateway attributes
   ##
-  http:
+  gateway:
 
-    ## HTTP exposed port and external port
+    ## Gateway exposed port
     ##
     port: {{[ .API.Config.Gateway.Port ]}}
-    externalPort: 80
   {{[- end ]}}
   {{[- end ]}}
 
@@ -167,6 +211,21 @@ service:
   database:
 
     enabled: {{[ printf "%t" .Storage.Enabled ]}}
+
+    tls:
+      ## If true, TLS certs will be used for connection to database
+      ##
+      ## Should be false when Cloud SQL Proxy provides secure connection
+      ##
+      enabled: false
+
+      ## Secret with TLS certificates (client's cert, key and server's CA)
+      ##
+      secret: {{[ .Name ]}}-db-ssl-certs
+
+      ## Mount path of certs from the secret
+      ##
+      mountPath: /etc/ssl/postgres/
 
     ## Database driver (postgres, mysql, etc)
     ##
@@ -194,8 +253,14 @@ service:
 
     ## Connection properties like ssl-mode, sslkey and others
     ##
+    ## sslmode should equal "disable" when we use Cloud SQL Proxy
+    ## which provides secure connection to Cloud SQL
     properties:
       - sslmode=disable
+      # - sslmode=verify-ca
+      # - sslrootcert=/etc/ssl/postgres/server-ca.pem
+      # - sslcert=/etc/ssl/postgres/client-cert.pem
+      # - sslkey=/etc/ssl/postgres/client-key.pem
 
     ## Database connections
     ##

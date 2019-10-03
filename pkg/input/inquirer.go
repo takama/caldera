@@ -9,6 +9,7 @@ import (
 )
 
 // Inquire for configuration
+// nolint: funlen
 func Inquire(cfg *config.Config) *config.Config {
 	cfg.Github = StringAnswer("Provide name for your Github account", cfg.Github)
 	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)

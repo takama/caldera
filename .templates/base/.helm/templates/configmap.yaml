@@ -15,7 +15,7 @@ data:
       "server": {
       {{[- if .API.Gateway ]}}
         "gateway": {
-          "port": {{ .Values.service.http.port }}
+          "port": {{ .Values.service.gateway.port }}
         },
       {{[- end ]}}
         "port": {{ .Values.service.grpc.port }}

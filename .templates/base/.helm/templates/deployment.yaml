@@ -23,6 +23,18 @@ spec:
       labels:
         app: {{ template "fullname" . }}
     spec:
+      {{- if .Values.service.antiAffinity }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - "{{ template "fullname" . }}"
+            topologyKey: kubernetes.io/hostname
+      {{- end }}
       {{- if .Values.image.pullSecretName }}
       imagePullSecrets:
       - name: {{ .Values.image.pullSecretName }}
@@ -37,8 +49,8 @@ spec:
         - containerPort: {{ .Values.service.grpc.port }}
           name: grpc
         {{[- if .API.Gateway ]}}
-        - containerPort: {{ .Values.service.http.port }}
-          name: http
+        - containerPort: {{ .Values.service.gateway.port }}
+          name: gateway
         {{[- end ]}}
         {{[- end ]}}
         - containerPort: {{ .Values.service.info.port }}
@@ -93,9 +105,20 @@ spec:
         volumeMounts:
         - name: {{ template "name" . }}-config
           mountPath: /etc/{{ .Values.service.name | replace "-" "_" }}/
+        {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled  }}
+        - name: {{ template "name" . }}-db-ssl-certs
+          mountPath: {{ .Values.service.database.tls.mountPath }}
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: {{ template "name" . }}-config
           configMap:
             name: {{ template "name" . }}-config
+        {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled }}
+        - name: {{ template "name" . }}-db-ssl-certs
+          secret:
+            secretName: {{ .Values.service.database.tls.secret }}
+            defaultMode: 0400
+        {{- end }}
