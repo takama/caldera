@@ -116,6 +116,7 @@ func (s Server) checkProviders() error {
 // ServerOptions gives server authentication and secure/insecure options
 func (s Server) ServerOptions() []grpc.ServerOption {
 	options := []grpc.ServerOption{}
+
 	if !s.cfg.Insecure {
 		cert, err := tls.LoadX509KeyPair(s.cfg.Certificates.Crt, s.cfg.Certificates.Key)
 		if err != nil {
@@ -124,6 +125,7 @@ func (s Server) ServerOptions() []grpc.ServerOption {
 		// Enable TLS for all incoming connections.
 		options = append(options, grpc.Creds(credentials.NewServerTLSFromCert(&cert)))
 	}
+
 	return options
 }
 {{[- end ]}}

@@ -58,6 +58,7 @@ func (s *Service) Run(addr string) *http.Server {
 		Addr:    addr,
 		Handler: s,
 	}
+
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			// Check for known errors
@@ -75,6 +76,7 @@ func (s *Service) Run(addr string) *http.Server {
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	route := strings.TrimRight(r.URL.Path, " /")
+
 	switch r.Method {
 	case "GET":
 		switch route {
@@ -91,6 +93,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+
 			http.NotFound(w, r)
 		}
 	default:
@@ -105,10 +108,13 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 				}
+
 				http.NotFound(w, r)
 			}
+
 			return
 		}
+
 		http.Error(w, "Only GET is allowed", http.StatusMethodNotAllowed)
 	}
 }
@@ -128,6 +134,7 @@ func (s *Service) info(w http.ResponseWriter) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+
 	if _, err := w.Write(data); err != nil {
 		s.logger.Error(err.Error())
 	}
@@ -140,6 +147,7 @@ func (s *Service) liveness(w http.ResponseWriter) {
 			return
 		}
 	}
+
 	if _, err := io.WriteString(w, "Ok"); err != nil {
 		s.logger.Error(err.Error())
 	}
@@ -152,6 +160,7 @@ func (s *Service) readiness(w http.ResponseWriter) {
 			return
 		}
 	}
+
 	if _, err := io.WriteString(w, "Ok"); err != nil {
 		s.logger.Error(err.Error())
 	}

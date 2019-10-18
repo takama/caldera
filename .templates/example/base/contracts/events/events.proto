@@ -5,7 +5,6 @@ package events;
 import "request/request.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 option go_package = "{{[ .Project ]}}/contracts/events";
 

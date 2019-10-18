@@ -37,12 +37,17 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, erro
 		cfg: cfg,
 		log: log,
 	}
+
 	var err error
+
 	m.pool, err = db.Connect(cfg)
+
 	if err != nil {
 		return nil, err
 	}
+
 	name := cfg.Driver
+
 	if err := m.pool.QueryRow("SELECT version()").Scan(&name); err != nil {
 		return nil, err
 	}

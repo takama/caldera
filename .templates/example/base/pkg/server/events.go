@@ -27,14 +27,17 @@ func (es eventsServer) FindEventsByName(
 	stream events.Events_FindEventsByNameServer,
 ) error {
 	data, err := es.FindByName(req.Name)
+
 	if err != nil {
 		return err
 	}
+
 	for ind := range data {
 		if err := stream.Send(&data[ind]); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -44,14 +47,17 @@ func (es eventsServer) ListEvents(
 	stream events.Events_ListEventsServer,
 ) error {
 	data, err := es.List()
+
 	if err != nil {
 		return err
 	}
+
 	for ind := range data {
 		if err := stream.Send(&data[ind]); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 

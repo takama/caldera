@@ -22,12 +22,14 @@ type testHandling struct {
 // Reload implementation
 func (th testHandling) Reload() error {
 	th.ch <- Reload
+
 	return nil
 }
 
 // Maintenance implementation
 func (th testHandling) Maintenance() error {
 	th.ch <- Maintenance
+
 	return nil
 }
 
@@ -35,12 +37,14 @@ func (th testHandling) Maintenance() error {
 func (th testHandling) Shutdown() []error {
 	var errs []error
 	th.ch <- Shutdown
+
 	return errs
 }
 
 func TestSignals(t *testing.T) {
 	// Setup logger
 	logger := zap.NewExample()
+
 	defer func(*zap.Logger) {
 		if err := logger.Sync(); err != nil {
 			logger.Error(err.Error())
@@ -49,6 +53,7 @@ func TestSignals(t *testing.T) {
 
 	pid := os.Getpid()
 	proc, err := os.FindProcess(pid)
+
 	if err != nil {
 		t.Error("Finding process:", err)
 	}
@@ -58,12 +63,15 @@ func TestSignals(t *testing.T) {
 	shutdownSignals := signals.Get(Shutdown)
 	verifySignal(t, syscall.SIGTERM, shutdownSignals, Shutdown)
 	verifySignal(t, syscall.SIGINT, shutdownSignals, Shutdown)
+
 	reloadSignals := signals.Get(Reload)
 	verifySignal(t, syscall.SIGHUP, reloadSignals, Reload)
+
 	maintenanceSignals := signals.Get(Maintenance)
 	verifySignal(t, syscall.SIGUSR1, maintenanceSignals, Maintenance)
 
 	handling := &testHandling{ch: make(chan SignalType, 1)}
+
 	go func() {
 		if err := signals.Wait(logger, handling); err != nil {
 			t.Error("Waiting signal:", err)
@@ -92,6 +100,7 @@ func sendSignal(t *testing.T, ch <-chan SignalType, proc *os.Process, signal Sig
 		t.Error("Sending signal:", err)
 		return
 	}
+
 	if sig := <-ch; sig != signal {
 		t.Error("Expected signal:", signal, "got", sig)
 	}
@@ -105,18 +114,25 @@ func verifySignal(t *testing.T, signal os.Signal, signals []os.Signal, sigType S
 
 func TestSignalStringer(t *testing.T) {
 	s := Shutdown
+
 	if s.String() != "SHUTDOWN" {
 		t.Error("Expected signal type SHUTDOWN, got", s.String())
 	}
+
 	s = Reload
+
 	if s.String() != "RELOAD" {
 		t.Error("Expected signal type RELOAD, got", s.String())
 	}
+
 	s = Maintenance
+
 	if s.String() != "MAINTENANCE" {
 		t.Error("Expected signal type MAINTENANCE, got", s.String())
 	}
+
 	s = customSignalType
+
 	if s.String() != customSignalTypeString {
 		t.Error("Expected signal type ", customSignalTypeString, "got", s.String())
 	}
@@ -125,7 +141,9 @@ func TestSignalStringer(t *testing.T) {
 func TestRemoveNotExistingSignal(t *testing.T) {
 	s := NewSignals()
 	count := len(s.maintenance)
+
 	s.Remove(syscall.SIGUSR2, Maintenance)
+
 	if len(s.maintenance) != count {
 		t.Error("Expected count of signals", count, "got", len(s.maintenance))
 	}

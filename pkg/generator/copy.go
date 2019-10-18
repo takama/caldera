@@ -40,6 +40,7 @@ func copyFile(src, dst string, info os.FileInfo) error {
 	if err != nil {
 		return fmt.Errorf("could not open source file: %s", err)
 	}
+
 	defer func() {
 		helper.LogE("could not close file", srcF.Close())
 	}()
@@ -48,6 +49,7 @@ func copyFile(src, dst string, info os.FileInfo) error {
 	if err != nil {
 		return fmt.Errorf("could not create destination file: %s", err)
 	}
+
 	defer func() {
 		helper.LogE("could not close file", dstF.Close())
 	}()
@@ -55,5 +57,6 @@ func copyFile(src, dst string, info os.FileInfo) error {
 	if _, err = io.Copy(dstF, srcF); err != nil {
 		return fmt.Errorf("could not copy file: %s", err)
 	}
+
 	return os.Chmod(dst, info.Mode())
 }
