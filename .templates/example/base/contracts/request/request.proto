@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package request;
 
-import "google/api/annotations.proto";
-import "protoc-gen-swagger/options/annotations.proto";
-
 option go_package = "{{[ .Project ]}}/contracts/request";
 
 // A request by name
