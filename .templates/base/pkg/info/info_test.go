@@ -26,6 +26,7 @@ func testHandler(
 	if trw.Code != code {
 		t.Error("Expected status code:", code, "got", trw.Code)
 	}
+
 	if trw.Body.String() != body {
 		t.Error("Expected body", body, "got", trw.Body.String())
 	}
@@ -129,6 +130,7 @@ func TestInfo(t *testing.T) {
 func TestRun(t *testing.T) {
 	service := NewService(logger.New(new(logger.Config)))
 	h := service.Run(":0")
+
 	if h == nil {
 		t.Error("Expected HTTP handler, got nil")
 	}

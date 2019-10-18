@@ -48,6 +48,7 @@ func (s Sequence) MigrateUp(version int64) error {
 		if version == 0 {
 			return goose.Up(s.db, s.cfg.Dir)
 		}
+
 		return goose.UpTo(s.db, s.cfg.Dir, version)
 	}
 
@@ -61,6 +62,7 @@ func (s Sequence) MigrateDown(version int64) error {
 		if version == 0 {
 			return goose.Down(s.db, s.cfg.Dir)
 		}
+
 		return goose.DownTo(s.db, s.cfg.Dir, version)
 	}
 

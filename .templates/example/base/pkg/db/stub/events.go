@@ -48,17 +48,21 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 		if ind == -1 {
 			return nil, provider.ErrNotExistingEvent
 		}
+
 		if item != nil {
 			return nil, provider.ErrAlreadyExistingID
 		}
 	}
+
 	ep.Data = append(ep.Data, *model)
+
 	return model, nil
 }
 
 // Find returns Event requested by ID
 func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	ind, item := ep.findByID(id)
+
 	if ind == -1 {
 		return nil, provider.ErrNotExistingEvent
 	}
@@ -75,9 +79,11 @@ func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
 // List returns all Event objects
 func (ep *eventsProvider) List() ([]events.Event, error) {
 	items := make([]events.Event, len(ep.Data))
+
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
 	copy(items, ep.Data)
+
 	return items, nil
 }
 
@@ -91,6 +97,7 @@ func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
 	ep.Data = append(append(ep.Data[:ind], *model), ep.Data[ind+1:]...)
+
 	return model, nil
 }
 
@@ -104,6 +111,7 @@ func (ep *eventsProvider) Delete(id string) error {
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
 	ep.Data = append(ep.Data[:ind], ep.Data[ind+1:]...)
+
 	return nil
 }
 
@@ -120,6 +128,7 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 		ep.mutex.Unlock()
 		indices, _ = ep.findByName(name)
 	}
+
 	return nil
 }
 
@@ -139,6 +148,7 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 func (ep *eventsProvider) findByName(name string) ([]int, []events.Event) {
 	indices := make([]int, 0)
 	items := make([]events.Event, 0)
+
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
 
@@ -156,9 +166,21 @@ func (ep *eventsProvider) load() error {
 	ep.Data = make([]events.Event, 0)
 	path := filepath.Join(ep.cfg.Fixtures.Dir, "events/data.json")
 	f, err := readFile(path)
+
 	if err != nil || f == nil {
 		return err
 	}
 	defer f.Close()
+
 	return json.NewDecoder(bufio.NewReader(f)).Decode(&ep)
+}
+
+func readFile(path string) (*os.File, error) {
+	_, err := os.Stat(path)
+	// if file does not exist, return "empty data" without error
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+
+	return os.Open(path) // nolint: gosec
 }

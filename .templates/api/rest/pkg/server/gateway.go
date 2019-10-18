@@ -73,6 +73,7 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 		return err
 	}
 	{{[- if .Example ]}}
+
 	if err := events.RegisterEventsHandlerFromEndpoint(
 		ctx, gateway, forward, opts,
 	); err != nil {
@@ -97,9 +98,11 @@ func (gw GatewayServer) Shutdown(ctx context.Context) error {
 // TLSOptions gives TLS secure/insecure option
 func (gw GatewayServer) TLSOptions() []grpc.DialOption {
 	options := []grpc.DialOption{}
+
 	if gw.cfg.Insecure {
 		return append(options, grpc.WithInsecure())
 	}
+
 	return append(options, grpc.WithTransportCredentials(credentials.NewTLS(
 		&tls.Config{
 			// nolint: gosec
@@ -122,12 +125,15 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 {{[- if .API.Config.Insecure ]}}
 	mux.Handle("/", handler)
 	gw.srv.Handler = mux
+
 	return gw.srv.ListenAndServe()
 }
 {{[- else ]}}
-	if gw.cfg.Insecure {
+
+if gw.cfg.Insecure {
 		mux.Handle("/", handler)
 		gw.srv.Handler = mux
+
 		return gw.srv.ListenAndServe()
 	}
 
@@ -135,6 +141,7 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 		w.Header().Add("Strict-Transport-Security", "max-age=15768000; includeSubDomains")
 		handler.ServeHTTP(w, r)
 	})
+
 	gw.srv.Handler = mux
 	gw.srv.TLSConfig = &tls.Config{
 		MinVersion:               tls.VersionTLS12,

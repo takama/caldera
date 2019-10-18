@@ -17,21 +17,26 @@ func Run(cfg *config.Config) {
 	if cfg.Storage.Config.Name == "" {
 		cfg.Storage.Config.Name = cfg.Name
 	}
+
 	if cfg.Storage.MySQL {
 		cfg.Storage.Config.Driver = config.StorageMySQL
 	}
+
 	if cfg.Storage.Postgres {
 		cfg.Storage.Config.Driver = config.StoragePostgres
 	}
+
 	helper.LogF("Base templates", copyTemplates(
 		path.Join(cfg.Directories.Templates, config.Base),
 		cfg.Directories.Service,
 	))
+
 	if cfg.API.Enabled {
 		helper.LogF("Storage base templates", copyTemplates(
 			path.Join(cfg.Directories.Templates, config.API, config.Base),
 			cfg.Directories.Service,
 		))
+
 		if cfg.API.Gateway {
 			helper.LogF("Gateway templates for API", copyTemplates(
 				path.Join(cfg.Directories.Templates, config.API, config.APIGateway),
@@ -39,17 +44,20 @@ func Run(cfg *config.Config) {
 			))
 		}
 	}
+
 	if cfg.Storage.Enabled {
 		helper.LogF("Storage base templates", copyTemplates(
 			path.Join(cfg.Directories.Templates, config.Storage, config.Base),
 			cfg.Directories.Service,
 		))
+
 		if cfg.Storage.Postgres {
 			helper.LogF("Storage templates for postgres", copyTemplates(
 				path.Join(cfg.Directories.Templates, config.Storage, config.StoragePostgres),
 				cfg.Directories.Service,
 			))
 		}
+
 		if cfg.Storage.MySQL {
 			helper.LogF("Storage templates for mysql", copyTemplates(
 				path.Join(cfg.Directories.Templates, config.Storage, config.StorageMySQL),
@@ -57,17 +65,20 @@ func Run(cfg *config.Config) {
 			))
 		}
 	}
+
 	if cfg.API.Enabled && cfg.Storage.Enabled && cfg.Example {
 		helper.LogF("Contract example templates", copyTemplates(
 			path.Join(cfg.Directories.Templates, config.Example, config.Base),
 			cfg.Directories.Service,
 		))
+
 		if cfg.Storage.Postgres {
 			helper.LogF("Contract templates for postgres", copyTemplates(
 				path.Join(cfg.Directories.Templates, config.Example, config.StoragePostgres),
 				cfg.Directories.Service,
 			))
 		}
+
 		if cfg.Storage.MySQL {
 			helper.LogF("Contract templates for mysql", copyTemplates(
 				path.Join(cfg.Directories.Templates, config.Example, config.StorageMySQL),
@@ -75,11 +86,14 @@ func Run(cfg *config.Config) {
 			))
 		}
 	}
+
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
+
 	if cfg.API.Enabled {
 		helper.LogF("Generate contracts", Exec("make", "contracts"))
 	}
+
 	log.Println("Initialize vendors:")
 	helper.LogF("Init modules", Exec("go", "mod", "init", cfg.Project))
 	helper.LogF("Tests", Exec("make", "check-all"))
@@ -90,6 +104,7 @@ func Run(cfg *config.Config) {
 		helper.LogF("Add repo files", Exec("git", "add", "--all"))
 		helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
 	}
+
 	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
 }
 
@@ -99,5 +114,6 @@ func Exec(command ...string) error {
 	execCmd.Stderr = os.Stderr
 	execCmd.Stdout = os.Stdout
 	execCmd.Stdin = os.Stdin
+
 	return execCmd.Run()
 }

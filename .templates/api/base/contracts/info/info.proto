@@ -4,7 +4,6 @@ package info;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 option go_package = "{{[ .Project ]}}/contracts/info";
 

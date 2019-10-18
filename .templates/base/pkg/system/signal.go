@@ -61,6 +61,7 @@ func NewSignals() *Signals {
 		maintenance: []os.Signal{syscall.SIGUSR1},
 	}
 	signal.Notify(signals.interrupt)
+
 	return signals
 }
 
@@ -68,6 +69,7 @@ func NewSignals() *Signals {
 func (s *Signals) Get(sigType SignalType) (signals []os.Signal) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
+
 	switch sigType {
 	case Shutdown:
 		signals = make([]os.Signal, len(s.shutdown))
@@ -87,6 +89,7 @@ func (s *Signals) Get(sigType SignalType) (signals []os.Signal) {
 func (s *Signals) Add(sig os.Signal, sigType SignalType) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
 	switch sigType {
 	case Shutdown:
 		s.shutdown = append(s.shutdown, sig)
@@ -101,6 +104,7 @@ func (s *Signals) Add(sig os.Signal, sigType SignalType) {
 func (s *Signals) Remove(sig os.Signal, sigType SignalType) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
 	switch sigType {
 	case Shutdown:
 		s.shutdown = removeSignal(sig, s.shutdown)
@@ -121,28 +125,36 @@ func (s *Signals) Wait(logger *zap.Logger, operator Operator) error {
 		case sig := <-s.interrupt:
 			s.mutex.RLock()
 			logger.Info("Receiving signal", zap.String("type", sig.String()))
+
 			switch {
 			case isSignalAvailable(sig, s.maintenance):
 				s.mutex.RUnlock()
 				logger.Info("Maintenance request")
+
 				err := operator.Maintenance()
+
 				if err != nil {
 					logger.Error(err.Error())
 				}
 			case isSignalAvailable(sig, s.reload):
 				s.mutex.RUnlock()
 				logger.Info("Reloading configuration request")
+
 				err := operator.Reload()
+
 				if err != nil {
 					logger.Error(err.Error())
 				}
 			case isSignalAvailable(sig, s.shutdown):
 				s.mutex.RUnlock()
 				logger.Info("Service will shutdown by system signal")
+
 				errs := operator.Shutdown()
+
 				for _, err := range errs {
 					logger.Error(err.Error())
 				}
+
 				s.quit <- struct{}{}
 			}
 		}
@@ -156,6 +168,7 @@ func isSignalAvailable(signal os.Signal, list []os.Signal) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -168,5 +181,6 @@ func removeSignal(signal os.Signal, list []os.Signal) (signals []os.Signal) {
 			return
 		}
 	}
+
 	return list
 }

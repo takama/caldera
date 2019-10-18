@@ -53,6 +53,7 @@ func doMigration(cmd *cobra.Command, action migrateAction) {
 
 	v, err := cmd.PersistentFlags().GetInt64("version")
 	helper.LogE("Migrate version not used", err)
+
 	switch action {
 	case migrateDown:
 		err = mig.MigrateDown(v)
@@ -61,5 +62,6 @@ func doMigration(cmd *cobra.Command, action migrateAction) {
 	default:
 		err = mig.MigrateUp(v)
 	}
+
 	helper.LogF("Migration error", err)
 }
