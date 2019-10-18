@@ -61,6 +61,7 @@ const (
 )
 
 // New creates and configure new zap logger
+// nolint: funlen
 func New(cfg *Config) *zap.Logger {
 	// Define our level-handling logic.
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
@@ -74,17 +75,21 @@ func New(cfg *Config) *zap.Logger {
 	// output should go to standard out.
 	consoleDebugging := zapcore.Lock(os.Stdout)
 	consoleErrors := zapcore.Lock(os.Stderr)
+
 	if cfg.Out != nil {
 		consoleDebugging = zapcore.Lock(cfg.Out)
 	}
+
 	if cfg.Err != nil {
 		consoleErrors = zapcore.Lock(cfg.Err)
 	}
 
 	var timeKey string
+
 	if cfg.Time {
 		timeKey = "ts"
 	}
+
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        timeKey,
 		LevelKey:       "level",
@@ -100,6 +105,7 @@ func New(cfg *Config) *zap.Logger {
 
 	// Optimize console output for operators.
 	var encoder zapcore.Encoder
+
 	switch cfg.Format {
 	case JSONFormatter.String():
 		// Optimize console output for parsing.

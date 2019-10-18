@@ -31,6 +31,7 @@ func Run() {
 	helper.LogF("Service bootstrap error", RootCmd.Execute())
 }
 
+// nolint: funlen
 func init() {
 	viper.SetEnvPrefix(config.ServiceName)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
@@ -61,6 +62,7 @@ func init() {
 	RootCmd.PersistentFlags().Int("max-conn", 10, "Maximum of database connections")
 	RootCmd.PersistentFlags().Int("idle-conn", 1, "Count of idle database connections")
 	RootCmd.PersistentFlags().StringP("fixtures-dir", "F", "fixtures", "A database fixtures directory")
+
 	helper.LogF("Flag error",
 		viper.BindPFlag("database.driver", RootCmd.PersistentFlags().Lookup("database-driver")))
 	helper.LogF("Flag error",

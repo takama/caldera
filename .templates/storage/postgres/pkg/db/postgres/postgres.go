@@ -37,12 +37,17 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*Postgres, e
 		cfg: cfg,
 		log: log,
 	}
+
 	var err error
+
 	p.pool, err = db.Connect(cfg)
+
 	if err != nil {
 		return nil, err
 	}
+
 	name := cfg.Driver
+
 	if err := p.pool.QueryRow("SELECT version()").Scan(&name); err != nil {
 		return nil, err
 	}

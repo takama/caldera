@@ -48,7 +48,9 @@ func Run(cfg *config.Config) error {
 
 	// Connect to the database
 	var database db.Store
+
 	var err error
+
 	switch cfg.Database.Driver {
 	{{[- if .Storage.Postgres ]}}
 	case postgres.Driver:
@@ -63,6 +65,7 @@ func Run(cfg *config.Config) error {
 	default:
 		database, err = stub.New(&cfg.Database, log)
 	}
+
 	if err != nil {
 		return err
 	}
