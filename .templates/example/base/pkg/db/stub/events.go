@@ -162,3 +162,12 @@ func (ep *eventsProvider) load() error {
 	defer f.Close()
 	return json.NewDecoder(bufio.NewReader(f)).Decode(&ep)
 }
+
+func readFile(path string) (*os.File, error) {
+	_, err := os.Stat(path)
+	// if file does not exist, return "empty data" without error
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+	return os.Open(path) // nolint: gosec
+}
