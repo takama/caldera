@@ -1,4 +1,8 @@
-# Version v0.1.4
+# Version v0.1.5
+
+## v0.1.5
+
+- Updated helm templates (Issue [32](https://github.com/takama/caldera/issues/32), [@takama](https://github.com/takama))
 
 ## v0.1.4
 
