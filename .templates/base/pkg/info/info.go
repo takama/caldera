@@ -67,6 +67,7 @@ func (s *Service) Run(addr string) *http.Server {
 				err != http.ErrServerClosed {
 				s.logger.Fatal(err.Error())
 			}
+
 			s.logger.Warn(err.Error())
 		}
 	}()

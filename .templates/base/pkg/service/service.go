@@ -137,6 +137,7 @@ func Run(cfg *config.Config) error {
 				err != http.ErrServerClosed {
 				log.Fatal(err.Error())
 			}
+
 			log.Error(err.Error())
 		}
 	}()
@@ -150,6 +151,7 @@ func Run(cfg *config.Config) error {
 			if err != http.ErrServerClosed {
 				log.Fatal(err.Error())
 			}
+
 			log.Error(err.Error())
 		}
 	}()
