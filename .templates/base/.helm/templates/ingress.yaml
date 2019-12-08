@@ -1,48 +1,72 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := .Values.service.name -}}
-{{- $servicePort := .Values.service.gateway.port -}}
+{{- $serviceName := .Values.service.name }}
+{{- $release := .Release }}
+{{- $fullname := include "fullname" . }}
+{{- $name := include "name" . }}
+{{- $chart := .Chart }}
+{{- $ingress := .Values.ingress }}
+
+{{- if .Values.ingress.contour.enabled -}}
+{{- range $key, $service := .Values.ingress.hosts }}
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  annotations:
+  {{- range $key, $value := $ingress.contour.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    app: {{ $fullname }}
+    chart: "{{ $chart.Name }}-{{ $chart.Version }}"
+    component: "{{ $serviceName }}"
+    heritage: "{{ $release.Service }}"
+    release: "{{ $release.Name }}"
+  name: {{ $name }}-{{ $service.name }}
+spec:
+  virtualhost:
+    fqdn: {{ $service.host }}
+    {{- if $ingress.tls.enabled }}
+    tls:
+      secretName: {{ $ingress.tls.secretName }}
+    {{- end }}
+  routes:
+    - match: {{ $service.path }}
+      services:
+        - name: {{ $serviceName }}
+          port: {{ $service.port }}
+
+{{- end }}
+{{- else }}
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    ingress.kubernetes.io/rewrite-target: {{ .Values.ingress.prefix }}
-  {{- range $key, $value := .Values.ingress.annotations }}
+  {{- range $key, $value := $ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    component: "{{ .Values.service.name }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
-  name: {{ template "name" . }}
+    app: {{ $fullname }}
+    chart: "{{ $chart.Name }}-{{ $chart.Version }}"
+    component: "{{ $serviceName }}"
+    heritage: "{{ $release.Service }}"
+    release: "{{ $release.Name }}"
+  name: {{ $name }}
 spec:
-  rules:
-  {{- range .Values.ingress.hostBased.hosts }}
-  - host: {{ . }}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: {{ $serviceName }}
-          servicePort: {{ $servicePort }}
-  {{- end }}
-  {{- range .Values.ingress.pathBased.hosts }}
-  - host: {{ . }}
-    http:
-      paths:
-      - path: /{{ $serviceName }}
-        backend:
-          serviceName: {{ $serviceName }}
-          servicePort: {{ $servicePort }}
-  {{- end }}
-  {{- if .Values.ingress.tls.enabled }}
+  {{- if $ingress.tls.enabled }}
   tls:
-  {{- if .Values.ingress.hostBased.tls }}
-{{ toYaml .Values.ingress.hostBased.tls | indent 2 }}
+  - secretName: {{ $ingress.tls.secretName }}
   {{- end }}
-  {{- if .Values.ingress.pathBased.tls }}
-{{ toYaml .Values.ingress.pathBased.tls | indent 2 }}
-  {{- end -}}
-  {{- end -}}
+  rules:
+  {{- range $key, $service := .Values.ingress.hosts }}
+  - host: {{ $service.host }}
+    http:
+      paths:
+      - path: {{ $service.path }}
+        backend:
+          serviceName: {{ $serviceName }}
+          servicePort: {{ $service.port }}
+  {{- end }}
+{{- end }}
 {{- end -}}
