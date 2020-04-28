@@ -12,12 +12,12 @@ type Config struct {
 	Gateway Gateway
 }
 
-// Gateway contains params to setup gateway
+// Gateway contains params to setup gateway.
 type Gateway struct {
 	Port int
 }
 
-// Certificates contains path to certificates and key
+// Certificates contains path to certificates and key.
 type Certificates struct {
 	Crt string
 	Key string

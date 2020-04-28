@@ -6,7 +6,7 @@ import (
 	"{{[ .Project ]}}/contracts/events"
 )
 
-// Events defines data store Events provider methods
+// Events defines data store Events provider methods.
 type Events interface {
 	TransactProvider() (EventsTransact, error)
 	Context(ctx context.Context) Events
@@ -19,7 +19,7 @@ type Events interface {
 	DeleteByName(name string) error
 }
 
-// EventsTransact allow transactions in provider
+// EventsTransact allow transactions in provider.
 type EventsTransact interface {
 	Transact
 	Events

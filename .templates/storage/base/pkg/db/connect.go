@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Connect to SQL database specified in configuration
+// Connect to SQL database specified in configuration.
 func Connect(cfg *Config) (*sql.DB, error) {
 	var properties string
 

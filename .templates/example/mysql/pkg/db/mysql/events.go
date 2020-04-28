@@ -18,7 +18,7 @@ func newEventsProvider(db *sql.DB) *eventsProvider {
 	return &eventsProvider{SQL: provider.New(db)}
 }
 
-// Transaction returns provider with transaction
+// Transaction returns provider with transaction.
 func (ep *eventsProvider) TransactProvider() (provider.EventsTransact, error) {
 	p, err := ep.SQL.TransactProvider()
 	if err != nil {
@@ -27,12 +27,12 @@ func (ep *eventsProvider) TransactProvider() (provider.EventsTransact, error) {
 	return &eventsProvider{SQL: p}, nil
 }
 
-// Context returns provider with context
+// Context returns provider with context.
 func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 	return &eventsProvider{SQL: ep.SQL.Context(ctx)}
 }
 
-// Create new Event object
+// Create new Event object.
 func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	if model.Name == "" {
 		return nil, provider.ErrNotDefinedName
@@ -47,24 +47,24 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	return model, err
 }
 
-// Find returns Event requested by ID
+// Find returns Event requested by ID.
 func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	event := new(events.Event)
 	row := ep.QueryRow(queryEventByID, id)
 	return event, row.Scan(&event.Id, &event.Name)
 }
 
-// FindByName returns Events requested by Event name
+// FindByName returns Events requested by Event name.
 func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
 	return ep.find(queryEventsByName, name)
 }
 
-// List returns all Event objects
+// List returns all Event objects.
 func (ep *eventsProvider) List() ([]events.Event, error) {
 	return ep.find(queryEvents)
 }
 
-// Update Event object
+// Update Event object.
 func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	if model.Id == "" {
 		return nil, provider.ErrNotDefinedID
@@ -81,7 +81,7 @@ func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	return model, err
 }
 
-// Delete removes Event object by ID
+// Delete removes Event object by ID.
 func (ep *eventsProvider) Delete(id string) error {
 	if id == "" {
 		return provider.ErrNotDefinedID
@@ -95,7 +95,7 @@ func (ep *eventsProvider) Delete(id string) error {
 	return err
 }
 
-// DeleteByName removes Event objects by Event name
+// DeleteByName removes Event objects by Event name.
 func (ep *eventsProvider) DeleteByName(name string) error {
 	if name == "" {
 		return provider.ErrNotDefinedName

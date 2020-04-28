@@ -18,27 +18,27 @@ type eventsProvider struct {
 	Data  []events.Event
 }
 
-// Transaction returns provider with transaction
+// Transaction returns provider with transaction.
 func (ep *eventsProvider) TransactProvider() (provider.EventsTransact, error) {
 	return ep, nil
 }
 
-// Commit changes in depth of transaction
+// Commit changes in depth of transaction.
 func (ep *eventsProvider) Commit() error {
 	return nil
 }
 
-// Rollback changes in depth of transaction
+// Rollback changes in depth of transaction.
 func (ep *eventsProvider) Rollback() error {
 	return nil
 }
 
-// Context returns provider with context
+// Context returns provider with context.
 func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 	return ep
 }
 
-// Create new Event object
+// Create new Event object.
 func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
@@ -59,7 +59,7 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	return model, nil
 }
 
-// Find returns Event requested by ID
+// Find returns Event requested by ID.
 func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	ind, item := ep.findByID(id)
 
@@ -70,13 +70,13 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 	return item, nil
 }
 
-// FindByName returns Events requested by Event name
+// FindByName returns Events requested by Event name.
 func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
 	_, items := ep.findByName(name)
 	return items, nil
 }
 
-// List returns all Event objects
+// List returns all Event objects.
 func (ep *eventsProvider) List() ([]events.Event, error) {
 	items := make([]events.Event, len(ep.Data))
 
@@ -87,7 +87,7 @@ func (ep *eventsProvider) List() ([]events.Event, error) {
 	return items, nil
 }
 
-// Update Event object
+// Update Event object.
 func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	ind, _ := ep.findByID(model.Id)
 	if ind == -1 {
@@ -101,7 +101,7 @@ func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	return model, nil
 }
 
-// Delete removes Event object by ID
+// Delete removes Event object by ID.
 func (ep *eventsProvider) Delete(id string) error {
 	ind, _ := ep.findByID(id)
 	if ind == -1 {
@@ -115,7 +115,7 @@ func (ep *eventsProvider) Delete(id string) error {
 	return nil
 }
 
-// DeleteByName removes Event objects by Event name
+// DeleteByName removes Event objects by Event name.
 func (ep *eventsProvider) DeleteByName(name string) error {
 	indices, _ := ep.findByName(name)
 	if len(indices) == 0 {

@@ -1,5 +1,5 @@
-// Package commands process flags/environment variables/config file
-// It contains global variables with configs and commands
+// Package commands process flags/environment variables/config file.
+// It contains global variables with configs and commands.
 // nolint: gochecknoglobals, gochecknoinits, unparam
 package commands
 
@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// serveCmd represents the serve command
+// serveCmd represents the serve command.
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Listen and handle requests including health/ready checks",

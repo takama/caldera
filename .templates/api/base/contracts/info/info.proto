@@ -7,32 +7,32 @@ import "google/protobuf/empty.proto";
 
 option go_package = "{{[ .Project ]}}/contracts/info";
 
-// Interface exported by the server
+// Interface exported by the server.
 service Info {
-  // Get an information about the service
+  // Get an information about the service.
   rpc GetInfo (google.protobuf.Empty) returns (Report) {
     option (google.api.http).get = "/v1/info";
   }
 
-  // Get a health information for the service
+  // Get a health information for the service.
   rpc GetHealth (google.protobuf.Empty) returns (Health) {
     option (google.api.http).get = "/v1/health";
   }
 }
 
-// A Report about the service
+// A Report about the service.
 message Report {
-  // Version of the service
+  // Version of the service.
   string version = 1;
 
-  // Build date of the service 
+  // Build date of the service.
   string date = 2;
 
-  // Repository name
+  // Repository name.
   string repo = 3;
 }
 
-// A Health report about the service
+// A Health report about the service.
 message Health {
   // Health state
   bool alive = 1;

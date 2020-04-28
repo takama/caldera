@@ -4,14 +4,14 @@ package request;
 
 option go_package = "{{[ .Project ]}}/contracts/request";
 
-// A request by name
+// A request by name.
 message ByName {
-  // Specified name
+  // Specified name.
   string name = 1;
 }
 
-// A request by ID
+// A request by ID.
 message ByID {
-  // Specified ID
+  // Specified ID.
   string id = 1;
 }

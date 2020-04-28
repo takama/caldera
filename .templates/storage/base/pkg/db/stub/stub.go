@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	// Driver defines database driver name
+	// Driver defines database driver name.
 	Driver = "stub"
 )
 
-// Stub contains stub configuration
+// Stub contains stub configuration.
 type Stub struct {
 	cfg *db.Config
 	log *zap.Logger
@@ -27,7 +27,7 @@ type Stub struct {
 	{{[- end ]}}
 }
 
-// New creates new DB connection
+// New creates new DB connection.
 func New(cfg *db.Config, log *zap.Logger) (*Stub, error) {
 	log.Info("DB", zap.String("driver", Driver))
 
@@ -48,12 +48,12 @@ func New(cfg *db.Config, log *zap.Logger) (*Stub, error) {
 	return conn, nil
 }
 
-// Check DB
+// Check DB.
 func (s Stub) Check() error {
 	return nil
 }
 
-// Shutdown process graceful shutdown for the storage
+// Shutdown process graceful shutdown for the storage.
 func (s Stub) Shutdown(ctx context.Context) error {
 	s.log.Debug("DB closed", zap.String("driver", Driver))
 	return nil
@@ -61,7 +61,7 @@ func (s Stub) Shutdown(ctx context.Context) error {
 
 {{[- if .Example ]}}
 
-// EventsProvider returns data store provider for Events
+// EventsProvider returns data store provider for Events.
 func (s Stub) EventsProvider() provider.Events {
 	return s.events
 }

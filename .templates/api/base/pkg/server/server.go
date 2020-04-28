@@ -21,19 +21,19 @@ import (
 	{{[- end ]}}
 )
 
-// Server contains core functionality of the service
+// Server contains core functionality of the service.
 type Server struct {
 	cfg *Config
 	log *zap.Logger
 	srv *grpc.Server
 	is  *infoServer
 	{{[- if .Example ]}}
-	// Contract provider servers
+	// Contract provider servers.
 	es *eventsServer
 	{{[- end ]}}
 }
 
-// New creates a new core server
+// New creates a new core server.
 func New(ctx context.Context, cfg *Config, log *zap.Logger) (*Server, error) {
 	return &Server{
 		cfg: cfg,
@@ -47,7 +47,7 @@ func New(ctx context.Context, cfg *Config, log *zap.Logger) (*Server, error) {
 
 {{[- if .Example ]}}
 
-// RegisterEventsProvider assign data store provider for Events
+// RegisterEventsProvider assign data store provider for Events.
 func (s *Server) RegisterEventsProvider(provider provider.Events) {
 	if provider != nil {
 		s.es.Events = provider
@@ -55,17 +55,17 @@ func (s *Server) RegisterEventsProvider(provider provider.Events) {
 }
 {{[- end ]}}
 
-// LivenessProbe returns liveness probe of the server
+// LivenessProbe returns liveness probe of the server.
 func (s Server) LivenessProbe() error {
 	return nil
 }
 
-// ReadinessProbe returns readiness probe for the server
+// ReadinessProbe returns readiness probe for the server.
 func (s Server) ReadinessProbe() error {
 	return nil
 }
 
-// Run starts the server
+// Run starts the server.
 func (s *Server) Run(ctx context.Context) error {
 	{{[- if .Example ]}}
 	if err := s.checkProviders(); err != nil {
@@ -91,7 +91,7 @@ func (s *Server) Run(ctx context.Context) error {
 	return s.srv.Serve(listener)
 }
 
-// Shutdown process graceful shutdown for the server
+// Shutdown process graceful shutdown for the server.
 func (s Server) Shutdown(ctx context.Context) error {
 	if s.srv != nil {
 		s.srv.GracefulStop()
@@ -113,7 +113,7 @@ func (s Server) checkProviders() error {
 
 {{[- if not .API.Config.Insecure ]}}
 
-// ServerOptions gives server authentication and secure/insecure options
+// ServerOptions gives server authentication and secure/insecure options.
 func (s Server) ServerOptions() []grpc.ServerOption {
 	options := []grpc.ServerOption{}
 
