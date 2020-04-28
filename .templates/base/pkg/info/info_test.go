@@ -1,4 +1,4 @@
-package info
+package info_test
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"{{[ .Project ]}}/pkg/info"
 	"{{[ .Project ]}}/pkg/logger"
 	"{{[ .Project ]}}/pkg/version"
 )
@@ -33,7 +34,7 @@ func testHandler(
 }
 
 func TestProbe(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service.ServeHTTP, "GET", "/healthz",
 		http.StatusOK, "Ok",
@@ -59,7 +60,7 @@ func TestProbe(t *testing.T) {
 }
 
 func TestNotAllowed(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service.ServeHTTP, "POST", "/",
 		http.StatusMethodNotAllowed, "Only GET is allowed\n",
@@ -67,7 +68,7 @@ func TestNotAllowed(t *testing.T) {
 }
 
 func TestOptions(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service.ServeHTTP, "OPTIONS", "/",
 		http.StatusOK, "",
@@ -75,7 +76,7 @@ func TestOptions(t *testing.T) {
 }
 
 func TestNotFound(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service.ServeHTTP, "GET", "/notfound",
 		http.StatusNotFound, "404 page not found\n",
@@ -87,7 +88,7 @@ func TestNotFound(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	service.AddHandler(
 		// nolint: unparam
 		"/handler", func(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +109,7 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestInfo(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	data, err := json.Marshal(
 		map[string]string{
 			"version": version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
@@ -128,7 +129,7 @@ func TestInfo(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	service := NewService(logger.New(new(logger.Config)))
+	service := info.NewService(logger.New(new(logger.Config)))
 	h := service.Run(":0")
 
 	if h == nil {

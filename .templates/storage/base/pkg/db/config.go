@@ -1,6 +1,6 @@
 package db
 
-// Config contains params to setup database connection
+// Config contains params to setup database connection.
 type Config struct {
 	Driver      string
 	Host        string
@@ -13,13 +13,13 @@ type Config struct {
 	Fixtures    Fixtures
 }
 
-// Connections configures DB connections state
+// Connections configures DB connections state.
 type Connections struct {
 	Max  int
 	Idle int
 }
 
-// Fixtures attributes
+// Fixtures attributes.
 type Fixtures struct {
 	Dir string
 }

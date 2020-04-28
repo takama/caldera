@@ -13,7 +13,7 @@ import (
 	"github.com/takama/caldera/pkg/helper"
 )
 
-// render executes templates in service directory with configured data
+// render executes templates in service directory with configured data.
 func render(cfg *config.Config) error {
 	return filepath.Walk(
 		cfg.Directories.Service,

@@ -25,14 +25,14 @@ import (
 	{{[- end ]}}
 )
 
-// GatewayServer contains gateway functionality of the service
+// GatewayServer contains gateway functionality of the service.
 type GatewayServer struct {
 	cfg *Config
 	log *zap.Logger
 	srv *http.Server
 }
 
-// NewGateway creates a new gateway server
+// NewGateway creates a new gateway server.
 func NewGateway(ctx context.Context, cfg *Config, log *zap.Logger) (*GatewayServer, error) {
 	return &GatewayServer{
 		cfg: cfg,
@@ -40,17 +40,17 @@ func NewGateway(ctx context.Context, cfg *Config, log *zap.Logger) (*GatewayServ
 	}, nil
 }
 
-// LivenessProbe returns liveness probe of the server
+// LivenessProbe returns liveness probe of the server.
 func (gw GatewayServer) LivenessProbe() error {
 	return nil
 }
 
-// ReadinessProbe returns readiness probe for the server
+// ReadinessProbe returns readiness probe for the server.
 func (gw GatewayServer) ReadinessProbe() error {
 	return nil
 }
 
-// Run starts the gateway server
+// Run starts the gateway server.
 func (gw *GatewayServer) Run(ctx context.Context) error {
 	forward := fmt.Sprintf("localhost:%d", gw.cfg.Port)
 
@@ -80,11 +80,11 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 		return err
 	}
 	{{[- end ]}}
-	
+
 	return gw.Serve(gateway)
 }
 
-// Shutdown process graceful shutdown for the gateway server
+// Shutdown process graceful shutdown for the gateway server.
 func (gw GatewayServer) Shutdown(ctx context.Context) error {
 	if gw.srv != nil {
 		return gw.srv.Shutdown(ctx)
@@ -95,7 +95,7 @@ func (gw GatewayServer) Shutdown(ctx context.Context) error {
 
 {{[- if not .API.Config.Insecure ]}}
 
-// TLSOptions gives TLS secure/insecure option
+// TLSOptions gives TLS secure/insecure option.
 func (gw GatewayServer) TLSOptions() []grpc.DialOption {
 	options := []grpc.DialOption{}
 
@@ -112,15 +112,15 @@ func (gw GatewayServer) TLSOptions() []grpc.DialOption {
 }
 {{[- end ]}}
 
-// Serve prepares server and listen
+// Serve prepares server and listen.
 func (gw *GatewayServer) Serve(handler http.Handler) error {
 	// Create gateway server
 	gw.srv = &http.Server{
-		// Listening http -> gRPC address
+		// Listening http -> gRPC address.
 		Addr: fmt.Sprintf(":%d", gw.cfg.Gateway.Port),
 	}
 
-	// Add gateway handler
+	// Add gateway handler.
 	mux := http.NewServeMux()
 {{[- if .API.Config.Insecure ]}}
 	mux.Handle("/", handler)
@@ -130,7 +130,7 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 }
 {{[- else ]}}
 
-if gw.cfg.Insecure {
+	if gw.cfg.Insecure {
 		mux.Handle("/", handler)
 		gw.srv.Handler = mux
 

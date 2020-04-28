@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Default values: host, port, etc
+// Default values: host, port, etc.
 const (
 	// ServiceName - default service name
 	ServiceName = "{{[ .Name ]}}"
@@ -24,7 +24,7 @@ const (
 	DefaultServerPort     = {{[ .API.Config.Port ]}}
 	{{[- if not .API.Config.Insecure ]}}
 	DefaultServerInsecure = false
-	DefaultServerCrtPath  = "certs/tls.crt" 
+	DefaultServerCrtPath  = "certs/tls.crt"
 	DefaultServerKeyPath  = "certs/tls.key" 
 	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
@@ -36,7 +36,7 @@ const (
 	DefaultLoggerLevel    = logger.LevelInfo
 )
 
-// Config -- Base config structure
+// Config -- Base config structure.
 type Config struct {
 	{{[- if .API.Enabled ]}}
 	Server     server.Config
@@ -49,7 +49,7 @@ type Config struct {
 	Logger     logger.Config
 }
 
-// New - returns new config record initialized with default values
+// New - returns new config record initialized with default values.
 func New() (*Config, error) {
 	cfg := &Config{
 		{{[- if .API.Enabled ]}}
@@ -63,7 +63,7 @@ func New() (*Config, error) {
 			},
 			{{[- end ]}}
 			{{[- if .API.Gateway ]}}
-			Gateway:  server.Gateway{
+			Gateway: server.Gateway{
 				Port: DefaultGatewayPort,
 			},
 			{{[- end ]}}

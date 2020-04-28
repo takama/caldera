@@ -12,7 +12,7 @@ import (
 type infoServer struct {
 }
 
-// GetInfo returns the server information
+// GetInfo returns the server information.
 func (is infoServer) GetInfo(
 	ctx context.Context,
 	empty *empty.Empty,
@@ -24,7 +24,7 @@ func (is infoServer) GetInfo(
 	}, nil
 }
 
-// GetHealth returns the server health information
+// GetHealth returns the server health information.
 func (is infoServer) GetHealth(
 	ctx context.Context,
 	empty *empty.Empty,
@@ -34,7 +34,7 @@ func (is infoServer) GetHealth(
 	}, nil
 }
 
-// AuthFuncOverride allows a given gRPC service implementation to override the global `AuthFunc`
+// AuthFuncOverride allows a given gRPC service implementation to override the global `AuthFunc`.
 func (is infoServer) AuthFuncOverride(
 	ctx context.Context,
 	fullMethodName string,

@@ -1,4 +1,10 @@
-# Version v0.1.5
+# Version v0.1.6
+
+## v0.1.6
+
+- Changed protobuf/gateway versions ([@takama](https://github.com/takama))
+- Fixed linter issues in CLI utility ([@takama](https://github.com/takama))
+- Fixed linter issues in templates ([@takama](https://github.com/takama))
 
 ## v0.1.5
 

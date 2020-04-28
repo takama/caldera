@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	// Driver defines database driver name
+	// Driver defines database driver name.
 	Driver = "mysql"
 )
 
-// MySQL controls mysql driver connection and providers
+// MySQL controls mysql driver connection and providers.
 type MySQL struct {
 	pool *sql.DB
 	cfg  *db.Config
@@ -31,7 +31,7 @@ type MySQL struct {
 	{{[- end ]}}
 }
 
-// New creates new postgres DB connection
+// New creates new postgres DB connection.
 func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, error) {
 	m := &MySQL{
 		cfg: cfg,
@@ -65,19 +65,19 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, erro
 	return m, mig.Migrate()
 }
 
-// Check readiness for database
+// Check readiness for database.
 func (m MySQL) Check() error {
 	return m.pool.Ping()
 }
 
-// Shutdown process graceful shutdown for the server
+// Shutdown process graceful shutdown for the server.
 func (m MySQL) Shutdown(ctx context.Context) error {
 	return m.pool.Close()
 }
 
 {{[- if .Example ]}}
 
-// EventsProvider returns data store provider for Events
+// EventsProvider returns data store provider for Events.
 func (m MySQL) EventsProvider() provider.Events {
 	return m.events
 }

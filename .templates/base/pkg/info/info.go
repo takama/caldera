@@ -12,16 +12,16 @@ import (
 	"go.uber.org/zap"
 )
 
-// Config contains params to setup info handler
+// Config contains params to setup info handler.
 type Config struct {
 	Port       int
 	Statistics bool
 }
 
-// ProbeChecker defines simple function for probe checks
+// ProbeChecker defines simple function for probe checks.
 type ProbeChecker func() error
 
-// Service contains info/health-check functionality
+// Service contains info/health-check functionality.
 type Service struct {
 	handlers        map[string]http.HandlerFunc
 	logger          *zap.Logger
@@ -29,7 +29,7 @@ type Service struct {
 	readinessProbes []ProbeChecker
 }
 
-// NewService creates new service with info/health-check handlers
+// NewService creates new service with info/health-check handlers.
 func NewService(logger *zap.Logger) *Service {
 	return &Service{
 		logger:   logger,
@@ -37,22 +37,22 @@ func NewService(logger *zap.Logger) *Service {
 	}
 }
 
-// AddHandler adds new handler with given path to info service
+// AddHandler adds new handler with given path to info service.
 func (s *Service) AddHandler(path string, handler http.HandlerFunc) {
 	s.handlers[path] = handler
 }
 
-// RegisterLivenessProbe defines liveness probe function
+// RegisterLivenessProbe defines liveness probe function.
 func (s *Service) RegisterLivenessProbe(checker ProbeChecker) {
 	s.livenessProbes = append(s.livenessProbes, checker)
 }
 
-// RegisterReadinessProbe defines readiness probe function
+// RegisterReadinessProbe defines readiness probe function.
 func (s *Service) RegisterReadinessProbe(checker ProbeChecker) {
 	s.readinessProbes = append(s.readinessProbes, checker)
 }
 
-// Run info/health-check service
+// Run info/health-check service.
 func (s *Service) Run(addr string) *http.Server {
 	srv := &http.Server{
 		Addr:    addr,

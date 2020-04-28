@@ -1,22 +1,24 @@
-package system
+package system_test
 
 import (
 	"net/http"
 	"testing"
+
+	"{{[ .Project ]}}/pkg/system"
 )
 
 func TestStubHandling(t *testing.T) {
-	operator := NewOperator(&http.Server{})
+	operator := system.NewOperator(&http.Server{})
 	err := operator.Reload()
 
-	if err != ErrNotImplemented {
-		t.Error("Expected error", ErrNotImplemented, "got", err)
+	if err != system.ErrNotImplemented {
+		t.Error("Expected error", system.ErrNotImplemented, "got", err)
 	}
 
 	err = operator.Maintenance()
 
-	if err != ErrNotImplemented {
-		t.Error("Expected error", ErrNotImplemented, "got", err)
+	if err != system.ErrNotImplemented {
+		t.Error("Expected error", system.ErrNotImplemented, "got", err)
 	}
 
 	errs := operator.Shutdown()

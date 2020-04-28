@@ -6,7 +6,7 @@ import (
 	"github.com/pressly/goose"
 )
 
-// Migrator design migration interface
+// Migrator design migration interface.
 type Migrator interface {
 	Setup(db *sql.DB)
 	Migrate() error
@@ -14,25 +14,25 @@ type Migrator interface {
 	MigrateDown(version int64) error
 }
 
-// Sequence contains migration functionality
+// Sequence contains migration functionality.
 type Sequence struct {
 	db  *sql.DB
 	cfg *Config
 }
 
-// New creates migration Sequence
+// New creates migration Sequence.
 func New(cfg *Config) *Sequence {
 	return &Sequence{
 		cfg: cfg,
 	}
 }
 
-// Setup configure migration
+// Setup configure migration.
 func (s *Sequence) Setup(db *sql.DB) {
 	s.db = db
 }
 
-// Migrate process migration up to last version
+// Migrate process migration up to last version.
 func (s Sequence) Migrate() error {
 	if s.cfg.Active && s.db != nil {
 		return goose.Up(s.db, s.cfg.Dir)
@@ -41,8 +41,8 @@ func (s Sequence) Migrate() error {
 	return nil
 }
 
-// MigrateUp process migration up to specified version
-// Use version 0 if plan migrate up to last version
+// MigrateUp process migration up to specified version.
+// Use version 0 if plan migrate up to last version.
 func (s Sequence) MigrateUp(version int64) error {
 	if s.cfg.Active && s.db != nil {
 		if version == 0 {
@@ -55,8 +55,8 @@ func (s Sequence) MigrateUp(version int64) error {
 	return nil
 }
 
-// MigrateDown process migration down to specified version
-// Use version 0 if plan migrate down to initial state
+// MigrateDown process migration down to specified version.
+// Use version 0 if plan migrate down to initial state.
 func (s Sequence) MigrateDown(version int64) error {
 	if s.cfg.Active && s.db != nil {
 		if version == 0 {
