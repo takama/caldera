@@ -2,7 +2,6 @@ package stub
 
 import (
 	"context"
-	"os"
 
 	"{{[ .Project ]}}/pkg/db"
 	{{[- if .Example ]}}

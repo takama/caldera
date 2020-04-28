@@ -11,6 +11,7 @@ import (
 	{{[- if .Example ]}}
 
 	"{{[ .Project ]}}/contracts/events"
+	"{{[ .Project ]}}/contracts/info"
 	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 

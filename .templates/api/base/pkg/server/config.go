@@ -4,12 +4,13 @@ package server
 type Config struct {
 	{{[- if .API.Config.Insecure ]}}
 	Port    int
+	Gateway Gateway
 	{{[- else ]}}
 	Port         int
 	Insecure     bool
 	Certificates Certificates
+	Gateway      Gateway
 	{{[- end ]}}
-	Gateway Gateway
 }
 
 // Gateway contains params to setup gateway.

@@ -80,7 +80,7 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 		return err
 	}
 	{{[- end ]}}
-	
+
 	return gw.Serve(gateway)
 }
 
@@ -130,7 +130,7 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 }
 {{[- else ]}}
 
-if gw.cfg.Insecure {
+	if gw.cfg.Insecure {
 		mux.Handle("/", handler)
 		gw.srv.Handler = mux
 

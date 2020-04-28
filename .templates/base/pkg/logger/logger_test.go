@@ -74,7 +74,7 @@ func TestLevel(t *testing.T) {
 			t.Errorf("Expected level %s, got %s", l.str, l.level.String())
 		}
 
-		if logger.ZapLevelConverter(l.level) > zap.FatalLevel || 
+		if logger.ZapLevelConverter(l.level) > zap.FatalLevel ||
 			logger.ZapLevelConverter(l.level) < zap.DebugLevel {
 			t.Errorf("Got incorrect data for %s log level", l.level.String())
 		}
