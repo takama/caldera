@@ -10,7 +10,7 @@ import (
 	"github.com/takama/caldera/pkg/helper"
 )
 
-// copyTemplates copies templates files from source to destination directory
+// copyTemplates copies templates files from source to destination directory.
 func copyTemplates(src, dst string) error {
 	return filepath.Walk(
 		src,
