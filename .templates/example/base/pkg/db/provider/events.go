@@ -12,8 +12,8 @@ type Events interface {
 	Context(ctx context.Context) Events
 	Create(model *events.Event) (*events.Event, error)
 	Find(id string) (*events.Event, error)
-	FindByName(name string) ([]events.Event, error)
-	List() ([]events.Event, error)
+	FindByName(name string) ([]*events.Event, error)
+	List() ([]*events.Event, error)
 	Update(model *events.Event) (*events.Event, error)
 	Delete(id string) error
 	DeleteByName(name string) error

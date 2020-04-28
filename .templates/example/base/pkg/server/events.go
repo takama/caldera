@@ -3,10 +3,11 @@ package server
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/contracts/request"
 	"{{[ .Project ]}}/pkg/db/provider"
+
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 type eventsServer struct {
@@ -33,7 +34,7 @@ func (es eventsServer) FindEventsByName(
 	}
 
 	for ind := range data {
-		if err := stream.Send(&data[ind]); err != nil {
+		if err := stream.Send(data[ind]); err != nil {
 			return err
 		}
 	}
@@ -53,7 +54,7 @@ func (es eventsServer) ListEvents(
 	}
 
 	for ind := range data {
-		if err := stream.Send(&data[ind]); err != nil {
+		if err := stream.Send(data[ind]); err != nil {
 			return err
 		}
 	}

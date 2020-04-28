@@ -57,12 +57,12 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 }
 
 // FindByName returns Events requested by Event name.
-func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
+func (ep *eventsProvider) FindByName(name string) ([]*events.Event, error) {
 	return ep.find(queryEventsByName, name)
 }
 
 // List returns all Event objects.
-func (ep *eventsProvider) List() ([]events.Event, error) {
+func (ep *eventsProvider) List() ([]*events.Event, error) {
 	return ep.find(queryEvents)
 }
 
@@ -123,8 +123,8 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 	return err
 }
 
-func (ep *eventsProvider) find(query string, args ...interface{}) ([]events.Event, error) {
-	items := make([]events.Event, 0)
+func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Event, error) {
+	items := make([]*events.Event, 0)
 	rows, err := ep.Query(query, args...)
 
 	if err != nil {
@@ -134,8 +134,8 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]events.Even
 	defer rows.Close()
 
 	for rows.Next() {
-		item := events.Event{}
-		if err := rows.Scan(&item.Id, &item.Name); err != nil {
+		item := new(events.Event)
+		if err := rows.Scan(item.Id, item.Name); err != nil {
 			return nil, err
 		}
 

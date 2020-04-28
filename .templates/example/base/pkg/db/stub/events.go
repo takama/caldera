@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"sync"
 
@@ -15,7 +16,7 @@ import (
 type eventsProvider struct {
 	mutex sync.RWMutex
 	cfg   *db.Config
-	Data  []events.Event
+	Data  []*events.Event
 }
 
 // Transaction returns provider with transaction.
@@ -54,7 +55,7 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 		}
 	}
 
-	ep.Data = append(ep.Data, *model)
+	ep.Data = append(ep.Data, model)
 
 	return model, nil
 }
@@ -71,14 +72,14 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 }
 
 // FindByName returns Events requested by Event name.
-func (ep *eventsProvider) FindByName(name string) ([]events.Event, error) {
+func (ep *eventsProvider) FindByName(name string) ([]*events.Event, error) {
 	_, items := ep.findByName(name)
 	return items, nil
 }
 
 // List returns all Event objects.
-func (ep *eventsProvider) List() ([]events.Event, error) {
-	items := make([]events.Event, len(ep.Data))
+func (ep *eventsProvider) List() ([]*events.Event, error) {
+	items := make([]*events.Event, len(ep.Data))
 
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
@@ -96,7 +97,7 @@ func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
-	ep.Data = append(append(ep.Data[:ind], *model), ep.Data[ind+1:]...)
+	ep.Data = append(append(ep.Data[:ind], model), ep.Data[ind+1:]...)
 
 	return model, nil
 }
@@ -138,16 +139,16 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 
 	for ind := range ep.Data {
 		if ep.Data[ind].Id == id {
-			return ind, &ep.Data[ind]
+			return ind, ep.Data[ind]
 		}
 	}
 
 	return -1, nil
 }
 
-func (ep *eventsProvider) findByName(name string) ([]int, []events.Event) {
+func (ep *eventsProvider) findByName(name string) ([]int, []*events.Event) {
 	indices := make([]int, 0)
-	items := make([]events.Event, 0)
+	items := make([]*events.Event, 0)
 
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
@@ -163,7 +164,7 @@ func (ep *eventsProvider) findByName(name string) ([]int, []events.Event) {
 }
 
 func (ep *eventsProvider) load() error {
-	ep.Data = make([]events.Event, 0)
+	ep.Data = make([]*events.Event, 0)
 	path := filepath.Join(ep.cfg.Fixtures.Dir, "events/data.json")
 	f, err := readFile(path)
 
