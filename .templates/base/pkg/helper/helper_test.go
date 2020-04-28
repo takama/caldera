@@ -1,10 +1,12 @@
-package helper
+package helper_test
 
 import (
 	"bytes"
 	"errors"
 	"log"
 	"testing"
+
+	"{{[ .Project ]}}/pkg/helper"
 )
 
 func TestLogE(t *testing.T) {
@@ -12,7 +14,7 @@ func TestLogE(t *testing.T) {
 
 	log.SetOutput(&data)
 	log.SetFlags(0)
-	LogE("new message", nil)
+	helper.LogE("new message", nil)
 
 	expected := ""
 
@@ -20,7 +22,7 @@ func TestLogE(t *testing.T) {
 		t.Errorf("Expected message %s, got %s", expected, data.String())
 	}
 
-	LogE("message", errors.New("Error"))
+	helper.LogE("message", errors.New("Error"))
 
 	expected = "message: Error\n"
 
@@ -28,11 +30,11 @@ func TestLogE(t *testing.T) {
 		t.Errorf("Expected message %s, got %s", expected, data.String())
 	}
 
-	LogE("new message", nil)
+	helper.LogE("new message", nil)
 }
 
 func TestLogF(t *testing.T) {
-	LogF("message", nil)
+	helper.LogF("message", nil)
 
 	if t.Failed() {
 		t.Error("Expected success, got failed")

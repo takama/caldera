@@ -1,15 +1,17 @@
-package logger
+package logger_test
 
 import (
 	"bytes"
 	"testing"
 
+	"{{[ .Project ]}}/pkg/logger"
+
 	"go.uber.org/zap"
 )
 
 const (
-	customLevel     Level     = 17
-	customFormatter Formatter = 17
+	customLevel     logger.Level     = 17
+	customFormatter logger.Formatter = 17
 )
 
 type syncBufferMock struct {
@@ -34,31 +36,31 @@ func (sbm syncBufferMock) Sync() error {
 
 func TestLevel(t *testing.T) {
 	data := []struct {
-		level Level
+		level logger.Level
 		str   string
 	}{
 		{
-			level: LevelDebug,
+			level: logger.LevelDebug,
 			str:   "debug",
 		},
 		{
-			level: LevelInfo,
+			level: logger.LevelInfo,
 			str:   "info",
 		},
 		{
-			level: LevelWarn,
+			level: logger.LevelWarn,
 			str:   "warn",
 		},
 		{
-			level: LevelError,
+			level: logger.LevelError,
 			str:   "error",
 		},
 		{
-			level: LevelFatal,
+			level: logger.LevelFatal,
 			str:   "fatal",
 		},
 		{
-			level: LevelPanic,
+			level: logger.LevelPanic,
 			str:   "panic",
 		},
 		{
@@ -72,12 +74,13 @@ func TestLevel(t *testing.T) {
 			t.Errorf("Expected level %s, got %s", l.str, l.level.String())
 		}
 
-		if zapLevelConverter(l.level) > zap.FatalLevel || zapLevelConverter(l.level) < zap.DebugLevel {
+		if logger.ZapLevelConverter(l.level) > zap.FatalLevel || 
+			logger.ZapLevelConverter(l.level) < zap.DebugLevel {
 			t.Errorf("Got incorrect data for %s log level", l.level.String())
 		}
 	}
 
-	level := zapLevelConverter(customLevel)
+	level := logger.ZapLevelConverter(customLevel)
 
 	if level != zap.InfoLevel {
 		t.Errorf("invalid log level:\ngot:  %s\nwant: %s", level, zap.InfoLevel)
@@ -86,15 +89,15 @@ func TestLevel(t *testing.T) {
 
 func TestFormatter(t *testing.T) {
 	data := []struct {
-		formatter Formatter
+		formatter logger.Formatter
 		str       string
 	}{
 		{
-			formatter: JSONFormatter,
+			formatter: logger.JSONFormatter,
 			str:       "json",
 		},
 		{
-			formatter: TextFormatter,
+			formatter: logger.TextFormatter,
 			str:       "txt",
 		},
 		{
@@ -112,9 +115,9 @@ func TestFormatter(t *testing.T) {
 
 func TestLog(t *testing.T) {
 	b := syncBufferMock{}
-	log := New(&Config{
-		Format: TextFormatter.String(),
-		Level:  LevelDebug,
+	log := logger.New(&logger.Config{
+		Format: logger.TextFormatter.String(),
+		Level:  logger.LevelDebug,
 		Out:    &b,
 		Err:    &b,
 	})
@@ -131,9 +134,9 @@ func TestLog(t *testing.T) {
 
 	b.Reset()
 
-	log = New(&Config{
-		Format: JSONFormatter.String(),
-		Level:  LevelWarn,
+	log = logger.New(&logger.Config{
+		Format: logger.JSONFormatter.String(),
+		Level:  logger.LevelWarn,
 		Out:    &b,
 		Err:    &b,
 	})
