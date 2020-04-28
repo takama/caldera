@@ -108,7 +108,7 @@ func Run(cfg *config.Config) {
 	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
 }
 
-// Exec runs the commands
+// Exec runs the commands.
 func Exec(command ...string) error {
 	execCmd := exec.Command(command[0], command[1:]...) // nolint: gosec
 	execCmd.Stderr = os.Stderr

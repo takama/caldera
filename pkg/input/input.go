@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// BoolAnswer check for (y/n) answer
+// BoolAnswer check for (y/n) answer.
 func BoolAnswer(question string) bool {
 	for {
 		fmt.Printf("%s (y/n): ", question)
@@ -27,7 +27,7 @@ func BoolAnswer(question string) bool {
 	}
 }
 
-// StringAnswer check for string answer
+// StringAnswer check for string answer.
 func StringAnswer(question, option string) string {
 	fmt.Printf("%s (%s): ", question, option)
 
@@ -42,7 +42,7 @@ func StringAnswer(question, option string) string {
 	return option
 }
 
-// OptionAnswer check for string answer
+// OptionAnswer check for string answer.
 func OptionAnswer(question string, options ...string) string {
 	for {
 		fmt.Printf("%s (%s): ", question, strings.Join(options, ","))

@@ -2,7 +2,7 @@ package logger
 
 import "go.uber.org/zap/zapcore"
 
-// Config contains params to setup logger
+// Config contains params to setup logger.
 type Config struct {
 	Format string
 	Level  Level

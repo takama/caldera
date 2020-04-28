@@ -8,10 +8,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Level defines log levels
+// Level defines log levels.
 type Level int8
 
-// Log levels
+// Log levels.
 const (
 	LevelDebug Level = iota
 	LevelInfo
@@ -40,7 +40,7 @@ func (l Level) String() string {
 	}
 }
 
-// Formatter defines output formatter
+// Formatter defines output formatter.
 type Formatter int
 
 func (f Formatter) String() string {
@@ -54,21 +54,21 @@ func (f Formatter) String() string {
 	}
 }
 
-// Format of outputs
+// Format of outputs.
 const (
 	TextFormatter Formatter = iota
 	JSONFormatter
 )
 
-// New creates and configure new zap logger
+// New creates and configure new zap logger.
 // nolint: funlen
 func New(cfg *Config) *zap.Logger {
 	// Define our level-handling logic.
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= zapcore.ErrorLevel && lvl >= zapLevelConverter(cfg.Level)
+		return lvl >= zapcore.ErrorLevel && lvl >= ZapLevelConverter(cfg.Level)
 	})
 	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl < zapcore.ErrorLevel && lvl >= zapLevelConverter(cfg.Level)
+		return lvl < zapcore.ErrorLevel && lvl >= ZapLevelConverter(cfg.Level)
 	})
 
 	// High-priority output should go to standard error, and low-priority
@@ -130,7 +130,7 @@ func New(cfg *Config) *zap.Logger {
 	return zap.New(core)
 }
 
-func zapLevelConverter(level Level) zapcore.Level {
+func ZapLevelConverter(level Level) zapcore.Level {
 	switch level {
 	case LevelDebug:
 		return zap.DebugLevel

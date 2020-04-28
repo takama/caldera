@@ -28,7 +28,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Run the service
+// Run the service.
 // nolint: funlen
 func Run(cfg *config.Config) error {
 	// Setup zap logger
@@ -46,7 +46,7 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .Storage.Enabled ]}}
 
-	// Connect to the database
+	// Connect to the database.
 	var database db.Store
 
 	var err error
@@ -73,7 +73,7 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .API.Enabled ]}}
 
-	// Create new core server
+	// Create new core server.
 	srv, err := server.New(context.Background(), &cfg.Server, log)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .API.Gateway ]}}
 
-	// Create gateway server
+	// Create gateway server.
 	gw, err := server.NewGateway(context.Background(), &cfg.Server, log)
 	if err != nil {
 		return err
@@ -91,11 +91,11 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .Example ]}}
 
-	// Register data store providers
+	// Register data store providers.
 	srv.RegisterEventsProvider(database.EventsProvider())
 	{{[- end ]}}
 
-	// Register info/health-check service
+	// Register info/health-check service.
 	is := info.NewService(log)
 	{{[- if .API.Enabled ]}}
 	is.RegisterLivenessProbe(srv.LivenessProbe)
@@ -109,10 +109,10 @@ func Run(cfg *config.Config) error {
 	is.RegisterReadinessProbe(database.Check)
 	{{[- end ]}}
 
-	// Run info/health-check service
+	// Run info/health-check service.
 	infoServer := is.Run(fmt.Sprintf(":%d", cfg.Info.Port))
 
-	// Setup operator with info/health-check server, core server and data store
+	// Setup operator with info/health-check server, core server and data store.
 	operator := system.NewOperator(
 		infoServer,
 		{{[- if .API.Enabled ]}}
@@ -128,7 +128,7 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .API.Enabled ]}}
 
-	// Run core server
+	// Run core server.
 	go func() {
 		if err := srv.Run(context.Background()); err != nil {
 			// Check for known errors
@@ -144,7 +144,7 @@ func Run(cfg *config.Config) error {
 
 	{{[- if .API.Gateway ]}}
 
-	// Run gateway server
+	// Run gateway server.
 	go func() {
 		if err := gw.Run(context.Background()); err != nil {
 			// Check for known errors
@@ -158,6 +158,6 @@ func Run(cfg *config.Config) error {
 	{{[- end ]}}
 	{{[- end ]}}
 
-	// Wait signals
+	// Wait signals.
 	return system.NewSignals().Wait(log, operator)
 }

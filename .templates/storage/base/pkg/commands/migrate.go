@@ -20,7 +20,7 @@ const (
 	migrateDown
 )
 
-// migrateCmd represents the migrate command
+// migrateCmd represents the migrate command.
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Migrate database up/down to the specified version",

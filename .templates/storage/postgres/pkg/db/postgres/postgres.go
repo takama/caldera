@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	// Driver defines database driver name
+	// Driver defines database driver name.
 	Driver = "postgres"
 )
 
-// Postgres controls postgres driver connection and providers
+// Postgres controls postgres driver connection and providers.
 type Postgres struct {
 	pool *sql.DB
 	cfg  *db.Config
@@ -31,7 +31,7 @@ type Postgres struct {
 	{{[- end ]}}
 }
 
-// New creates new postgres DB connection
+// New creates new postgres DB connection.
 func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*Postgres, error) {
 	p := &Postgres{
 		cfg: cfg,
@@ -65,19 +65,19 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*Postgres, e
 	return p, mig.Migrate()
 }
 
-// Check readiness for database
+// Check readiness for database.
 func (p Postgres) Check() error {
 	return p.pool.Ping()
 }
 
-// Shutdown process graceful shutdown for the server
+// Shutdown process graceful shutdown for the server.
 func (p Postgres) Shutdown(ctx context.Context) error {
 	return p.pool.Close()
 }
 
 {{[- if .Example ]}}
 
-// EventsProvider returns data store provider for Events
+// EventsProvider returns data store provider for Events.
 func (p Postgres) EventsProvider() provider.Events {
 	return p.events
 }
