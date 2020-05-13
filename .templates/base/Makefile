@@ -264,12 +264,13 @@ charts:
 
 test:
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -race -cover {{.Dir}}"{{end}}' \
+		$(GO_PACKAGES) | xargs -L 1 sh -c
 
 cover:
 	@echo "+ $@"
 	@echo "mode: set" > coverage.txt
-	@go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
 		cat {{.Dir}}/.coverprofile | sed 1d >> coverage.txt"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 fmt:

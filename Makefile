@@ -25,7 +25,7 @@ build: vendor test lint
 
 test:
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PKG) | xargs -L 1 sh -c
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PKG) | xargs -L 1 sh -c
 
 fmt:
 	@echo "+ $@"
