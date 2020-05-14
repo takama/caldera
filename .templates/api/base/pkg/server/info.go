@@ -24,16 +24,6 @@ func (is infoServer) GetInfo(
 	}, nil
 }
 
-// GetHealth returns the server health information.
-func (is infoServer) GetHealth(
-	ctx context.Context,
-	empty *empty.Empty,
-) (*info.Health, error) {
-	return &info.Health{
-		Alive: true,
-	}, nil
-}
-
 // AuthFuncOverride allows a given gRPC service implementation to override the global `AuthFunc`.
 func (is infoServer) AuthFuncOverride(
 	ctx context.Context,

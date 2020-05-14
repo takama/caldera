@@ -20,6 +20,7 @@ import (
 	{{[- if not .API.Config.Insecure ]}}
 	"google.golang.org/grpc/credentials"
 	{{[- end ]}}
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 // Server contains core functionality of the service.
@@ -27,6 +28,7 @@ type Server struct {
 	cfg *Config
 	log *zap.Logger
 	srv *grpc.Server
+	hs  *healthServer
 	is  *infoServer
 	{{[- if .Example ]}}
 	// Contract provider servers.
@@ -39,6 +41,7 @@ func New(ctx context.Context, cfg *Config, log *zap.Logger) (*Server, error) {
 	return &Server{
 		cfg: cfg,
 		log: log,
+		hs:  new(healthServer),
 		is:  new(infoServer),
 		{{[- if .Example ]}}
 		es:  new(eventsServer),
@@ -79,6 +82,7 @@ func (s *Server) Run(ctx context.Context) error {
 	{{[- else ]}}
 	s.srv = grpc.NewServer(s.ServerOptions()...)
 	{{[- end ]}}
+	grpc_health_v1.RegisterHealthServer(s.srv, s.hs)
 	info.RegisterInfoServer(s.srv, s.is)
 	{{[- if .Example ]}}
 	events.RegisterEventsServer(s.srv, s.es)
