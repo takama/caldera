@@ -25,6 +25,8 @@ REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
 REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 
+PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
+
 # Common configuration
 {{[- if .API.Enabled ]}}
 {{[ toENV .Name ]}}_SERVER_PORT ?= {{[ .API.Config.Port ]}}
@@ -131,7 +133,10 @@ endif
 
 vendor: bootstrap
 	@echo "+ $@"
-	@go mod tidy
+ifeq ("$(wildcard go.mod)","")
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
+endif
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
 
 {{[- if .API.Enabled ]}}
 

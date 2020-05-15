@@ -49,11 +49,16 @@ func init() {
 	newCmd.PersistentFlags().String("name", "my-service", "A name of your new service")
 	newCmd.PersistentFlags().String("description", "My service", "A description of your new service")
 	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
+	RootCmd.PersistentFlags().String(
+		"private-repo", "contracts.name",
+		"PrivateRepo contains list of private repositories for import",
+	)
 	RootCmd.PersistentFlags().Bool("git-init", false, "Initialize repository with git")
 	RootCmd.PersistentFlags().Bool("contract-example", false, "A example of contract API using")
 	helper.LogF("Flag error", viper.BindPFlag("name", newCmd.PersistentFlags().Lookup("name")))
 	helper.LogF("Flag error", viper.BindPFlag("description", newCmd.PersistentFlags().Lookup("description")))
 	helper.LogF("Flag error", viper.BindPFlag("github", RootCmd.PersistentFlags().Lookup("github")))
+	helper.LogF("Flag error", viper.BindPFlag("privaterepo", RootCmd.PersistentFlags().Lookup("private-repo")))
 	helper.LogF("Flag error", viper.BindPFlag("gitinit", RootCmd.PersistentFlags().Lookup("git-init")))
 	helper.LogF("Flag error", viper.BindPFlag("contract", RootCmd.PersistentFlags().Lookup("contract-example")))
 }

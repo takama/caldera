@@ -32,6 +32,7 @@ type Config struct {
 	Name        string
 	Description string
 	Github      string
+	PrivateRepo string
 	Project     string
 	Bin         string
 	GitInit     bool
