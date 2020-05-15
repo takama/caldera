@@ -2,8 +2,10 @@ package db
 
 import (
 	"context"
+{{[- if .Example ]}}
 
 	"{{[ .Project ]}}/pkg/db/provider"
+{{[- end ]}}
 )
 
 // Store design database interface with providers.
