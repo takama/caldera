@@ -46,7 +46,7 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 # Database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 10.5
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.2
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
