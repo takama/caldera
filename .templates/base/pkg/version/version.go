@@ -13,4 +13,6 @@ var (
 	COMMIT = "UNKNOWN"
 	// BRANCH returns deployed git brunch.
 	BRANCH = "UNKNOWN"
+	// DESC returns the service description.
+	DESC = "UNKNOWN"
 )

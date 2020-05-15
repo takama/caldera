@@ -1,9 +1,13 @@
 package service
 
 import (
+{{[- if .API.Enabled ]}}
 	"context"
 	"fmt"
 	"net/http"
+{{[- else ]}}
+	"fmt"
+{{[- end ]}}
 
 	"{{[ .Project ]}}/pkg/config"
 	{{[- if .Storage.Enabled ]}}

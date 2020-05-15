@@ -18,19 +18,10 @@ func (is infoServer) GetInfo(
 	empty *empty.Empty,
 ) (*info.Report, error) {
 	return &info.Report{
-		Version: version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
-		Date:    version.DATE,
-		Repo:    version.REPO,
-	}, nil
-}
-
-// GetHealth returns the server health information.
-func (is infoServer) GetHealth(
-	ctx context.Context,
-	empty *empty.Empty,
-) (*info.Health, error) {
-	return &info.Health{
-		Alive: true,
+		Version:     version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+		Date:        version.DATE,
+		Repository:  version.REPO,
+		Description: version.DESC,
 	}, nil
 }
 

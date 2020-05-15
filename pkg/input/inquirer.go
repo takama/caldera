@@ -16,6 +16,10 @@ func Inquire(cfg *config.Config) *config.Config {
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
 	cfg.Project = StringAnswer("Provide project name", path.Join("github.com", cfg.Github, cfg.Name))
+	cfg.PrivateRepo = StringAnswer(
+		"Provide private repositories for import if applicable",
+		cfg.PrivateRepo,
+	)
 	cfg.Bin = StringAnswer("Provide binary file name", cfg.Name)
 	apis := []string{config.APIGateway, config.APIgRPC}
 

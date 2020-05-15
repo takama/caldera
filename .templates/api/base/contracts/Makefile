@@ -1,4 +1,4 @@
-PROTOC_IMAGE ?= takama/protoc:v0.1.8
+PROTOC_IMAGE ?= takama/protoc:v0.1.9
 
 PROTOC_RUN = docker run --rm -v $(shell pwd):/contracts -w /contracts $(PROTOC_IMAGE) -I.
 
