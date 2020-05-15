@@ -18,9 +18,10 @@ func (is infoServer) GetInfo(
 	empty *empty.Empty,
 ) (*info.Report, error) {
 	return &info.Report{
-		Version: version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
-		Date:    version.DATE,
-		Repo:    version.REPO,
+		Version:     version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+		Date:        version.DATE,
+		Repository:  version.REPO,
+		Description: version.DESC,
 	}, nil
 }
 

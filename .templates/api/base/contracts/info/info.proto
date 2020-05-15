@@ -24,5 +24,8 @@ message Report {
   string date = 2;
 
   // Repository name.
-  string repo = 3;
+  string repository = 3;
+
+  // Service description.
+  string description = 4;
 }
