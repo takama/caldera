@@ -50,7 +50,7 @@ func init() {
 	newCmd.PersistentFlags().String("description", "My service", "A description of your new service")
 	RootCmd.PersistentFlags().String("github", "my-account", "A Github account name")
 	RootCmd.PersistentFlags().String(
-		"private-repo", "contracts.name",
+		"private-repo", "",
 		"PrivateRepo contains list of private repositories for import",
 	)
 	RootCmd.PersistentFlags().Bool("git-init", false, "Initialize repository with git")
