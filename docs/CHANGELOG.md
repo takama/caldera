@@ -1,4 +1,12 @@
-# Version v0.1.6
+# Version v0.1.7
+
+## v0.1.7
+
+- Changed protobuf/gateway versions ([@takama](https://github.com/takama))
+- Fixed some template generation bugs ([@takama](https://github.com/takama))
+- Added private repositories for import path ([@takama](https://github.com/takama))
+- Changed postgres driver version ([@takama](https://github.com/takama))
+- Used standard health gRPC method ([@takama](https://github.com/takama))
 
 ## v0.1.6
 
