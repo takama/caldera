@@ -1,5 +1,5 @@
 APP = caldera
-RELEASE ?= v0.1.6
+RELEASE ?= v0.1.7
 RELEASE_DATE = $(shell date +%FT%T%Z)
 PROJECT = github.com/takama/caldera
 
