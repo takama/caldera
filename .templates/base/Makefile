@@ -2,6 +2,7 @@ PROJECT = {{[ .Project ]}}
 APP = {{[ .Name ]}}
 BIN = {{[ .Bin ]}}
 SERVICE_NAME ?= $(shell echo "$(APP)" | tr - _)
+SERVICE_DESCRIPTION ?= "{{[ .Description ]}}"
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.0.0
@@ -24,6 +25,8 @@ REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
 REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 
+PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
+
 # Common configuration
 {{[- if .API.Enabled ]}}
 {{[ toENV .Name ]}}_SERVER_PORT ?= {{[ .API.Config.Port ]}}
@@ -43,7 +46,7 @@ REGISTRY ?= {{[ .Github ]}}
 # Database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 10.5
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.2
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
@@ -93,7 +96,8 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.DATE=$(RELEASE_DATE) \
 	-X $(PROJECT)/pkg/version.REPO=$(REPO_INFO) \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
-	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
+	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH) \
+	-X $(PROJECT)/pkg/version.DESC=$(SERVICE_DESCRIPTION)"
 
 GO_PACKAGES = $(shell go list $(PROJECT)/pkg/...)
 
@@ -129,7 +133,10 @@ endif
 
 vendor: bootstrap
 	@echo "+ $@"
-	@go mod tidy
+ifeq ("$(wildcard go.mod)","")
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
+endif
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
 
 {{[- if .API.Enabled ]}}
 
@@ -264,12 +271,13 @@ charts:
 
 test:
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -race -cover {{.Dir}}"{{end}}' \
+		$(GO_PACKAGES) | xargs -L 1 sh -c
 
 cover:
 	@echo "+ $@"
 	@echo "mode: set" > coverage.txt
-	@go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
 		cat {{.Dir}}/.coverprofile | sed 1d >> coverage.txt"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 fmt:

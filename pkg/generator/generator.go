@@ -95,7 +95,8 @@ func Run(cfg *config.Config) {
 	}
 
 	log.Println("Initialize vendors:")
-	helper.LogF("Init modules", Exec("go", "mod", "init", cfg.Project))
+	helper.LogF("Init modules", Exec("make", "vendor"))
+
 	helper.LogF("Tests", Exec("make", "check-all"))
 
 	if cfg.GitInit {
@@ -109,8 +110,8 @@ func Run(cfg *config.Config) {
 }
 
 // Exec runs the commands.
-func Exec(command ...string) error {
-	execCmd := exec.Command(command[0], command[1:]...) // nolint: gosec
+func Exec(commands ...string) error {
+	execCmd := exec.Command(commands[0], commands[1:]...) // nolint: gosec
 	execCmd.Stderr = os.Stderr
 	execCmd.Stdout = os.Stdout
 	execCmd.Stdin = os.Stdin

@@ -1,12 +1,6 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
-{{[- if .Storage.Postgres ]}}
-
--- Create pgcrypto extension
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-{{[- end ]}}
-
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
 {{[- if .Storage.Postgres ]}}

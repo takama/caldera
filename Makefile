@@ -1,5 +1,5 @@
 APP = caldera
-RELEASE ?= v0.1.6
+RELEASE ?= v0.1.7
 RELEASE_DATE = $(shell date +%FT%T%Z)
 PROJECT = github.com/takama/caldera
 
@@ -25,7 +25,7 @@ build: vendor test lint
 
 test:
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PKG) | xargs -L 1 sh -c
+	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PKG) | xargs -L 1 sh -c
 
 fmt:
 	@echo "+ $@"

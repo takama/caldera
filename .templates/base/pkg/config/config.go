@@ -1,11 +1,15 @@
 package config
 
 import (
+{{[- if .Storage.Enabled ]}}
 	"{{[ .Project ]}}/pkg/db"
 	"{{[ .Project ]}}/pkg/db/migrations"
+{{[- end ]}}
 	"{{[ .Project ]}}/pkg/info"
 	"{{[ .Project ]}}/pkg/logger"
+{{[- if .API.Enabled ]}}
 	"{{[ .Project ]}}/pkg/server"
+{{[- end ]}}
 
 	"github.com/spf13/viper"
 )
