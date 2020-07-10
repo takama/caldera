@@ -40,7 +40,7 @@ type Config struct {
 	GKE         struct {
 		Enabled bool
 		Project string
-		Zone    string
+		Region  string
 		Cluster string
 	}
 	Storage struct {

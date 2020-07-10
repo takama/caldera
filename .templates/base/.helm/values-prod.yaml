@@ -61,8 +61,8 @@ ingress:
     enabled: false
     annotations:
       kubernetes.io/ingress.allow-http: false
-      contour.heptio.com/ingress.class: contour
-      contour.heptio.com/tls-minimum-protocol-version: TLSv1_2
+      projectcontour.io/ingress.class: contour
+      projectcontour.io/tls-minimum-protocol-version: TLSv1_2
 
   ## TLS configs
   ##
@@ -70,7 +70,7 @@ ingress:
     ##
     enabled: true
     ##
-    secretName: {{[ .Name ]}}.prod.net-secret
+    secretName: {{[ .Name ]}}.prod.net-cert
 
   ## Annotations
   ##
@@ -126,7 +126,7 @@ service:
     ## cloud.google.com/app-protocols: '{"grpc":"HTTP2"}'
     ## Enables container-native load balancing
     ## cloud.google.com/neg: '{"ingress": true}'
-    ## contour.heptio.com/upstream-protocol.h2c: "{{[ .API.Config.Port ]}},grpc"
+    ## projectcontour.io/upstream-protocol.h2c: "{{[ .API.Config.Port ]}},grpc"
 
   {{[- if .API.Enabled ]}}
 
@@ -177,11 +177,11 @@ service:
 
       ## Secret with TLS certificates (client's cert, key and server's CA)
       ##
-      secret: {{[ .Name ]}}-db-ssl-certs
+      secret: {{[ .Name ]}}-db-certs
 
       ## Mount path of certs from the secret
       ##
-      mountPath: /etc/ssl/postgres/
+      mountPath: /etc/ssl/{{[ .Storage.Config.Driver ]}}/
 
     ## Database driver (postgres, mysql, etc)
     ##
@@ -214,9 +214,9 @@ service:
     properties:
       - sslmode=disable
       # - sslmode=verify-ca
-      # - sslrootcert=/etc/ssl/postgres/server-ca.pem
-      # - sslcert=/etc/ssl/postgres/client-cert.pem
-      # - sslkey=/etc/ssl/postgres/client-key.pem
+      # - sslrootcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/server-ca.pem
+      # - sslcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-cert.pem
+      # - sslkey=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-key.pem
 
     ## Database connections
     ##
