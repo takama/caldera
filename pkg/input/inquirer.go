@@ -96,7 +96,7 @@ func Inquire(cfg *config.Config) *config.Config {
 	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
 		cfg.GKE.Enabled = true
 		cfg.GKE.Project = StringAnswer("Provide ID of your project on the GCP", cfg.GKE.Project)
-		cfg.GKE.Zone = StringAnswer("Provide compute zone of your project on the GCP", cfg.GKE.Zone)
+		cfg.GKE.Region = StringAnswer("Provide compute region of your project on the GCP", cfg.GKE.Region)
 		cfg.GKE.Cluster = StringAnswer("Provide cluster name in the GKE", cfg.GKE.Cluster)
 	}
 

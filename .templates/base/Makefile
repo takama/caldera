@@ -14,10 +14,10 @@ CA_DIR ?= certs
 
 # Configs for GKE
 GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
-GKE_PROJECT_ZONE ?= {{[ .GKE.Zone ]}}
+GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
 GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
 
-KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_ZONE)_$(GKE_CLUSTER_NAME)
+KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
 
 REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
 {{[- else ]}}
@@ -88,7 +88,7 @@ BUILD ?= $(RELEASE)
 DEPLOY_PARAMS ?= --wait
 ifneq ("$(NAMESPACE)","prod")
 BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
-DEPLOY_PARAMS = --wait --recreate-pods --force --atomic
+DEPLOY_PARAMS = --wait --force --atomic
 endif
 
 LDFLAGS = "-s -w \
@@ -114,17 +114,14 @@ project:
 ifneq ("$(GKE_PROJECT_ID)", "$(shell gcloud config get-value project)")
 	@gcloud config set project $(GKE_PROJECT_ID)
 endif
-ifneq ("$(GKE_PROJECT_ZONE)", "$(shell gcloud config get-value compute/zone)")
-	@gcloud config set compute/zone $(GKE_PROJECT_ZONE)
+ifneq ("$(GKE_PROJECT_REGION)", "$(shell gcloud config get-value compute/region)")
+	@gcloud config set compute/region $(GKE_PROJECT_REGION)
 endif
 ifneq ("$(GKE_CLUSTER_NAME)", "$(shell gcloud config get-value container/cluster)")
 	@gcloud config set container/cluster $(GKE_CLUSTER_NAME)
 endif
-
-cluster:
-	@echo "+ $@"
 ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config get-clusters | grep $(KUBE_CONTEXT))")
-	@gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --zone $(GKE_PROJECT_ZONE) --project $(GKE_PROJECT_ID)
+	@gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --region $(GKE_PROJECT_REGION) --project $(GKE_PROJECT_ID)
 endif
 ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
 	@kubectl config use-context $(KUBE_CONTEXT)
@@ -138,14 +135,14 @@ ifeq ("$(wildcard go.mod)","")
 endif
 	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
 
-{{[- if .API.Enabled ]}}
+{{[- if .Example ]}}
 
 contracts:
 	@echo "+ $@"
 	@$(MAKE) -C contracts generate
 {{[- end ]}}
 
-compile: {{[- if .API.Enabled ]}} contracts {{[- end ]}} vendor test lint
+compile: {{[- if .Example ]}} contracts {{[- end ]}} vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
 		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
@@ -260,7 +257,7 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
-deploy: push cluster
+deploy: push project
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
@@ -277,7 +274,7 @@ test:
 cover:
 	@echo "+ $@"
 	@echo "mode: set" > coverage.txt
-	@go list -f '{{if or (len .TestGoFiles) (len .XTestGoFiles)}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
+	@go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}} && \
 		cat {{.Dir}}/.coverprofile | sed 1d >> coverage.txt"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
 fmt:
@@ -343,16 +340,21 @@ ifndef HAS_DOCKER_GCR
 	@gcloud components install docker-credential-gcr -q
 	@docker-credential-gcr configure-docker
 endif
+ifeq ($(findstring *, $(shell gcloud auth list 2>&1 )),)
+	@echo "you should be authorized in gcloud with your work account"
+	@echo "you can do it with command:"
+	@echo "gcloud auth login"
+	@exit 1
+endif
 endif
 {{[- end ]}}
 
 .PHONY: all \
 {{[- if .GKE.Enabled ]}}
 	project \
-	cluster \
 {{[- end ]}}
 	vendor \
-{{[- if .API.Enabled ]}}
+{{[- if .Example ]}}
 	contracts \
 {{[- end ]}}
 	compile \

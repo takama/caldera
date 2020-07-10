@@ -1,14 +1,14 @@
 {{- $serviceName := .Values.service.name -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "name" . }}
   labels:
     app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    component: "{{ .Values.service.name }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    app.kubernetes.io/name: {{ template "fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
@@ -18,6 +18,9 @@ spec:
     rollingUpdate:
       maxUnavailable: {{ .Values.maxUnavailable }}
       maxSurge: {{ .Values.maxSurge }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
   template:
     metadata:
       labels:
@@ -88,25 +91,25 @@ spec:
           httpGet:
             path: /healthz
             port: {{ .Values.service.info.port }}
-            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
-            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
         {{- end }}
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
             path: /readyz
             port: {{ .Values.service.info.port }}
-            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
-            successThreshold: {{ .Values.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
         {{- end }}
         volumeMounts:
         - name: {{ template "name" . }}-config
           mountPath: /etc/{{ .Values.service.name | replace "-" "_" }}/
         {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled  }}
-        - name: {{ template "name" . }}-db-ssl-certs
+        - name: {{ .Values.service.database.tls.secret }}
           mountPath: {{ .Values.service.database.tls.mountPath }}
           readOnly: true
         {{- end }}
@@ -117,7 +120,7 @@ spec:
           configMap:
             name: {{ template "name" . }}-config
         {{- if and .Values.service.database.enabled .Values.service.database.tls.enabled }}
-        - name: {{ template "name" . }}-db-ssl-certs
+        - name: {{ .Values.service.database.tls.secret }}
           secret:
             secretName: {{ .Values.service.database.tls.secret }}
             defaultMode: 0400

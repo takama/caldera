@@ -3,14 +3,14 @@
 {{- $release := .Release }}
 {{- $fullname := include "fullname" . }}
 {{- $name := include "name" . }}
-{{- $chart := .Chart }}
+{{- $chart := include "chart" . }}
 {{- $ingress := .Values.ingress }}
 
 {{- if .Values.ingress.contour.enabled -}}
 {{- range $key, $service := .Values.ingress.hosts }}
 ---
-apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
 metadata:
   annotations:
   {{- range $key, $value := $ingress.contour.annotations }}
@@ -18,10 +18,10 @@ metadata:
   {{- end }}
   labels:
     app: {{ $fullname }}
-    chart: "{{ $chart.Name }}-{{ $chart.Version }}"
-    component: "{{ $serviceName }}"
-    heritage: "{{ $release.Service }}"
-    release: "{{ $release.Name }}"
+    app.kubernetes.io/name: {{ $fullname }}
+    app.kubernetes.io/instance: {{ $release.Name }}
+    app.kubernetes.io/managed-by: {{ $release.Service }}
+    helm.sh/chart: {{ $chart }}
   name: {{ $name }}-{{ $service.name }}
 spec:
   virtualhost:
@@ -31,10 +31,11 @@ spec:
       secretName: {{ $ingress.tls.secretName }}
     {{- end }}
   routes:
-    - match: {{ $service.path }}
-      services:
-        - name: {{ $serviceName }}
-          port: {{ $service.port }}
+  - conditions:
+    - prefix: {{ $service.path }}
+    services:
+      - name: {{ $serviceName }}
+        port: {{ $service.port }}
 
 {{- end }}
 {{- else }}

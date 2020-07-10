@@ -1,4 +1,8 @@
-# Version v0.1.8
+# Version v0.1.9
+
+## v0.1.9
+
+- Updated helm templates & project region ([@takama](https://github.com/takama))
 
 ## v0.1.7
 
