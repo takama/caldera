@@ -135,7 +135,7 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Eve
 
 	for rows.Next() {
 		item := new(events.Event)
-		if err := rows.Scan(item.Id, item.Name); err != nil {
+		if err := rows.Scan(&item.Id, &item.Name); err != nil {
 			return nil, err
 		}
 
