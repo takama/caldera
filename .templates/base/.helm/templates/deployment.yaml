@@ -5,7 +5,7 @@ metadata:
   name: {{ template "name" . }}
   labels:
     app: {{ template "fullname" . }}
-    app.kubernetes.io/name: {{ template "fullname" . }}
+    app.kubernetes.io/name: {{ .Values.service.name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "chart" . }}
