@@ -18,7 +18,7 @@ metadata:
   {{- end }}
   labels:
     app: {{ $fullname }}
-    app.kubernetes.io/name: {{ $fullname }}
+    app.kubernetes.io/name: {{ $serviceName }}
     app.kubernetes.io/instance: {{ $release.Name }}
     app.kubernetes.io/managed-by: {{ $release.Service }}
     helm.sh/chart: {{ $chart }}
@@ -49,10 +49,10 @@ metadata:
   {{- end }}
   labels:
     app: {{ $fullname }}
-    chart: "{{ $chart.Name }}-{{ $chart.Version }}"
-    component: "{{ $serviceName }}"
-    heritage: "{{ $release.Service }}"
-    release: "{{ $release.Name }}"
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $release.Name }}
+    app.kubernetes.io/managed-by: {{ $release.Service }}
+    helm.sh/chart: {{ $chart }}
   name: {{ $name }}
 spec:
   {{- if $ingress.tls.enabled }}
