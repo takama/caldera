@@ -1,4 +1,8 @@
-# Version v0.1.9
+# Version v0.1.10
+
+## v0.1.10
+
+- Fixed label for service name ([@takama](https://github.com/takama))
 
 ## v0.1.9
 
