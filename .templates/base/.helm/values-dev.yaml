@@ -177,7 +177,7 @@ service:
 
       ## Secret with TLS certificates (client's cert, key and server's CA)
       ##
-      secret: {{[ .Name ]}}-db-certs
+      secret: {{[ .Storage.Config.Driver ]}}-db-certs
 
       ## Mount path of certs from the secret
       ##
@@ -186,6 +186,10 @@ service:
     ## Database driver (postgres, mysql, etc)
     ##
     driver: {{[ .Storage.Config.Driver ]}}
+
+    ## Database dsn connection url
+    ##
+    dsn:
 
     ## Database name
     ##
@@ -198,6 +202,10 @@ service:
     ## Database port number
     ##
     port: {{[ .Storage.Config.Port ]}}
+
+    ## Use credentials from secret
+    ##
+    secretCredentials: true
 
     ## Database username secret
     ##
