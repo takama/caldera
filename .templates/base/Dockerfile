@@ -26,6 +26,7 @@ COPY {{[ .API.Config.Certificates.Crt ]}} {{[ .API.Config.Certificates.Crt ]}}
 COPY {{[ .API.Config.Certificates.Key ]}} {{[ .API.Config.Certificates.Key ]}}
 {{[- end ]}}
 {{[- if .Storage.Enabled ]}}
+COPY fixtures /fixtures/
 COPY migrations /migrations/
 {{[- end ]}}
 COPY bin/linux-amd64/{{[ .Bin ]}} /
