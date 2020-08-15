@@ -2,7 +2,6 @@ PROJECT = {{[ .Project ]}}
 APP = {{[ .Name ]}}
 BIN = {{[ .Bin ]}}
 SERVICE_NAME ?= $(shell echo "$(APP)" | tr - _)
-SERVICE_DESCRIPTION ?= "{{[ .Description ]}}"
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.0.0
@@ -118,8 +117,7 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.DATE=$(RELEASE_DATE) \
 	-X $(PROJECT)/pkg/version.REPO=$(REPO_INFO) \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
-	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH) \
-	-X $(PROJECT)/pkg/version.DESC=$(SERVICE_DESCRIPTION)"
+	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
 GO_PACKAGES = $(shell go list $(PROJECT)/pkg/...)
 
