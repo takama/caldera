@@ -46,7 +46,7 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 # Database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.2
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.4
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
@@ -64,10 +64,32 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 {{[ toENV .Name ]}}_DB_PORT ?= {{[ .Storage.Config.Port ]}}
 {{[ toENV .Name ]}}_DB_FIXTURES_DIR ?= fixtures
 
-ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","{{[ .Storage.Config.Driver ]}}")
+ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 {{[ toENV .Name ]}}_DB_LINK ?= --link $({{[ toENV .Name ]}}_DB_HOST):$({{[ toENV .Name ]}}_DB_HOST)
 endif
 {{[- end ]}}
+
+{{[ toENV .Name ]}}_DB_ENV ?= 
+
+ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.4
+{{[ toENV .Name ]}}_DB_PATH = /var/lib/postgresql/data
+{{[ toENV .Name ]}}_DB_PORT = 5432
+{{[ toENV .Name ]}}_DB_ENV = \
+	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
+	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
+	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
+endif
+ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
+{{[ toENV .Name ]}}_DB_PATH = /var/lib/mysql
+{{[ toENV .Name ]}}_DB_PORT = 3306
+{{[ toENV .Name ]}}_DB_ENV = \
+	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
+	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
+	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
+	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
+endif
 
 # Namespace: dev, prod, username ...
 NAMESPACE ?= dev
@@ -162,7 +184,7 @@ build: compile certs
 	@echo "+ $@"
 	@docker build --pull -t $(CONTAINER_IMAGE):$(BUILD) .
 
-push: build project
+push: build
 	@echo "+ $@"
 	@docker push $(CONTAINER_IMAGE):$(BUILD)
 
@@ -173,27 +195,19 @@ HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
 
 db:
 	@echo "+ $@"
+ifneq ("$(FINGERPRINT_DB_DRIVER)","stub")
 ifndef HAS_DB_RUNNED
 ifndef HAS_DB_EXITED
 	@mkdir -p $({{[ toENV .Name ]}}_DB_LOCATION)
 	@docker run -d	--name $({{[ toENV .Name ]}}_DB_DRIVER) \
 	-p $({{[ toENV .Name ]}}_DB_PORT):$({{[ toENV .Name ]}}_DB_PORT) \
-{{[- if .Storage.MySQL ]}}
-	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
-	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
-	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
-	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
-{{[- end ]}}
-{{[- if .Storage.Postgres ]}}
-	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
-	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
-	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
-{{[- end ]}}
+	$({{[ toENV .Name ]}}_DB_ENV) \
 	-v $({{[ toENV .Name ]}}_DB_LOCATION):$({{[ toENV .Name ]}}_DB_PATH) \
 	$({{[ toENV .Name ]}}_DB_DRIVER):$({{[ toENV .Name ]}}_DB_DRIVER_VERSION)
 	@sleep {{[- if .Storage.Postgres ]}} 45 {{[ else ]}} 90 {{[- end ]}}
 else
 	@docker start $({{[ toENV .Name ]}}_DB_HOST)
+endif
 endif
 endif
 
@@ -246,7 +260,6 @@ run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
-		-v $(shell pwd)/fixtures:/$({{[ toENV .Name ]}}_DB_FIXTURES_DIR):ro \
 {{[- end ]}}
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
 		-d $(CONTAINER_IMAGE):$(BUILD)
@@ -257,7 +270,7 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
-deploy: push project
+deploy: push
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
@@ -333,7 +346,6 @@ ifndef HAS_GCLOUD
 	@echo "gcloud cli utility should be installed"
 	@echo "Pre-compiled binaries for your platform:
 	@echo https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
-	@exit 1
 endif
 ifdef HAS_GCLOUD
 ifndef HAS_DOCKER_GCR
