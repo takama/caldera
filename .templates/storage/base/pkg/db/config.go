@@ -3,6 +3,7 @@ package db
 // Config contains params to setup database connection.
 type Config struct {
 	Driver      string
+	DSN         string
 	Host        string
 	Port        int
 	Name        string

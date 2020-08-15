@@ -3,6 +3,8 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"{{[ .Project ]}}/pkg/db"
 	"{{[ .Project ]}}/pkg/db/migrations"
@@ -29,6 +31,23 @@ type MySQL struct {
 	// Contract providers
 	events provider.Events
 	{{[- end ]}}
+}
+
+// DSN creates dsn type connection.
+func DSN(cfg *db.Config) *db.Config {
+	if cfg.DSN == "" {
+		var properties string
+
+		if len(cfg.Properties) > 0 {
+			properties = "?" + strings.Join(cfg.Properties, "&")
+		}
+
+		dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s%s",
+			cfg.Driver, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, properties)
+		cfg.DSN = dsn
+	}
+
+	return cfg
 }
 
 // New creates new postgres DB connection.
