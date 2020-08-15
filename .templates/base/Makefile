@@ -88,7 +88,7 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
 	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
-	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
+	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
 endif
 
 # Namespace: dev, prod, username ...
