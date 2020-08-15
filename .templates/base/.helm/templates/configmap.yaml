@@ -29,6 +29,7 @@ data:
       {{- if .Values.service.database.enabled }}
       "database": {
         "driver": "{{ .Values.service.database.driver }}",
+        "dsn": "{{ .Values.service.database.dsn }}",
         "host": "{{ .Values.service.database.host }}",
         "port": {{ .Values.service.database.port }},
         "name": "{{ .Values.service.database.name }}",
@@ -45,11 +46,14 @@ data:
         "connections": {
           "max": {{ .Values.service.database.connections.max }},
           "idle": {{ .Values.service.database.connections.idle }}
+        },
+        "fixtures": {
+          "dir": "fixtures"
         }
       {{- end }}
       },
       "migrations": {
-        "dir": "migrations",
+        "dir": "migrations/{{ .Values.service.database.driver }}",
         "active": true
       },
       {{[- end ]}}
