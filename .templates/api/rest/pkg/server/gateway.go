@@ -15,6 +15,7 @@ import (
 	"{{[ .Project ]}}/contracts/info"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
 	{{[- if .API.Config.Insecure ]}}
 	"google.golang.org/grpc"
@@ -81,7 +82,7 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	}
 	{{[- end ]}}
 
-	return gw.Serve(gateway)
+	return gw.Serve(cors.Default().Handler(gateway))
 }
 
 // Shutdown process graceful shutdown for the gateway server.
