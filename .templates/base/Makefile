@@ -50,7 +50,7 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 # Database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.4
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.6
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
@@ -58,13 +58,13 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 {{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
 {{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
 {{[ toENV .Name ]}}_DB_PASSWORD ?= {{[ .Storage.Config.Password ]}}
-{{[ toENV .Name ]}}_DB_LOCATION ?= ~/docker/{{[ .Storage.Config.Driver ]}}
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/{{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/postgresql/data
 {{[- else ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/{{[ .Storage.Config.Driver ]}}
 {{[- end ]}}
-{{[ toENV .Name ]}}_DB_HOST ?= {{[ .Storage.Config.Host ]}}
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).{{[ .Storage.Config.Host ]}}
 {{[ toENV .Name ]}}_DB_PORT ?= {{[ .Storage.Config.Port ]}}
 {{[ toENV .Name ]}}_DB_FIXTURES_DIR ?= fixtures
 
@@ -75,8 +75,10 @@ endif
 {{[ toENV .Name ]}}_DB_ENV ?= 
 
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.4
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/postgres
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/postgresql/data
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).postgres
 {{[ toENV .Name ]}}_DB_PORT = 5432
 {{[ toENV .Name ]}}_DB_ENV = \
 	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
@@ -85,7 +87,9 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
 endif
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/mysql
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/mysql
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).mysql
 {{[ toENV .Name ]}}_DB_PORT = 3306
 {{[ toENV .Name ]}}_DB_ENV = \
 	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
@@ -148,7 +152,7 @@ endif
 ifneq ("$(GKE_CLUSTER_NAME)", "$(shell gcloud config get-value container/cluster)")
 	@gcloud config set container/cluster $(GKE_CLUSTER_NAME)
 endif
-ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config get-clusters | grep $(KUBE_CONTEXT))")
+ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config view -o jsonpath='{.contexts[?(@.name == "$(KUBE_CONTEXT)")].name}')")
 	@gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --region $(GKE_PROJECT_REGION) --project $(GKE_PROJECT_ID)
 endif
 ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
@@ -156,21 +160,21 @@ ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
 endif
 {{[- end ]}}
 
-vendor: bootstrap
-	@echo "+ $@"
-ifeq ("$(wildcard go.mod)","")
-	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
-endif
-	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
-
-{{[- if .Example ]}}
+{{[- if and .API.Enabled .API.GRPC ]}}
 
 contracts:
 	@echo "+ $@"
 	@$(MAKE) -C contracts generate
 {{[- end ]}}
 
-compile: {{[- if .Example ]}} contracts {{[- end ]}} vendor test lint
+vendor: bootstrap {{[- if and .API.Enabled .API.GRPC  ]}} contracts {{[- end ]}} 
+	@echo "+ $@"
+ifeq ("$(wildcard go.mod)","")
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
+endif
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
+
+compile: vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
 		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
@@ -196,8 +200,8 @@ push: project build
 
 {{[- if .Storage.Enabled ]}}
 
-HAS_DB_RUNNED := $(shell docker ps | grep $({{[ toENV .Name ]}}_DB_HOST))
-HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
+HAS_DB_RUNNED := $(shell docker ps -q -f name=^/$({{[ toENV .Name ]}}_DB_HOST)$$)
+HAS_DB_EXITED := $(shell docker ps -a -q -f name=^/$({{[ toENV .Name ]}}_DB_HOST)$$)
 
 db:
 	@echo "+ $@"
@@ -205,7 +209,7 @@ ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 ifndef HAS_DB_RUNNED
 ifndef HAS_DB_EXITED
 	@mkdir -p $({{[ toENV .Name ]}}_DB_LOCATION)
-	@docker run -d	--name $({{[ toENV .Name ]}}_DB_DRIVER) \
+	@docker run -d	--name $({{[ toENV .Name ]}}_DB_HOST) \
 	-p $({{[ toENV .Name ]}}_DB_PORT):$({{[ toENV .Name ]}}_DB_PORT) \
 	$({{[ toENV .Name ]}}_DB_ENV) \
 	-v $({{[ toENV .Name ]}}_DB_LOCATION):$({{[ toENV .Name ]}}_DB_PATH) \
@@ -278,7 +282,7 @@ logs:
 
 deploy: push
 	@echo "+ $@"
-	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
+	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
 
 charts:
@@ -308,8 +312,8 @@ lint: bootstrap
 	@echo "+ $@"
 	@GOPRIVATE=$(PRIVATE_REPOS) golangci-lint run ./...
 
-HAS_RUNNED := $(shell docker ps | grep $(CONTAINER_NAME))
-HAS_EXITED := $(shell docker ps -a | grep $(CONTAINER_NAME))
+HAS_RUNNED := $(shell docker ps -q -f name=^/$(CONTAINER_NAME)$$)
+HAS_EXITED := $(shell docker ps -a -q -f name=^/$(CONTAINER_NAME)$$)
 
 stop:
 ifdef HAS_RUNNED
