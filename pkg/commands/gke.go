@@ -30,7 +30,7 @@ func init() {
 
 	gkeCmd.PersistentFlags().Bool("enabled", false, "A Google Kubernetes Engine enabled")
 	gkeCmd.PersistentFlags().String("project", "my-project-id", "A project ID in GCP")
-	gkeCmd.PersistentFlags().String("zone", "europe-west1-b", "A compute zone in GCP")
+	gkeCmd.PersistentFlags().String("region", "europe-west4", "A compute zone in GCP")
 	gkeCmd.PersistentFlags().String("cluster", "my-cluster-name", "A cluster name in GKE")
 	helper.LogF(
 		"Flag error",
@@ -42,7 +42,7 @@ func init() {
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("gke.zone", gkeCmd.PersistentFlags().Lookup("zone")),
+		viper.BindPFlag("gke.region", gkeCmd.PersistentFlags().Lookup("region")),
 	)
 	helper.LogF(
 		"Flag error",
