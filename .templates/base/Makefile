@@ -218,7 +218,7 @@ migrate-up: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate up
+		$(CONTAINER_IMAGE):$(BUILD) /$(BIN) migrate up
 
 migrate-down: build db
 	@echo "+ $@"
@@ -229,7 +229,7 @@ migrate-down: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate down
+		$(CONTAINER_IMAGE):$(BUILD) /$(BIN) migrate down
 {{[- end ]}}
 
 run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
