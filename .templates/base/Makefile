@@ -66,7 +66,6 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 {{[ toENV .Name ]}}_DB_LINK ?= --link $({{[ toENV .Name ]}}_DB_HOST):$({{[ toENV .Name ]}}_DB_HOST)
 endif
-{{[- end ]}}
 
 {{[ toENV .Name ]}}_DB_ENV ?= 
 
@@ -89,6 +88,7 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
 endif
+{{[- end ]}}
 
 # Namespace: dev, prod, username ...
 NAMESPACE ?= dev
