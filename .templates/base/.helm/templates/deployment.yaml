@@ -64,6 +64,8 @@ spec:
         {{[- if .Storage.Enabled ]}}
         {{- if .Values.service.database.enabled}}
         {{- if .Values.service.database.name }}
+        - name: {{ printf "%s_DB_DRIVER" .Values.service.name | upper | replace "-" "_" }}
+          value: {{ .Values.service.database.driver }}
         - name: {{ printf "%s_DB_NAME" $serviceName | upper | replace "-" "_" }}
           valueFrom:
             secretKeyRef:
