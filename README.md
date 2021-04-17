@@ -46,13 +46,14 @@ In this mode, you'll be asked about the general properties associated with the n
 
 ```txt
 ./caldera
-Caldera boilerplate version: v0.0.1 build date: 2018-09-15T12:02:17+07
+Caldera boilerplate version: v0.2.0 build date: 2021-04-17T23:37:17+07
 
 Provide name for your Github account (my-account):
 Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
 Do you want gRPC (1) or gRPC+REST (2)?: 2
+Default API version (v1):
 Do you want to terminate API with TLS? (y/n): n
 Do you need storage driver? (y/n): y
 Do you want postgres (1) or mysql (2)?: 1
