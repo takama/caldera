@@ -54,7 +54,6 @@ Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
 Do you want gRPC (1) or gRPC+REST (2)?: 2
 Default API version (v1):
-Do you want to terminate API with TLS? (y/n): n
 Do you need storage driver? (y/n): y
 Do you want postgres (1) or mysql (2)?: 1
 Do you need Contract API example for the service? (y/n): y

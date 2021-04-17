@@ -21,10 +21,6 @@ EXPOSE ${{[ toENV .Name ]}}_INFO_PORT
 
 # Copy dependecies
 COPY certs /etc/ssl/certs/
-{{[- if not .API.Config.Insecure ]}}
-COPY {{[ .API.Config.Certificates.Crt ]}} {{[ .API.Config.Certificates.Crt ]}}
-COPY {{[ .API.Config.Certificates.Key ]}} {{[ .API.Config.Certificates.Key ]}}
-{{[- end ]}}
 {{[- if .Storage.Enabled ]}}
 {{[- if .Example ]}}
 COPY fixtures /fixtures/

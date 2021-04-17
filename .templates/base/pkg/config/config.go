@@ -28,11 +28,6 @@ const (
 	APIVersion = "{{[ .API.Version ]}}"
 
 	DefaultServerPort     = {{[ .API.Config.Port ]}}
-	{{[- if not .API.Config.Insecure ]}}
-	DefaultServerInsecure = false
-	DefaultServerCrtPath  = "certs/tls.crt"
-	DefaultServerKeyPath  = "certs/tls.key"
-	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	DefaultGatewayPort    = {{[ .API.Config.Gateway.Port ]}}
 	{{[- end ]}}
@@ -61,13 +56,6 @@ func New() (*Config, error) {
 		{{[- if .API.Enabled ]}}
 		Server: server.Config{
 			Port: DefaultServerPort,
-			{{[- if not .API.Config.Insecure ]}}
-			Insecure: DefaultServerInsecure,
-			Certificates: server.Certificates{
-				Crt: DefaultServerCrtPath,
-				Key: DefaultServerKeyPath,
-			},
-			{{[- end ]}}
 			{{[- if .API.Gateway ]}}
 			Gateway: server.Gateway{
 				Port: DefaultGatewayPort,

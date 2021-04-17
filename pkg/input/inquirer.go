@@ -40,22 +40,6 @@ func Inquire(cfg *config.Config) *config.Config {
 
 	cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
 
-	if cfg.API.Enabled {
-		if BoolAnswer("Do you want to terminate API with TLS") {
-			cfg.API.Config.Insecure = false
-			cfg.API.Config.Certificates.Crt = StringAnswer(
-				"Provide certificate file path",
-				cfg.API.Config.Certificates.Crt,
-			)
-			cfg.API.Config.Certificates.Key = StringAnswer(
-				"Provide certificate key file path",
-				cfg.API.Config.Certificates.Key,
-			)
-		} else {
-			cfg.API.Config.Insecure = true
-		}
-	}
-
 	if BoolAnswer("Do you need storage driver?") {
 		cfg.Storage.Enabled = true
 

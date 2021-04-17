@@ -74,12 +74,7 @@ type Config struct {
 		Gateway bool
 		Version string
 		Config  struct {
-			Port         int
-			Insecure     bool
-			Certificates struct {
-				Crt string
-				Key string
-			}
+			Port    int
 			Gateway struct {
 				Port int
 			}

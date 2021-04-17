@@ -34,11 +34,6 @@ func init() {
 	{{[- if .API.Enabled ]}}
 
 	serveCmd.PersistentFlags().Int("server-port", config.DefaultServerPort, "Service listening port number")
-	{{[- if not .API.Config.Insecure ]}}
-	serveCmd.PersistentFlags().Bool("insecure", config.DefaultServerInsecure, "Used insecured connection to server")
-	serveCmd.PersistentFlags().String("crt", config.DefaultServerCrtPath, "A server certificate path")
-	serveCmd.PersistentFlags().String("key", config.DefaultServerKeyPath, "A server certificate key path")
-	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	serveCmd.PersistentFlags().Int("gw-port", config.DefaultGatewayPort, "Gateway listening port number")
 	{{[- end ]}}
@@ -48,18 +43,6 @@ func init() {
 	{{[- if .API.Enabled ]}}
 	helper.LogF("Flag error",
 		viper.BindPFlag("server.port", serveCmd.PersistentFlags().Lookup("server-port")))
-	{{[- if not .API.Config.Insecure ]}}
-	helper.LogF("Flag error",
-		viper.BindPFlag("server.insecure", serveCmd.PersistentFlags().Lookup("insecure")))
-	helper.LogF(
-		"Flag error",
-		viper.BindPFlag("server.certificates.crt", serveCmd.PersistentFlags().Lookup("crt")),
-	)
-	helper.LogF(
-		"Flag error",
-		viper.BindPFlag("server.certificates.key", serveCmd.PersistentFlags().Lookup("key")),
-	)
-	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	helper.LogF("Flag error",
 		viper.BindPFlag("server.gateway.port", serveCmd.PersistentFlags().Lookup("gw-port")))
@@ -71,11 +54,6 @@ func init() {
 		viper.BindPFlag("info.statistics", serveCmd.PersistentFlags().Lookup("info-statistics")))
 	{{[- if .API.Enabled ]}}
 	helper.LogF("Env error", viper.BindEnv("server.port"))
-	{{[- if not .API.Config.Insecure ]}}
-	helper.LogF("Env error", viper.BindEnv("server.insecure"))
-	helper.LogF("Env error", viper.BindEnv("server.certificates.crt"))
-	helper.LogF("Env error", viper.BindEnv("server.certificates.key"))
-	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	helper.LogF("Env error", viper.BindEnv("server.gateway.port"))
 	{{[- end ]}}
