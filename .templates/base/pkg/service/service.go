@@ -21,6 +21,9 @@ import (
 	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/db/stub"
 	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
+	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/info"
 	"{{[ .Project ]}}/pkg/logger"
 	{{[- if .API.Enabled ]}}
@@ -30,6 +33,9 @@ import (
 	"{{[ .Project ]}}/pkg/version"
 
 	"go.uber.org/zap"
+	{{[- if .Prometheus.Enabled ]}}
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	{{[- end ]}}
 )
 
 // Run the service.
@@ -120,6 +126,20 @@ func Run(cfg *config.Config) error {
 	{{[- if .Storage.Enabled ]}}
 	is.RegisterReadinessProbe(database.Check)
 	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	is.AddHandler(metrics.DefaultPath, promhttp.Handler())
+
+	// Monitor periodically updates metric values.
+	monitor := metrics.NewMonitor(
+		log,
+		{{[- if .Storage.Enabled ]}}
+		database.MetricFunc(),
+		{{[- end ]}}
+	)
+
+	// Metrics initialization
+	metrics.Register()
+	{{[- end ]}}
 
 	// Run info/health-check service.
 	infoServer := is.Run(fmt.Sprintf(":%d", cfg.Info.Port))
@@ -168,6 +188,11 @@ func Run(cfg *config.Config) error {
 		}
 	}()
 	{{[- end ]}}
+	{{[- end ]}}
+
+	{{[- if .Prometheus.Enabled ]}}
+	// Run metrics monitor.
+	go monitor.Run()
 	{{[- end ]}}
 
 	// Wait signals.

@@ -74,6 +74,10 @@ func Inquire(cfg *config.Config) *config.Config {
 		cfg.Example = true
 	}
 
+	if BoolAnswer("Do you need to expose metrics for Prometheus?") {
+		cfg.Prometheus.Enabled = true
+	}
+
 	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
 		cfg.GKE.Enabled = true
 		cfg.GKE.Project = StringAnswer("Provide ID of your project on the GCP", cfg.GKE.Project)

@@ -57,6 +57,7 @@ Do you want to terminate API with TLS? (y/n): n
 Do you need storage driver? (y/n): y
 Do you want postgres (1) or mysql (2)?: 1
 Do you need Contract API example for the service? (y/n): y
+Do you need to expose metrics for Prometheus? (y/n): y
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
 Provide compute zone of your project on the GCP (europe-west4):

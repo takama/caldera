@@ -7,6 +7,9 @@ import (
 	"strings"
 
 	"{{[ .Project ]}}/pkg/db"
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
+	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/db/migrations"
 	{{[- if .Example ]}}
 	"{{[ .Project ]}}/pkg/db/provider"
@@ -99,5 +102,13 @@ func (p Postgres) Shutdown(ctx context.Context) error {
 // EventsProvider returns data store provider for Events.
 func (p Postgres) EventsProvider() provider.Events {
 	return p.events
+}
+{{[- end ]}}
+
+{{[- if .Prometheus.Enabled ]}}
+
+// MetricFunc returns a func to monitor connectivity to Postgres.
+func (p Postgres) MetricFunc() metrics.MetricFunc {
+	return metrics.DBMetricFunc(p.cfg.Host, p.cfg.Name, p.pool.Stats())
 }
 {{[- end ]}}

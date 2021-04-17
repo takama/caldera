@@ -87,6 +87,13 @@ func Run(cfg *config.Config) {
 		}
 	}
 
+	if cfg.Prometheus.Enabled {
+		helper.LogF("Metrics templates for Prometheus", copyTemplates(
+			path.Join(cfg.Directories.Templates, config.Metrics),
+			cfg.Directories.Service,
+		))
+	}
+
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
 

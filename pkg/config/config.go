@@ -25,6 +25,8 @@ const (
 	StoragePostgres = "postgres"
 	// StorageMySQL declared storage driver type: mysql
 	StorageMySQL = "mysql"
+	// Metrics declared Prometheus common metrics for the service
+	Metrics = "metrics"
 )
 
 // Config contains service configuration
@@ -37,7 +39,10 @@ type Config struct {
 	Bin         string
 	GitInit     bool
 	Example     bool
-	GKE         struct {
+	Prometheus  struct {
+		Enabled bool
+	}
+	GKE struct {
 		Enabled bool
 		Project string
 		Region  string

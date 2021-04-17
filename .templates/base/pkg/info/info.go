@@ -23,7 +23,7 @@ type ProbeChecker func() error
 
 // Service contains info/health-check functionality.
 type Service struct {
-	handlers        map[string]http.HandlerFunc
+	handlers        map[string]http.Handler
 	logger          *zap.Logger
 	livenessProbes  []ProbeChecker
 	readinessProbes []ProbeChecker
@@ -33,13 +33,18 @@ type Service struct {
 func NewService(logger *zap.Logger) *Service {
 	return &Service{
 		logger:   logger,
-		handlers: make(map[string]http.HandlerFunc),
+		handlers: make(map[string]http.Handler),
 	}
 }
 
 // AddHandler adds new handler with given path to info service.
-func (s *Service) AddHandler(path string, handler http.HandlerFunc) {
+func (s *Service) AddHandler(path string, handler http.Handler) {
 	s.handlers[path] = handler
+}
+
+// AddHandlerFunc adds new handler func with given path to info service.
+func (s *Service) AddHandlerFunc(path string, handler http.HandlerFunc) {
+	s.AddHandler(path, handler)
 }
 
 // RegisterLivenessProbe defines liveness probe function.
@@ -90,7 +95,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			for path, handler := range s.handlers {
 				if route == path {
-					handler(w, r)
+					handler.ServeHTTP(w, r)
 					return
 				}
 			}

@@ -2,10 +2,16 @@ package stub
 
 import (
 	"context"
+	{{[- if .Prometheus.Enabled ]}}
+	"database/sql"
+	{{[- end ]}}
 
 	"{{[ .Project ]}}/pkg/db"
 	{{[- if .Example ]}}
 	"{{[ .Project ]}}/pkg/db/provider"
+	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
 	{{[- end ]}}
 
 	"go.uber.org/zap"
@@ -63,5 +69,13 @@ func (s Stub) Shutdown(ctx context.Context) error {
 // EventsProvider returns data store provider for Events.
 func (s Stub) EventsProvider() provider.Events {
 	return s.events
+}
+{{[- end ]}}
+
+{{[- if .Prometheus.Enabled ]}}
+
+// MetricFunc returns a "stub" func to monitor connectivity to stub.
+func (s Stub) MetricFunc() metrics.MetricFunc {
+	return metrics.DBMetricFunc("", "", sql.DBStats{})
 }
 {{[- end ]}}

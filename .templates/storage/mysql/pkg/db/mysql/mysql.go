@@ -7,6 +7,9 @@ import (
 	"strings"
 
 	"{{[ .Project ]}}/pkg/db"
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
+	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/db/migrations"
 	{{[- if .Example ]}}
 	"{{[ .Project ]}}/pkg/db/provider"
@@ -99,5 +102,13 @@ func (m MySQL) Shutdown(ctx context.Context) error {
 // EventsProvider returns data store provider for Events.
 func (m MySQL) EventsProvider() provider.Events {
 	return m.events
+}
+{{[- end ]}}
+
+{{[- if .Prometheus.Enabled ]}}
+
+// MetricFunc returns a func to monitor connectivity to MySQL.
+func (m MySQL) MetricFunc() metrics.MetricFunc {
+	return metrics.DBMetricFunc(m.cfg.Host, m.cfg.Name, m.pool.Stats())
 }
 {{[- end ]}}
