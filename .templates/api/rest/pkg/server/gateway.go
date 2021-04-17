@@ -14,7 +14,7 @@ import (
 	{{[- end ]}}
 	"{{[ .Project ]}}/contracts/info"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 	{{[- if .API.Config.Insecure ]}}
@@ -61,17 +61,13 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	{{[- else ]}}
 	opts := gw.TLSOptions()
 	{{[- end ]}}
-	gateway := runtime.NewServeMux(
-		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard,
-			&runtime.JSONPb{EmitDefaults: true},
-		),
-	)
+	gateway := runtime.NewServeMux()
+
 	// Register all gateways
 	if err := info.RegisterInfoHandlerFromEndpoint(
 		ctx, gateway, forward, opts,
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to register info handler: %w", err)
 	}
 	{{[- if .Example ]}}
 
@@ -162,7 +158,7 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 
 	// Configure HTTP2 server
 	if err := http2.ConfigureServer(gw.srv, nil); err != nil {
-		return fmt.Errorf("failed to configure HTTP2 server: %s", err)
+		return fmt.Errorf("failed to configure HTTP2 server: %w", err)
 	}
 
 	return gw.srv.ListenAndServeTLS(
