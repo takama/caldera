@@ -53,6 +53,7 @@ Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
 Do you want gRPC (1) or gRPC+REST (2)?: 2
+Do you need CORS? (y/n): y
 Default API version (v1):
 Do you need storage driver? (y/n): y
 Do you want postgres (1) or mysql (2)?: 1
