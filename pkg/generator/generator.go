@@ -97,10 +97,6 @@ func Run(cfg *config.Config) {
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
 
-	if cfg.API.Enabled {
-		helper.LogF("Generate contracts", Exec("make", "contracts"))
-	}
-
 	log.Println("Initialize vendors:")
 	helper.LogF("Init modules", Exec("make", "vendor"))
 
