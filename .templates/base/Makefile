@@ -329,7 +329,7 @@ HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
 {{[- if .GKE.Enabled ]}}
 HAS_GCLOUD := $(shell command -v gcloud;)
-HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr)
+HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr;)
 {{[- end ]}}
 
 bootstrap:
