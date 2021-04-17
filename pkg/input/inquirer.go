@@ -28,7 +28,7 @@ func Inquire(cfg *config.Config) *config.Config {
 	if BoolAnswer("Do you need an API for the service?") {
 		cfg.API.Enabled = true
 
-		switch OptionAnswer("Do you need gRPC (1) or gRPC+REST (2)?", "1", "2") {
+		switch OptionAnswer("Do you want gRPC (1) or gRPC+REST (2)?", "1", "2") {
 		case "2":
 			cfg.API.Gateway = true
 
