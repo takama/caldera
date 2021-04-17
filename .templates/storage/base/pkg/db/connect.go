@@ -20,7 +20,8 @@ func Connect(cfg *Config) (*sql.DB, error) {
 	}
 
 	db.SetMaxOpenConns(cfg.Connections.Max)
-	db.SetMaxIdleConns(cfg.Connections.Idle)
+	db.SetMaxIdleConns(cfg.Connections.Idle.Count)
+	db.SetConnMaxLifetime(cfg.Connections.Idle.Time)
 
 	return db, nil
 }

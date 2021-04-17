@@ -29,7 +29,7 @@ const (
 	{{[- if not .API.Config.Insecure ]}}
 	DefaultServerInsecure = false
 	DefaultServerCrtPath  = "certs/tls.crt"
-	DefaultServerKeyPath  = "certs/tls.key" 
+	DefaultServerKeyPath  = "certs/tls.key"
 	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	DefaultGatewayPort    = {{[ .API.Config.Gateway.Port ]}}
@@ -38,6 +38,9 @@ const (
 	DefaultInfoPort       = 8080
 	DefaultInfoStatistics = true
 	DefaultLoggerLevel    = logger.LevelInfo
+	{{[- if .Storage.Enabled ]}}
+	DefaultDBConnectionIdleTime = "{{[ .Storage.Config.Connections.Idle.Time ]}}"
+	{{[- end ]}}
 )
 
 // Config -- Base config structure.

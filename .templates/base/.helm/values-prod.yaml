@@ -226,7 +226,9 @@ service:
     ##
     connections:
       max: {{[ .Storage.Config.Connections.Max ]}}
-      idle: {{[ .Storage.Config.Connections.Idle ]}}
+      idle:
+        count: {{[ .Storage.Config.Connections.Idle.Count ]}}
+        time: {{[ .Storage.Config.Connections.Idle.Time ]}}
   {{[- end ]}}
 
   ## Logger format and level

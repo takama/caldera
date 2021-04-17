@@ -45,7 +45,10 @@ data:
         {{- end }}
         "connections": {
           "max": {{ .Values.service.database.connections.max }},
-          "idle": {{ .Values.service.database.connections.idle }}
+          "idle": {
+            "count": {{ .Values.service.database.connections.idle.count }},
+            "time": {{ .Values.service.database.connections.idle.time }}
+          }
         },
         "fixtures": {
           "dir": "fixtures"

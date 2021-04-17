@@ -1,5 +1,7 @@
 package db
 
+import "time"
+
 // Config contains params to setup database connection.
 type Config struct {
 	Driver      string
@@ -17,7 +19,12 @@ type Config struct {
 // Connections configures DB connections state.
 type Connections struct {
 	Max  int
-	Idle int
+	Idle Idle
+}
+
+type Idle struct {
+	Count int
+	Time  time.Duration
 }
 
 // Fixtures attributes.

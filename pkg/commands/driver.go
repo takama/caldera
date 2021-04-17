@@ -5,6 +5,7 @@ package commands
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/takama/caldera/pkg/config"
 	"github.com/takama/caldera/pkg/helper"
@@ -48,7 +49,9 @@ func init() {
 	driverCmd.PersistentFlags().StringP("username", "u", databaseDriver, "A name of database user")
 	driverCmd.PersistentFlags().StringP("password", "p", databaseDriver, "An user password")
 	driverCmd.PersistentFlags().Int("max-conn", 10, "Maximum available connections")
-	driverCmd.PersistentFlags().Int("idle-conn", 1, "Count of idle connections")
+	driverCmd.PersistentFlags().Int("idle-count", 1, "Count of idle connections")
+	driverCmd.PersistentFlags().Duration("idle-time", time.Minute,
+		"Maximum amount of time a connection may be idle")
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("storage.config.host", driverCmd.PersistentFlags().Lookup("host")),
@@ -75,6 +78,10 @@ func init() {
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("storage.config.connections.idle", driverCmd.PersistentFlags().Lookup("idle-conn")),
+		viper.BindPFlag("storage.config.connections.idle.count", driverCmd.PersistentFlags().Lookup("idle-count")),
+	)
+	helper.LogF(
+		"Flag error",
+		viper.BindPFlag("storage.config.connections.idle.time", driverCmd.PersistentFlags().Lookup("idle-time")),
 	)
 }
