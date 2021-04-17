@@ -1,7 +1,5 @@
 package config
 
-import "time"
-
 const (
 	// ServiceName defines short service name
 	ServiceName = "Caldera boilerplate generator"
@@ -60,7 +58,7 @@ type Config struct {
 				Max  int
 				Idle struct {
 					Count int
-					Time  time.Duration
+					Time  int
 				}
 			}
 		}

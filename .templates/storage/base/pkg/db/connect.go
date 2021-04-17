@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"net/url"
+	"time"
 )
 
 // Connect to SQL database specified in configuration.
@@ -21,7 +22,7 @@ func Connect(cfg *Config) (*sql.DB, error) {
 
 	db.SetMaxOpenConns(cfg.Connections.Max)
 	db.SetMaxIdleConns(cfg.Connections.Idle.Count)
-	db.SetConnMaxLifetime(cfg.Connections.Idle.Time)
+	db.SetConnMaxLifetime(time.Duration(cfg.Connections.Idle.Time) * time.Second)
 
 	return db, nil
 }

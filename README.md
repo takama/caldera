@@ -94,15 +94,15 @@ Save a `storage` parameters for database driver in Caldera configuration file:
 ./caldera storage driver [flags]
 
 Flags:
-  -h, --help               help for driver
-      --host string        A host name (default "postgres")
-      --port int           A port number (default 5432)
-      --name string        A database name (default "postgres")
-  -u, --username string    A name of database user (default "postgres")
-  -p, --password string    An user password (default "postgres")
-      --max-conn int       Maximum available connections (default 10)
-      --idle-count int     Count of idle connections (default 1)
-      --idle-time duration Maximum amount of time a connection may be idle (default 60s)
+  -h, --help              help for driver
+      --host string       A host name (default "postgres")
+      --port int          A port number (default 5432)
+      --name string       A database name (default "postgres")
+  -u, --username string   A name of database user (default "postgres")
+  -p, --password string   An user password (default "postgres")
+      --max-conn int      Maximum available connections (default 10)
+      --idle-count int    Count of idle connections (default 1)
+      --idle-time int     Maximum amount of time in seconds a connection may be idle (default 60)
 ```
 
 Save an `API` parameters for `REST/gRPC` (REST always used gRCP gateway):

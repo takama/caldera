@@ -34,11 +34,6 @@ func Run() {
 
 // nolint: funlen
 func init() {
-	defaultIdleTime, err := time.ParseDuration(config.DefaultDBConnectionIdleTime)
-	if err != nil {
-		helper.LogF("Flag error", err)
-	}
-
 	viper.SetEnvPrefix(config.ServiceName)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 
@@ -67,8 +62,8 @@ func init() {
 	RootCmd.PersistentFlags().StringSlice("database-props", []string{"sslmode=disable"}, "A database properties")
 	RootCmd.PersistentFlags().Int("max-conn", 10, "Maximum of database connections")
 	RootCmd.PersistentFlags().Int("idle-count", 1, "Count of idle database connections")
-	RootCmd.PersistentFlags().Duration("idle-time", defaultIdleTime,
-		"Maximum amount of time a connection may be idle")
+	RootCmd.PersistentFlags().Int("idle-time", {{[ .Storage.Config.Connections.Idle.Time ]}},
+		"Maximum amount of time in seconds a connection may be idle")
 	RootCmd.PersistentFlags().StringP("fixtures-dir", "F", "fixtures", "A database fixtures directory")
 
 	helper.LogF("Flag error",

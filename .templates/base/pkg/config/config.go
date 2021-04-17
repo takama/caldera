@@ -38,9 +38,6 @@ const (
 	DefaultInfoPort       = 8080
 	DefaultInfoStatistics = true
 	DefaultLoggerLevel    = logger.LevelInfo
-	{{[- if .Storage.Enabled ]}}
-	DefaultDBConnectionIdleTime = "{{[ .Storage.Config.Connections.Idle.Time ]}}"
-	{{[- end ]}}
 )
 
 // Config -- Base config structure.

@@ -1,7 +1,5 @@
 package db
 
-import "time"
-
 // Config contains params to setup database connection.
 type Config struct {
 	Driver      string
@@ -24,7 +22,7 @@ type Connections struct {
 
 type Idle struct {
 	Count int
-	Time  time.Duration
+	Time  int
 }
 
 // Fixtures attributes.
