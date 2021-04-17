@@ -61,6 +61,7 @@ func (s Stub) Check() error {
 // Shutdown process graceful shutdown for the storage.
 func (s Stub) Shutdown(ctx context.Context) error {
 	s.log.Debug("DB closed", zap.String("driver", Driver))
+
 	return nil
 }
 

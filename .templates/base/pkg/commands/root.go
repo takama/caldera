@@ -31,7 +31,6 @@ func Run() {
 	helper.LogF("Service bootstrap error", RootCmd.Execute())
 }
 
-// nolint: funlen
 func init() {
 	viper.SetEnvPrefix(config.ServiceName)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
@@ -121,7 +120,7 @@ func initConfig() {
 	} else
 	// Check for env variable with config path.
 	if cfgPath := os.Getenv(
-		strings.ToUpper(strings.Replace(config.ServiceName, "-", "_", -1)) + "_CONFIG_PATH",
+		strings.ToUpper(strings.ReplaceAll(config.ServiceName, "-", "_")) + "_CONFIG_PATH",
 	); cfgPath != "" {
 		viper.SetConfigFile(cfgPath)
 	}

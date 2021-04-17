@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/pkg/db/provider"
@@ -20,7 +21,7 @@ func newEventsProvider(db *sql.DB) *eventsProvider {
 func (ep *eventsProvider) TransactProvider() (provider.EventsTransact, error) {
 	p, err := ep.SQL.TransactProvider()
 	if err != nil {
-		return ep, err
+		return ep, fmt.Errorf("failed to create transact provider: %w", err)
 	}
 
 	return &eventsProvider{SQL: p}, nil
@@ -40,7 +41,7 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 	stmt, err := ep.Prepare(queryInsertEvent)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to prepare create event request: %w", err)
 	}
 
 	defer stmt.Close()
@@ -79,7 +80,7 @@ func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
 	stmt, err := ep.Prepare(queryUpdateEvent)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to prepare update event request: %w", err)
 	}
 
 	defer stmt.Close()
@@ -96,13 +97,13 @@ func (ep *eventsProvider) Delete(id string) error {
 	stmt, err := ep.Prepare(queryDeleteEventByID)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare delete event request: %w", err)
 	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec(id)
 
-	return err
+	return fmt.Errorf("failed to delete event: %w", err)
 }
 
 // DeleteByName removes Event objects by Event name.
@@ -114,13 +115,13 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 	stmt, err := ep.Prepare(queryDeleteEventsByName)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare delete event by name request: %w", err)
 	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec(name)
 
-	return err
+	return fmt.Errorf("failed to delete event by name: %w", err)
 }
 
 func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Event, error) {
@@ -128,7 +129,7 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Eve
 	rows, err := ep.Query(query, args...)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to prepare find: %w", err)
 	}
 
 	defer rows.Close()
@@ -136,7 +137,7 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Eve
 	for rows.Next() {
 		item := new(events.Event)
 		if err := rows.Scan(&item.Id, &item.Name); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows: %w", err)
 		}
 
 		items = append(items, item)

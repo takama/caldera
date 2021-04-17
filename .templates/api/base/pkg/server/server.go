@@ -90,7 +90,7 @@ func (s *Server) Run(ctx context.Context) error {
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", s.cfg.Port))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create server listener: %w", err)
 	}
 
 	return s.srv.Serve(listener)

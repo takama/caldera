@@ -3,6 +3,7 @@ package info
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -67,9 +68,9 @@ func (s *Service) Run(addr string) *http.Server {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			// Check for known errors
-			if err != context.DeadlineExceeded &&
-				err != context.Canceled &&
-				err != http.ErrServerClosed {
+			if !errors.Is(err, context.DeadlineExceeded) &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
 				s.logger.Fatal(err.Error())
 			}
 
@@ -96,6 +97,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			for path, handler := range s.handlers {
 				if route == path {
 					handler.ServeHTTP(w, r)
+
 					return
 				}
 			}
@@ -111,6 +113,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				for path := range s.handlers {
 					if route == path {
 						w.Header().Set("Allow", "GET")
+
 						return
 					}
 				}
@@ -136,6 +139,7 @@ func (s *Service) info(w http.ResponseWriter) {
 
 	if err != nil {
 		s.writeError(w, err)
+
 		return
 	}
 
@@ -150,6 +154,7 @@ func (s *Service) liveness(w http.ResponseWriter) {
 	for _, checker := range s.livenessProbes {
 		if err := checker(); err != nil {
 			s.writeError(w, err)
+
 			return
 		}
 	}
@@ -163,6 +168,7 @@ func (s *Service) readiness(w http.ResponseWriter) {
 	for _, checker := range s.readinessProbes {
 		if err := checker(); err != nil {
 			s.writeError(w, err)
+
 			return
 		}
 	}

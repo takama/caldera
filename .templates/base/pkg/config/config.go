@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 {{[- if .Storage.Enabled ]}}
 	"{{[ .Project ]}}/pkg/db"
 	"{{[ .Project ]}}/pkg/db/migrations"
@@ -16,7 +18,7 @@ import (
 
 // Default values: host, port, etc.
 const (
-	// ServiceName - default service name
+	// ServiceName - default service name.
 	ServiceName = "{{[ .Name ]}}"
 
 	APIVersion = "v1"
@@ -83,7 +85,7 @@ func New() (*Config, error) {
 	}
 
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	return cfg, nil

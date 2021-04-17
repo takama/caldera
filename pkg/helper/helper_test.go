@@ -9,6 +9,8 @@ import (
 	"github.com/takama/caldera/pkg/helper"
 )
 
+var ErrSimple = errors.New("Error")
+
 func TestLogE(t *testing.T) {
 	var data bytes.Buffer
 
@@ -22,7 +24,7 @@ func TestLogE(t *testing.T) {
 		t.Errorf("Expected message %s, got %s", expected, data.String())
 	}
 
-	helper.LogE("message", errors.New("Error"))
+	helper.LogE("message", ErrSimple)
 
 	expected = "message: Error\n"
 

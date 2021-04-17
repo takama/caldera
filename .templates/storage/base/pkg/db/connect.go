@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"net/url"
 	"time"
 )
@@ -11,13 +12,13 @@ func Connect(cfg *Config) (*sql.DB, error) {
 	dsn, err := url.Parse(cfg.DSN)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse DSN: %w", err)
 	}
 
 	db, err := sql.Open(cfg.Driver, dsn.String())
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open SQL connection: %w", err)
 	}
 
 	db.SetMaxOpenConns(cfg.Connections.Max)

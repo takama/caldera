@@ -1,6 +1,7 @@
 package info_test
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,7 +18,7 @@ var ErrReturnError = errors.New("test of return Error")
 func testHandler(
 	t *testing.T, handler http.Handler, method, path string, code int, body string,
 ) {
-	req, err := http.NewRequest(method, path, nil)
+	req, err := http.NewRequestWithContext(context.Background(), method, path, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -91,7 +92,6 @@ func TestNotFound(t *testing.T) {
 func TestAddHandler(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
 	service.AddHandlerFunc(
-		// nolint: unparam
 		"/handler", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte("Handler"))
 			if err != nil {

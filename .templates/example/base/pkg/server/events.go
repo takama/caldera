@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/contracts/request"
@@ -30,12 +31,12 @@ func (es eventsServer) FindEventsByName(
 	data, err := es.FindByName(req.Name)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find events by name: %w", err)
 	}
 
 	for ind := range data {
 		if err := stream.Send(data[ind]); err != nil {
-			return err
+			return fmt.Errorf("failed to send events by name: %w", err)
 		}
 	}
 
@@ -55,7 +56,7 @@ func (es eventsServer) ListEvents(
 
 	for ind := range data {
 		if err := stream.Send(data[ind]); err != nil {
-			return err
+			return fmt.Errorf("failed to send events: %w", err)
 		}
 	}
 

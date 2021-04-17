@@ -74,6 +74,7 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 // FindByName returns Events requested by Event name.
 func (ep *eventsProvider) FindByName(name string) ([]*events.Event, error) {
 	_, items := ep.findByName(name)
+
 	return items, nil
 }
 
@@ -183,5 +184,5 @@ func readFile(path string) (*os.File, error) {
 		return nil, nil
 	}
 
-	return os.Open(path) // nolint: gosec
+	return os.Open(path)
 }

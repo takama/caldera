@@ -3,6 +3,7 @@ package service
 import (
 {{[- if .API.Enabled ]}}
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 {{[- else ]}}
@@ -85,7 +86,7 @@ func Run(cfg *config.Config) error {
 	}
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to init a database driver: %w", err)
 	}
 	{{[- end ]}}
 
@@ -94,7 +95,7 @@ func Run(cfg *config.Config) error {
 	// Create new core server.
 	srv, err := server.New(context.Background(), &cfg.Server, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create a new server: %w", err)
 	}
 
 	{{[- if .API.Gateway ]}}
@@ -102,7 +103,7 @@ func Run(cfg *config.Config) error {
 	// Create gateway server.
 	gw, err := server.NewGateway(context.Background(), &cfg.Server, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create a REST gateway: %w", err)
 	}
 	{{[- end ]}}
 	{{[- end ]}}
@@ -164,9 +165,9 @@ func Run(cfg *config.Config) error {
 	go func() {
 		if err := srv.Run(context.Background()); err != nil {
 			// Check for known errors
-			if err != context.DeadlineExceeded &&
-				err != context.Canceled &&
-				err != http.ErrServerClosed {
+			if !errors.Is(err, context.DeadlineExceeded) &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
 				log.Fatal(err.Error())
 			}
 
@@ -180,7 +181,7 @@ func Run(cfg *config.Config) error {
 	go func() {
 		if err := gw.Run(context.Background()); err != nil {
 			// Check for known errors
-			if err != http.ErrServerClosed {
+			if !errors.Is(err, http.ErrServerClosed) {
 				log.Fatal(err.Error())
 			}
 
