@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"{{[ .Project ]}}/pkg/config"
 	"{{[ .Project ]}}/pkg/helper"
