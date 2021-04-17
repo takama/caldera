@@ -9,6 +9,8 @@ GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
 
+LINTER_VERSION ?= v{{[ .Linter.Version ]}}
+
 {{[- if .GKE.Enabled ]}}
 
 # Configs for GKE
@@ -298,7 +300,7 @@ imports:
 
 lint: bootstrap
 	@echo "+ $@"
-	@golangci-lint run --enable-all --skip-dirs vendor ./...
+	@GOPRIVATE=$(PRIVATE_REPOS) golangci-lint run ./...
 
 HAS_RUNNED := $(shell docker ps | grep $(CONTAINER_NAME))
 HAS_EXITED := $(shell docker ps -a | grep $(CONTAINER_NAME))
@@ -334,7 +336,7 @@ HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr;)
 
 bootstrap:
 ifndef HAS_LINT
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	go get github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINTER_VERSION)
 endif
 ifndef HAS_IMPORTS
 	go get -u golang.org/x/tools/cmd/goimports

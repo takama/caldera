@@ -1,35 +1,35 @@
 package config
 
 const (
-	// ServiceName defines short service name
+	// ServiceName defines short service name.
 	ServiceName = "Caldera boilerplate generator"
-	// DefaultPostgresPort defines default port for PostgreSQL
+	// DefaultPostgresPort defines default port for PostgreSQL.
 	DefaultPostgresPort = 5432
-	// DefaultMySQLPort defines default port for MySQL
+	// DefaultMySQLPort defines default port for MySQL.
 	DefaultMySQLPort = 3306
-	// Base declared base templates
+	// Base declared base templates.
 	Base = "base"
-	// GKE declared GKE accounts/cluster/deployment
+	// GKE declared GKE accounts/cluster/deployment.
 	GKE = "gke"
-	// API declared type API
+	// API declared type API.
 	API = "api"
-	// APIGateway declared type API gateway: REST
+	// APIGateway declared type API gateway: REST.
 	APIGateway = "rest"
-	// APIgRPC declared type API: gRPC
+	// APIgRPC declared type API: gRPC.
 	APIgRPC = "grpc"
-	// Example declared contract API example
+	// Example declared contract API example.
 	Example = "example"
-	// Storage declared type Storage
+	// Storage declared type Storage.
 	Storage = "storage"
-	// StoragePostgres declared storage driver type: postgres
+	// StoragePostgres declared storage driver type: postgres.
 	StoragePostgres = "postgres"
-	// StorageMySQL declared storage driver type: mysql
+	// StorageMySQL declared storage driver type: mysql.
 	StorageMySQL = "mysql"
-	// Metrics declared Prometheus common metrics for the service
+	// Metrics declared Prometheus common metrics for the service.
 	Metrics = "metrics"
 )
 
-// Config contains service configuration
+// Config contains service configuration.
 type Config struct {
 	Name        string
 	Description string
@@ -87,5 +87,8 @@ type Config struct {
 	Directories struct {
 		Templates string
 		Service   string
+	}
+	Linter struct {
+		Version string
 	}
 }

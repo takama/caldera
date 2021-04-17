@@ -99,6 +99,7 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 	}
 
+	cfg.Linter.Version = StringAnswer("Default Golang CI Linter version", cfg.Linter.Version)
 	cfg.Directories.Service = StringAnswer("New service directory", cfg.Directories.Service)
 
 	if BoolAnswer("Do you want initialize service repository with git?") {
