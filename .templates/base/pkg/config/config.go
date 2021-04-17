@@ -21,11 +21,11 @@ const (
 	// ServiceName - default service name.
 	ServiceName = "{{[ .Name ]}}"
 
-	APIVersion = "v1"
-
 	DefaultConfigPath = "config/default.conf"
 
 	{{[- if .API.Enabled ]}}
+
+	APIVersion = "{{[ .API.Version ]}}"
 
 	DefaultServerPort     = {{[ .API.Config.Port ]}}
 	{{[- if not .API.Config.Insecure ]}}

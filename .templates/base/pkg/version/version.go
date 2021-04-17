@@ -5,6 +5,10 @@ package version
 var (
 	// RELEASE returns the release version.
 	RELEASE = "UNKNOWN"
+	{{[- if .API.Enabled ]}}
+	// API returns the API version.
+	API = "UNKNOWN"
+	{{[- end ]}}
 	// DATE returns the release date.
 	DATE = "UNKNOWN"
 	// REPO returns the git repository URL.

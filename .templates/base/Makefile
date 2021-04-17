@@ -5,6 +5,9 @@ SERVICE_NAME ?= $(shell echo "$(APP)" | tr - _)
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.0.0
+{{[- if .API.Enabled ]}}
+API_VERSION ?= {{[ .API.Version ]}}
+{{[- end ]}}
 GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
@@ -116,6 +119,9 @@ endif
 
 LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.RELEASE=$(RELEASE) \
+{{[- if .API.Enabled ]}}
+	-X $(PROJECT)/pkg/version.API=$(API_VERSION) \
+{{[- end ]}}
 	-X $(PROJECT)/pkg/version.DATE=$(RELEASE_DATE) \
 	-X $(PROJECT)/pkg/version.REPO=$(REPO_INFO) \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \

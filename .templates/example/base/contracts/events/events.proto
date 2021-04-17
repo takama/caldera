@@ -12,23 +12,23 @@ option go_package = "{{[ .Project ]}}/contracts/events";
 service Events {
   // Get Event object by ID
   rpc GetEvent (request.ByID) returns (Event) {
-    option (google.api.http).get = "/v1/events/id/{id}";
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events/id/{id}";
   }
 
   // Find Events objects by name.
   rpc FindEventsByName (request.ByName) returns (stream Event) {
-    option (google.api.http).get = "/v1/events/name/{name}";
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events/name/{name}";
   }
 
   // List all Events.
   rpc ListEvents (google.protobuf.Empty) returns (stream Event) {
-    option (google.api.http).get = "/v1/events";
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events";
   }
 
   // Create a new Event object.
   rpc CreateEvent (Event) returns (Event) {
     option (google.api.http) = {
-      post: "/v1/events",
+      post: "/{{[ .API.Version ]}}/events",
       body: "*"
     };
   }
@@ -36,19 +36,19 @@ service Events {
   // Update a Events object.
   rpc UpdateEvent (Event) returns (Event) {
     option (google.api.http) = {
-      put: "/v1/events/id/{id}",
+      put: "/{{[ .API.Version ]}}/events/id/{id}",
       body: "*"
     };
   }
 
   // Delete Event object by ID.
   rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v1/events/id/{id}";
+    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/id/{id}";
   }
 
   // Delete Events objects by Event name.
   rpc DeleteEventsByName (request.ByName) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v1/events/name/{name}";
+    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/name/{name}";
   }
 }
 

@@ -72,6 +72,7 @@ type Config struct {
 		Enabled bool
 		GRPC    bool
 		Gateway bool
+		Version string
 		Config  struct {
 			Port         int
 			Insecure     bool

@@ -39,6 +39,7 @@ func init() {
 	apiCmd.PersistentFlags().Bool("enabled", false, "An API modules using")
 	apiCmd.PersistentFlags().Bool("rest-gateway", false, "A REST gateway module using")
 	apiCmd.PersistentFlags().Bool("grpc", false, "A gRPC module using")
+	apiCmd.PersistentFlags().String("api-version", "v1", "Default API version")
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("api.enabled", apiCmd.PersistentFlags().Lookup("enabled")),
@@ -50,5 +51,9 @@ func init() {
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("api.grpc", apiCmd.PersistentFlags().Lookup("grpc")),
+	)
+	helper.LogF(
+		"Flag error",
+		viper.BindPFlag("api.version", apiCmd.PersistentFlags().Lookup("api-version")),
 	)
 }

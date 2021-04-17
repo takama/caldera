@@ -38,6 +38,8 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 	}
 
+	cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
+
 	if cfg.API.Enabled {
 		if BoolAnswer("Do you want to terminate API with TLS") {
 			cfg.API.Config.Insecure = false
