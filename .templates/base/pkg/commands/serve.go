@@ -53,11 +53,11 @@ func init() {
 		viper.BindPFlag("server.insecure", serveCmd.PersistentFlags().Lookup("insecure")))
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("api.config.certificates.crt", serveCmd.PersistentFlags().Lookup("crt")),
+		viper.BindPFlag("server.certificates.crt", serveCmd.PersistentFlags().Lookup("crt")),
 	)
 	helper.LogF(
 		"Flag error",
-		viper.BindPFlag("api.config.certificates.key", serveCmd.PersistentFlags().Lookup("key")),
+		viper.BindPFlag("server.certificates.key", serveCmd.PersistentFlags().Lookup("key")),
 	)
 	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
@@ -73,8 +73,8 @@ func init() {
 	helper.LogF("Env error", viper.BindEnv("server.port"))
 	{{[- if not .API.Config.Insecure ]}}
 	helper.LogF("Env error", viper.BindEnv("server.insecure"))
-	helper.LogF("Env error", viper.BindEnv("server.crt"))
-	helper.LogF("Env error", viper.BindEnv("server.key"))
+	helper.LogF("Env error", viper.BindEnv("server.certificates.crt"))
+	helper.LogF("Env error", viper.BindEnv("server.certificates.key"))
 	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	helper.LogF("Env error", viper.BindEnv("server.gateway.port"))
