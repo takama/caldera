@@ -52,15 +52,14 @@ Provide name for your Github account (my-account):
 Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
-What kind of API do you need? (rest,grpc): grpc
-Do you need one more API for the service? (y/n): y
-What kind of API do you need? (rest): rest
+Do you want gRPC (1) or gRPC+REST (2)?: 2
+Do you want to terminate API with TLS? (y/n): n
 Do you need storage driver? (y/n): y
-What kind of storage driver do you need? (postgres,mysql): postgres
+Do you want postgres (1) or mysql (2)?: 1
 Do you need Contract API example for the service? (y/n): y
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
-Provide compute zone of your project on the GCP (europe-west1-b):
+Provide compute zone of your project on the GCP (europe-west4):
 Provide cluster name in the GKE (my-cluster-name):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
 New service directory (~/go/src/github.com/my-account/my-service):
