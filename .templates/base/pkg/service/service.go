@@ -157,6 +157,9 @@ func Run(cfg *config.Config) error {
 		{{[- if .Storage.Enabled ]}}
 		database,
 		{{[- end ]}}
+		{{[- if .Prometheus.Enabled ]}}
+		monitor,
+		{{[- end ]}}
 	)
 
 	{{[- if .API.Enabled ]}}
