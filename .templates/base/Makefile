@@ -193,7 +193,7 @@ HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
 
 db:
 	@echo "+ $@"
-ifneq ("$(FINGERPRINT_DB_DRIVER)","stub")
+ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 ifndef HAS_DB_RUNNED
 ifndef HAS_DB_EXITED
 	@mkdir -p $({{[ toENV .Name ]}}_DB_LOCATION)
