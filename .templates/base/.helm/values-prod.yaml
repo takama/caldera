@@ -191,9 +191,9 @@ service:
     ##
     dsn:
 
-    ## Database name
+    ## Database name secret
     ##
-    name: {{[ .Storage.Config.Name ]}}
+    name: {{[ .Storage.Config.Name ]}}-db-credentials
 
     ## Database host name
     ##
@@ -209,11 +209,11 @@ service:
 
     ## Database username secret
     ##
-    username: {{[ .Storage.Config.Username ]}}
+    username: {{[ .Storage.Config.Name ]}}-db-credentials
 
-    ## Database password
+    ## Database password secret
     ##
-    password: {{[ .Storage.Config.Password ]}}
+    password: {{[ .Storage.Config.Name ]}}-db-credentials
 
     ## Connection properties like ssl-mode, sslkey and others
     ##
