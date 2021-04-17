@@ -53,12 +53,12 @@ data:
         "fixtures": {
           "dir": "fixtures"
         }
-      {{- end }}
       },
       "migrations": {
         "dir": "migrations/{{ .Values.service.database.driver }}",
         "active": true
       },
+      {{- end }}
       {{[- end ]}}
       "logger": {
         "format": "{{ .Values.service.logger.format }}",
