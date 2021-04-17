@@ -68,6 +68,7 @@ func (s *Server) Run(ctx context.Context) error {
 	if err := s.checkProviders(); err != nil {
 		return err
 	}
+
 	{{[- end ]}}
 	// Register gRPC server
 	s.srv = grpc.NewServer()
