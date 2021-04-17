@@ -106,10 +106,10 @@ REPO_COMMIT = git-$(shell git rev-parse --short HEAD)
 endif
 
 BUILD ?= $(RELEASE)
-DEPLOY_PARAMS ?= --wait
+DEPLOY_PARAMS ?= --atomic
 ifneq ("$(NAMESPACE)","prod")
 BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
-DEPLOY_PARAMS = --wait --force --atomic
+DEPLOY_PARAMS = --wait --force
 endif
 
 LDFLAGS = "-s -w \
