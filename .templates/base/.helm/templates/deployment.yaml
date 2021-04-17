@@ -62,7 +62,7 @@ spec:
         - name: {{ printf "%s_CONFIG_PATH" .Values.service.name | upper | replace "-" "_" }}
           value: /etc/{{ .Values.service.name | replace "-" "_" }}/default.conf
         {{[- if .Storage.Enabled ]}}
-        {{- if and .Values.service.database.enabled .Values.service.database.secretCredentials }}
+        {{- if .Values.service.database.enabled}}
         {{- if .Values.service.database.name }}
         - name: {{ printf "%s_DB_NAME" $serviceName | upper | replace "-" "_" }}
           valueFrom:

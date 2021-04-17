@@ -203,10 +203,6 @@ service:
     ##
     port: {{[ .Storage.Config.Port ]}}
 
-    ## Use credentials from secret
-    ##
-    secretCredentials: true
-
     ## Database username secret
     ##
     username: {{[ .Storage.Config.Name ]}}-db-credentials
