@@ -2,6 +2,10 @@
 
 A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
+## Version v0.1.10
+
+See details in the [changelog](docs/CHANGELOG.md)
+
 ## Features of the boilerplate service
 
 - gRPC/REST API example using protobuf
