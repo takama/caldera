@@ -132,6 +132,9 @@ func (s *Service) info(w http.ResponseWriter) {
 	data, err := json.Marshal(
 		map[string]string{
 			"version": version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+{{[- if .API.Enabled ]}}
+			"API":     version.API,
+{{[- end ]}}
 			"date":    version.DATE,
 			"repo":    version.REPO,
 		},
