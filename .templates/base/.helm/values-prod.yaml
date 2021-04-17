@@ -70,7 +70,7 @@ ingress:
     ##
     enabled: true
     ##
-    secretName: {{[ .Name ]}}.prod.net-cert
+    secretName: {{[ .Name ]}}.prod.net-certs
 
   ## Annotations
   ##
