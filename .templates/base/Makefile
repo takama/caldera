@@ -182,7 +182,7 @@ build: compile certs
 	@echo "+ $@"
 	@docker build --pull -t $(CONTAINER_IMAGE):$(BUILD) .
 
-push: build
+push: project build
 	@echo "+ $@"
 	@docker push $(CONTAINER_IMAGE):$(BUILD)
 
@@ -268,7 +268,7 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
-deploy: project push
+deploy: push
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
