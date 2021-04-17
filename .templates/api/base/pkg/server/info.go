@@ -19,6 +19,7 @@ func (is infoServer) GetInfo(
 ) (*info.Report, error) {
 	return &info.Report{
 		Version:     version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+		API:         version.API,
 		Date:        version.DATE,
 		Repository:  version.REPO,
 		Description: version.DESC,
