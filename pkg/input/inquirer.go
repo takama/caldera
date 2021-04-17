@@ -38,6 +38,10 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 	}
 
+	if BoolAnswer("Do you need CORS?") {
+		cfg.API.CORS.Enabled = true
+	}
+
 	cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
 
 	if BoolAnswer("Do you need storage driver?") {

@@ -92,6 +92,29 @@ ingress:
       host: {{[ .Name ]}}-rest.dev.net
       path: /
       port: {{[ .API.Config.Gateway.Port ]}}
+      {{[- if .API.CORS.Enabled ]}}
+      ## CORS configs
+      ##
+      cors:
+        ##
+        enabled: true
+        allow:
+          credentials: true
+          origin:
+            - {{[ .Name ]}}-rest.dev.net
+          methods:
+            - GET
+            - POST
+            - OPTIONS
+          headers:
+            - authorization
+            - cache-control
+        expose:
+          headers:
+            - Content-Length
+            - Content-Range
+        maxAge: "10m"
+      {{[- end ]}}
 
 service:
   ## App container name

@@ -30,6 +30,29 @@ spec:
     tls:
       secretName: {{ $ingress.tls.secretName }}
     {{- end }}
+    {{[- if .API.CORS.Enabled ]}}
+    {{- if $service.cors.enabled }}
+    corsPolicy:
+        allowCredentials: true
+        allowOrigin:
+        {{- range $value := $service.cors.allow.origin }}
+          - {{ $value }}
+        {{- end }}
+        allowMethods:
+        {{- range $value := $service.cors.allow.methods }}
+          - {{ $value }}
+        {{- end }}
+        allowHeaders:
+        {{- range $value := $service.cors.allow.headers }}
+          - {{ $value }}
+        {{- end }}
+        exposeHeaders:
+        {{- range $value := $service.cors.expose.headers }}
+          - {{ $value }}
+        {{- end }}
+        maxAge: {{ $service.cors.maxAge | quote }}
+    {{- end }}
+    {{[- end ]}}
   routes:
   - conditions:
     - prefix: {{ $service.path }}

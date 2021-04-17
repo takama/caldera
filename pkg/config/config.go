@@ -72,6 +72,9 @@ type Config struct {
 		Enabled bool
 		GRPC    bool
 		Gateway bool
+		CORS    struct {
+			Enabled bool
+		}
 		Version string
 		Config  struct {
 			Port    int
