@@ -268,7 +268,7 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
-deploy: push
+deploy: project push
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
