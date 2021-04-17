@@ -342,8 +342,8 @@ endif
 {{[- if .GKE.Enabled ]}}
 ifndef HAS_GCLOUD
 	@echo "gcloud cli utility should be installed"
-	@echo "Pre-compiled binaries for your platform:
-	@echo https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
+	@echo "Pre-compiled binaries for your platform:"
+	@echo "https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
 endif
 ifdef HAS_GCLOUD
 ifndef HAS_DOCKER_GCR
