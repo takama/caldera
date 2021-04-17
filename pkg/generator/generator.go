@@ -106,7 +106,7 @@ func Run(cfg *config.Config) {
 		helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
 	}
 
-	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
+	fmt.Printf("New repository was created, use command 'cd %s'\n", cfg.Directories.Service)
 }
 
 // Exec runs the commands.
