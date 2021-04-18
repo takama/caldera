@@ -9,22 +9,22 @@ generate: clean info{{[- if .Example ]}} events{{[- end ]}}
 info:
 	@echo "+ $@"
 	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
-	--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
-	--openapiv2_out=logtostderr=true:. info/info.proto
+		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
+		--openapiv2_out=logtostderr=true:. info/info.proto
 
 {{[- if .Example ]}}
 
 request:
 	@echo "+ $@"
 	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
-	--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
-	--openapiv2_out=logtostderr=true:. request/request.proto
+		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
+		--openapiv2_out=logtostderr=true:. request/request.proto
 
 events: request
 	@echo "+ $@"
 	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
-	--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
-	--openapiv2_out=logtostderr=true:. events/events.proto
+		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
+		--openapiv2_out=logtostderr=true:. events/events.proto
 {{[- end ]}}
 
 clean:
