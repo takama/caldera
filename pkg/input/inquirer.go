@@ -18,10 +18,9 @@ func Inquire(cfg *config.Config) *config.Config {
 	cfg.Project = StringAnswer("Provide project name", path.Join("github.com", cfg.Github, cfg.Name))
 	cfg.PrivateRepo = StringAnswer(
 		"Provide private repositories for import if applicable",
-		strings.Join([]string{
-			path.Join("github.com", cfg.Github),
-			cfg.PrivateRepo,
-		}, ","),
+		strings.Join(strings.Fields(strings.ReplaceAll(
+			path.Join("github.com", cfg.Github)+","+cfg.PrivateRepo, ",", " ",
+		)), ","),
 	)
 	cfg.Bin = StringAnswer("Provide binary file name", cfg.Name)
 
