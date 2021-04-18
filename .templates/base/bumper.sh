@@ -55,6 +55,7 @@ if [ "${GO_OS}" == "darwin" ]; then
     sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
     sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml
     sed -i '' -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
+    sed -i '' -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 else
     sed -i -e "s/\(RELEASE ?= \).*/\1$new_version/" Makefile
 {{[- if .API.GRPC ]}}
@@ -67,4 +68,5 @@ else
     sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
     sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml
     sed -i -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
+    sed -i -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 fi
