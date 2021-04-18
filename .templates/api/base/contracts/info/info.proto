@@ -11,7 +11,7 @@ option go_package = "{{[ .Project ]}}/contracts/info";
 service Info {
   // Get an information about the service.
   rpc GetInfo (google.protobuf.Empty) returns (Report) {
-    option (google.api.http).get = "/";
+    option (google.api.http).get = "/{{[ .API.Version ]}}/info";
   }
 }
 
