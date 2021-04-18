@@ -1,0 +1,8 @@
+name: main
+description: A main Helm charts for Kubernetes application
+version: v0.0.0
+appVersion: v0.0.0
+kubeVersion: '^1.17.0-0'
+sources:
+  - https://{{[ .Project ]}}
+engine: gotpl

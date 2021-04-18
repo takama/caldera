@@ -1,298 +1,95 @@
-## Default values for {{[ .Name ]}}.
-## This is a YAML-formatted file.
-## Declare variables to be passed into your templates.
-
-## Count of instances
-##
-replicaCount: 2
-
-## Count of revisions saved in release history
-##
-revisionHistoryLimit: 1
-
-## Time of accepting requests to the service ( seconds )
-##
-minReadySeconds: 10
-
-## Value which provide max unavailable state ( percents )
-##
-maxUnavailable: 50%
-
-## Max count of surge replicas
-##
-maxSurge: 1
-
-## Termination grace period
-## It's value of period in seconds between SIGTERM and SIGKILL signals
-##
-gracePeriod: 30
-
-image:
-  ## Docker Registry/Hub image name and tag
+main:
+  ## Count of instances
   ##
-  {{[- if .GKE.Enabled ]}}
-  registry: gcr.io/{{[ .GKE.Project ]}}
-  {{[- else ]}}
-  registry: {{[ .Github ]}}
-  {{[- end ]}}
-  name: {{[ .Name ]}}
-  tag: v0.0.0
+  replicaCount: 2
 
-  ## Docker Registry/Hub auth secret name, always use `registry-pull-secret` if registry inside if k8s
+  ## Count of revisions saved in release history
   ##
-  # pullSecretName: registry-pull-secret
+  revisionHistoryLimit: 1
 
-  ## Docker Registry/Hub image pull policy
+  ## Value which provide max unavailable state ( percents )
   ##
-  pullPolicy: Always
+  maxUnavailable: 50%
 
-## Ingress
-## Optional: Contour - Ingress controller with Envoy
-## to proxy all services using shared IP address.
-##
-ingress:
-  ## If true, Ingress will be created
+  ## Ingress
+  ## Optional: Contour - Ingress controller with Envoy
+  ## to proxy all services using shared IP address.
   ##
-  enabled: true
-
-  ## Use Contour ingress routes
-  ##
-  contour:
-    enabled: false
-    annotations:
-      kubernetes.io/ingress.allow-http: false
-      projectcontour.io/ingress.class: contour
-      projectcontour.io/tls-minimum-protocol-version: TLSv1_2
-
-  ## TLS configs
-  ##
-  tls:
+  ingress:
+    ## If true, Ingress will be created
     ##
     enabled: true
+
+    ## Use Contour ingress routes
     ##
-    secretName: {{[ .Name ]}}.dev.net-certs
-
-  ## Annotations
-  ##
-  annotations:
-    ## Uses reserved external IP name
-    ## kubernetes.io/ingress.global-static-ip-name: grpc-lb
-
-  ## Ingress route hosts
-  ##
-  hosts:
-    ## gRPC service host
-    - name: grpc
-      host: {{[ .Name ]}}-grpc.dev.net
-      path: /
-      port: {{[ .API.Config.Port ]}}
-
-    ## REST service host
-    - name: rest
-      host: {{[ .Name ]}}-rest.dev.net
-      path: /
-      port: {{[ .API.Config.Gateway.Port ]}}
-      {{[- if .API.CORS.Enabled ]}}
-      ## CORS configs
-      ##
-      cors:
-        ##
-        enabled: true
-        allow:
-          credentials: true
-          origin:
-            - {{[ .Name ]}}-rest.dev.net
-          methods:
-            - GET
-            - POST
-            - OPTIONS
-          headers:
-            - authorization
-            - cache-control
-        expose:
-          headers:
-            - Content-Length
-            - Content-Range
-        maxAge: "10m"
-      {{[- end ]}}
-
-service:
-  ## App container name
-  ##
-  name: {{[ .Name ]}}
-
-  ## Anti Affinity Pods requirements
-  ##
-  antiAffinity: false
-
-  ## Service Type
-  ## For minikube, recommended value NodePort,
-  ## For GKE - LoadBalancer in case of TCP or NodePort in case of HTTP
-  ## elsewhere - ClusterIP
-  ##
-  type: ClusterIP
-
-  ## Headless service
-  ##
-  ## if true it could not use Cluster IP
-  headless: true
-
-  ## Service annotations (e.g. Prometheus annotations)
-  ##
-  annotations:
-    {{[- if .Prometheus.Enabled ]}}
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
-    prometheus.io/probe: "true"
-    prometheus.io/probe-path: "/v1/health"
-    prometheus.io/probe-port: "8480"
-    prometheus.io/probe-scheme: "http"
-    {{[- end ]}}
-    ## Allows to use HTTP/2 for named port
-    ## cloud.google.com/app-protocols: '{"grpc":"HTTP2"}'
-    ## Enables container-native load balancing
-    ## cloud.google.com/neg: '{"ingress": true}'
-    ## projectcontour.io/upstream-protocol.h2c: "{{[ .API.Config.Port ]}},grpc"
-
-  {{[- if .API.Enabled ]}}
-
-  ## gRPC protocol attributes
-  ##
-  grpc:
-    ## gRPC exposed port
-    ##
-    port: {{[ .API.Config.Port ]}}
-
-  {{[- if .API.Gateway ]}}
-
-  ## Gateway attributes
-  ##
-  gateway:
-
-    ## Gateway exposed port
-    ##
-    port: {{[ .API.Config.Gateway.Port ]}}
-  {{[- end ]}}
-  {{[- end ]}}
-
-  ## Service information
-  ##
-  info:
-    ## Pod exposed info/health port
-    ##
-    port: 8080
-
-    ## Include a statistics in information details
-    ##
-    statistics: true
-
-  {{[- if .Storage.Enabled ]}}
-
-  ## Database attributes
-  ##
-  database:
-
-    enabled: {{[ printf "%t" .Storage.Enabled ]}}
-
-    tls:
-      ## If true, TLS certs will be used for connection to database
-      ##
-      ## Should be false when Cloud SQL Proxy provides secure connection
-      ##
+    contour:
       enabled: false
 
-      ## Secret with TLS certificates (client's cert, key and server's CA)
+    ## TLS configs
+    ##
+    tls:
       ##
-      secret: {{[ .Storage.Config.Driver ]}}-db-certs
-
-      ## Mount path of certs from the secret
+      enabled: true
       ##
-      mountPath: /etc/ssl/{{[ .Storage.Config.Driver ]}}/
+      secretName: {{[ .Name ]}}.dev.net-certs
 
-    ## Database driver (postgres, mysql, etc)
+    ## Ingress route hosts
     ##
-    driver: {{[ .Storage.Config.Driver ]}}
+    hosts:
+      ## gRPC service host
+      - name: grpc
+        host: {{[ .Name ]}}-grpc.dev.net
+        path: /
+        port: {{[ .API.Config.Port ]}}
 
-    ## Database dsn connection url
+      ## REST service host
+      - name: rest
+        host: {{[ .Name ]}}-rest.dev.net
+        path: /
+        port: {{[ .API.Config.Gateway.Port ]}}
+        {{[- if .API.CORS.Enabled ]}}
+        ## CORS configs
+        ##
+        cors:
+          ##
+          enabled: true
+          allow:
+            credentials: true
+            origin:
+              - {{[ .Name ]}}-rest.dev.net
+            methods:
+              - GET
+              - POST
+              - OPTIONS
+            headers:
+              - authorization
+              - cache-control
+          expose:
+            headers:
+              - Content-Length
+              - Content-Range
+          maxAge: "10m"
+        {{[- end ]}}
+
+  service:
+    ## Logger format and level
     ##
-    dsn:
+    logger:
+      ## logging format (available formats: json, txt)
+      format: json
+      ## logging level (0 - debug, 1 - info, 2 - warning, etc)
+      level: 0
 
-    ## Database name secret
-    ##
-    name: {{[ .Storage.Config.Name ]}}-db-credentials
+      ## logging time
+      time: false
 
-    ## Database host name
-    ##
-    host: {{[ .Storage.Config.Host ]}}
-
-    ## Database port number
-    ##
-    port: {{[ .Storage.Config.Port ]}}
-
-    ## Database username secret
-    ##
-    username: {{[ .Storage.Config.Name ]}}-db-credentials
-
-    ## Database password secret
-    ##
-    password: {{[ .Storage.Config.Name ]}}-db-credentials
-
-    ## Connection properties like ssl-mode, sslkey and others
-    ##
-    ## sslmode should equal "disable" when we use Cloud SQL Proxy
-    ## which provides secure connection to Cloud SQL
-    properties:
-      - sslmode=disable
-      # - sslmode=verify-ca
-      # - sslrootcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/server-ca.pem
-      # - sslcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-cert.pem
-      # - sslkey=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-key.pem
-
-    ## Database connections
-    ##
-    connections:
-      max: {{[ .Storage.Config.Connections.Max ]}}
-      idle:
-        count: {{[ .Storage.Config.Connections.Idle.Count ]}}
-        time: {{[ .Storage.Config.Connections.Idle.Time ]}}
-  {{[- end ]}}
-
-  ## Logger format and level
+  ## Resource requests and limits
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  logger:
-    ## logging format (available formats: json, txt)
-    format: json
-    ## logging level (0 - debug, 1 - info, 2 - warning, etc)
-    level: 0
-
-    ## logging time
-    time: false
-
-livenessProbe:
-  ## Liveness Probe
-  ## If enabled k8s check http end-point /healthz for "Ok" status 200
-  ##
-  enabled: true
-  initialDelaySeconds: 5
-  periodSeconds: 10
-  failureThreshold: 3
-
-readinessProbe:
-  ## Rediness Probe
-  ## If enabled k8s check http end-point /readyz for "Ok" status 200
-  ##
-  enabled: true
-  initialDelaySeconds: 5
-  periodSeconds: 10
-  failureThreshold: 3
-
-## Resource requests and limits
-## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
-##
-resources:
-  limits:
-    cpu: 30m
-    memory: 64Mi
-  requests:
-    cpu: 30m
-    memory: 32Mi
+  resources:
+    limits:
+      cpu: 30m
+      memory: 64Mi
+    requests:
+      cpu: 30m
+      memory: 32Mi

@@ -298,7 +298,7 @@ logs:
 deploy: push
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
-		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
+		--namespace $(NAMESPACE) --version=$(RELEASE) --set main.image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
 
 charts:
 	@echo "+ $@"
