@@ -3,7 +3,13 @@ package server
 import (
 	"context"
 	"fmt"
+	{{[- if .API.UI ]}}
+	"mime"
+	{{[- end ]}}
 	"net/http"
+	{{[- if .API.UI ]}}
+	"strings"
+	{{[- end ]}}
 
 	{{[- if .Example ]}}
 
@@ -12,9 +18,17 @@ import (
 	"{{[ .Project ]}}/contracts/info"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	{{[- if .API.UI ]}}
+	"github.com/rakyll/statik/fs"
+	{{[- end ]}}
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	{{[- if .API.UI ]}}
+
+	// OpenApi UI files.
+	public "{{[ .Project ]}}/public/openapi"
+	{{[- end ]}}
 )
 
 // GatewayServer contains gateway functionality of the service.
@@ -66,6 +80,7 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	{{[- end ]}}
 
 	return gw.Serve(cors.Default().Handler(gateway))
+	return gw.Serve(gateway{{[- if .API.UI ]}}, getOpenAPIHandler(){{[- end ]}})
 }
 
 // Shutdown process graceful shutdown for the gateway server.
@@ -78,7 +93,7 @@ func (gw GatewayServer) Shutdown(ctx context.Context) error {
 }
 
 // Serve prepares server and listen.
-func (gw *GatewayServer) Serve(handler http.Handler) error {
+func (gw *GatewayServer) Serve(handler{{[- if .API.UI ]}}, openapi{{[- end ]}} http.Handler) error {
 	// Create gateway server
 	gw.srv = &http.Server{
 		// Listening http -> gRPC address.
@@ -86,9 +101,41 @@ func (gw *GatewayServer) Serve(handler http.Handler) error {
 	}
 
 	// Add gateway handler.
+	{{[- if .API.UI ]}}
+	gw.srv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/"+version.API) {
+			handler.ServeHTTP(w, r)
+
+			return
+		}
+		openapi.ServeHTTP(w, r)
+	})
+	{{[- else ]}}
 	mux := http.NewServeMux()
 	mux.Handle("/", handler)
+
 	gw.srv.Handler = mux
+	{{[- end ]}}
 
 	return gw.srv.ListenAndServe()
 }
+
+{{[- if .API.UI ]}}
+
+// getOpenAPIHandler serves an OpenAPI UI for public namespace.
+func getOpenAPIHandler() http.Handler {
+	err := mime.AddExtensionType(".svg", "image/svg+xml")
+	if err != nil {
+		// Panic since this is a permanent error.
+		panic("creating mime: " + err.Error())
+	}
+
+	sfs, err := fs.NewWithNamespace(public.Public)
+	if err != nil {
+		// Panic since this is a permanent error.
+		panic("creating OpenAPI filesystem: " + err.Error())
+	}
+
+	return http.FileServer(sfs)
+}
+{{[- end ]}}

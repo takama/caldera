@@ -45,12 +45,24 @@ fi
 
 if [ "${GO_OS}" == "darwin" ]; then
     sed -i '' -e "s/\(RELEASE ?= \).*/\1$new_version/" Makefile
+{{[- if .API.GRPC ]}}
+    sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/info/info.proto
+{{[- if .Example ]}}
+    sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/events.proto
+{{[- end ]}}
+{{[- end ]}}
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml
     sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
     sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml
     sed -i '' -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
 else
     sed -i -e "s/\(RELEASE ?= \).*/\1$new_version/" Makefile
+{{[- if .API.GRPC ]}}
+    sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/info/info.proto
+{{[- if .Example ]}}
+    sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/events.proto
+{{[- end ]}}
+{{[- end ]}}
     sed -i -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml
     sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
     sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml

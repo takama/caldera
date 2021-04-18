@@ -17,6 +17,8 @@ const (
 	APIGateway = "rest"
 	// APIgRPC declared type API: gRPC.
 	APIgRPC = "grpc"
+	// OpenAPI declares openapi templates.
+	OpenAPI = "openapi"
 	// Example declared contract API example.
 	Example = "example"
 	// Storage declared type Storage.
@@ -75,6 +77,7 @@ type Config struct {
 		CORS    struct {
 			Enabled bool
 		}
+		UI      bool
 		Version string
 		Config  struct {
 			Port    int

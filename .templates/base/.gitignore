@@ -1,5 +1,8 @@
 /bin
 /certs
+{{[- if .API.UI ]}}
+/public/openapi
+{{[- end ]}}
 /vendor
 .coverprofile
 coverage.txt

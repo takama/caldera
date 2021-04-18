@@ -43,6 +43,13 @@ func Run(cfg *config.Config) {
 				cfg.Directories.Service,
 			))
 		}
+
+		if cfg.API.Gateway && cfg.API.UI {
+			helper.LogF("OpenAPI templates for UI", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.API, config.OpenAPI),
+				cfg.Directories.Service,
+			))
+		}
 	}
 
 	if cfg.Storage.Enabled {

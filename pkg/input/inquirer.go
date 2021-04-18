@@ -32,17 +32,21 @@ func Inquire(cfg *config.Config) *config.Config {
 		case "2":
 			cfg.API.Gateway = true
 
+			if BoolAnswer("Do you need CORS?") {
+				cfg.API.CORS.Enabled = true
+			}
+
+			if BoolAnswer("Do you want to setup OpenAPI UI?") {
+				cfg.API.UI = true
+			}
+
 			fallthrough
 		case "1":
 			cfg.API.GRPC = true
 		}
-	}
 
-	if BoolAnswer("Do you need CORS?") {
-		cfg.API.CORS.Enabled = true
+		cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
 	}
-
-	cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
 
 	if BoolAnswer("Do you need storage driver?") {
 		cfg.Storage.Enabled = true

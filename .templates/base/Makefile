@@ -12,6 +12,10 @@ GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
 
+{{[- if and .API.Gateway .API.UI ]}}
+
+OPENAPI_GENERATOR_VERSION ?= v0.1.7
+{{[- end ]}}
 LINTER_VERSION ?= v{{[ .Linter.Version ]}}
 
 {{[- if .GKE.Enabled ]}}
@@ -160,14 +164,25 @@ ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
 endif
 {{[- end ]}}
 
-{{[- if and .API.Enabled .API.GRPC ]}}
+{{[- if .API.GRPC ]}}
 
 contracts:
 	@echo "+ $@"
 	@$(MAKE) -C contracts generate
+{{[- if .API.UI ]}}
+
+openapi: bootstrap contracts
+	@echo "+ $@"
+{{[- if .Example ]}}
+	@cp contracts/events/events.swagger.json web/public/public.swagger.json
+{{[- else ]}}
+	@cp contracts/info/info.swagger.json web/public/public.swagger.json
+{{[- end ]}}
+	@statik -m -f -ns public -p openapi -src web/public -dest public
+{{[- end ]}}
 {{[- end ]}}
 
-vendor: bootstrap {{[- if and .API.Enabled .API.GRPC  ]}} contracts {{[- end ]}} 
+vendor: {{[- if .API.UI ]}} openapi {{[- else ]}}{{[- if .API.GRPC ]}} contracts {{[- else ]}} bootstrap {{[- end ]}}{{[- end ]}}
 	@echo "+ $@"
 ifeq ("$(wildcard go.mod)","")
 	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
@@ -339,6 +354,9 @@ clean: stop rm
 
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
+{{[- if .API.UI ]}}
+HAS_OPENAPI_GENERATOR := $(shell command -v statik;)
+{{[- end ]}}
 {{[- if .GKE.Enabled ]}}
 HAS_GCLOUD := $(shell command -v gcloud;)
 HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr;)
@@ -351,6 +369,11 @@ endif
 ifndef HAS_IMPORTS
 	go get -u golang.org/x/tools/cmd/goimports
 endif
+{{[- if .API.UI ]}}
+ifndef HAS_OPENAPI_GENERATOR
+	go get -u github.com/rakyll/statik@$(OPENAPI_GENERATOR_VERSION)
+endif
+{{[- end ]}}
 {{[- if .GKE.Enabled ]}}
 ifndef HAS_GCLOUD
 	@echo "gcloud cli utility should be installed"
@@ -375,10 +398,13 @@ endif
 {{[- if .GKE.Enabled ]}}
 	project \
 {{[- end ]}}
-	vendor \
-{{[- if .Example ]}}
+{{[- if .API.GRPC ]}}
 	contracts \
+{{[- if .API.UI ]}}
+	openapi \
 {{[- end ]}}
+{{[- end ]}}
+	vendor \
 	compile \
 	build \
 	certs \
