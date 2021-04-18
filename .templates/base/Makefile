@@ -51,14 +51,9 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 
 {{[- if .Storage.Enabled ]}}
 
-# Database configuration
+# Default database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
-{{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.6
-{{[- end ]}}
-{{[- if .Storage.MySQL ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
-{{[- end ]}}
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= {{[ .Storage.Config.Version ]}}
 {{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
 {{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
 {{[ toENV .Name ]}}_DB_PASSWORD ?= {{[ .Storage.Config.Password ]}}

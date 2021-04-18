@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	databasePort   int
-	databaseDriver string
+	databasePort    int
+	databaseDriver  string
+	databaseVersion string
 )
 
 // driverCmd represents the driver command.
@@ -37,11 +38,14 @@ func init() {
 	if viper.GetBool("storage.mysql") {
 		databasePort = config.DefaultMySQLPort
 		databaseDriver = config.StorageMySQL
+		databaseVersion = config.StorageMySQLVersion
 	} else {
 		databasePort = config.DefaultPostgresPort
 		databaseDriver = config.StoragePostgres
+		databaseVersion = config.StoragePostgresVersion
 	}
 
+	driverCmd.PersistentFlags().String("version", databaseVersion, "A driver version")
 	driverCmd.PersistentFlags().String("host", databaseDriver, "A host name")
 	driverCmd.PersistentFlags().Int("port", databasePort, "A port number")
 	driverCmd.PersistentFlags().String("name", "", "A database name")
@@ -51,6 +55,10 @@ func init() {
 	driverCmd.PersistentFlags().Int("idle-count", 1, "Count of idle connections")
 	driverCmd.PersistentFlags().Int("idle-time", 60,
 		"Maximum amount of time in seconds a connection may be idle")
+	helper.LogF(
+		"Flag error",
+		viper.BindPFlag("storage.config.version", driverCmd.PersistentFlags().Lookup("version")),
+	)
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("storage.config.host", driverCmd.PersistentFlags().Lookup("host")),

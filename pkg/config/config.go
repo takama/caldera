@@ -25,8 +25,12 @@ const (
 	Storage = "storage"
 	// StoragePostgres declared storage driver type: postgres.
 	StoragePostgres = "postgres"
+	// StoragePostgresVersion declared storage version.
+	StoragePostgresVersion = "12.6"
 	// StorageMySQL declared storage driver type: mysql.
 	StorageMySQL = "mysql"
+	// StorageMySQLVersion declared storage version.
+	StorageMySQLVersion = "8.0"
 	// Metrics declared Prometheus common metrics for the service.
 	Metrics = "metrics"
 )
@@ -56,6 +60,7 @@ type Config struct {
 		MySQL    bool
 		Config   struct {
 			Driver      string
+			Version     string
 			Host        string
 			Port        int
 			Name        string
