@@ -21,7 +21,6 @@ import (
 	{{[- if .API.UI ]}}
 	"github.com/rakyll/statik/fs"
 	{{[- end ]}}
-	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	{{[- if .API.UI ]}}
@@ -75,11 +74,10 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	if err := events.RegisterEventsHandlerFromEndpoint(
 		ctx, gateway, forward, opts,
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to register events handler: %w", err)
 	}
 	{{[- end ]}}
 
-	return gw.Serve(cors.Default().Handler(gateway))
 	return gw.Serve(gateway{{[- if .API.UI ]}}, getOpenAPIHandler(){{[- end ]}})
 }
 
