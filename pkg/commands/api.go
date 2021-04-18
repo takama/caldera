@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// apiCmd represents the api command
+// apiCmd represents the api command.
 var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "Select API modules which used in the service",

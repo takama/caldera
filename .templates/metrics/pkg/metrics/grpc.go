@@ -1,4 +1,6 @@
+{{[- if .API.Enabled ]}}
 // nolint: gochecknoglobals
+{{[- end ]}}
 package metrics
 
 {{[- if .API.Enabled ]}}

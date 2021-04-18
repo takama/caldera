@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// configCmd represents API settings command
+// configCmd represents API settings command.
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Setup API settings",

@@ -18,7 +18,7 @@ var (
 	databaseDriver string
 )
 
-// driverCmd represents the driver command
+// driverCmd represents the driver command.
 var driverCmd = &cobra.Command{
 	Use:   "driver",
 	Short: "Setup database driver settings",

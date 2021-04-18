@@ -51,7 +51,7 @@ func (es eventsServer) ListEvents(
 	data, err := es.List()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get list of  events: %w", err)
 	}
 
 	for ind := range data {

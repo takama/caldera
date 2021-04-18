@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// gkeCmd represents the GKE command
+// gkeCmd represents the GKE command.
 var gkeCmd = &cobra.Command{
 	Use:   "GKE",
 	Short: "Setup Google Kubernetes Engine properties to deploy the service",

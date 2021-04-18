@@ -1,4 +1,6 @@
+{{[- if .Storage.Enabled ]}}
 // nolint: gochecknoglobals
+{{[- end ]}}
 package metrics
 
 {{[- if .Storage.Enabled ]}}

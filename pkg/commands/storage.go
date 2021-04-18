@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// storageCmd represents the storage command
+// storageCmd represents the storage command.
 var storageCmd = &cobra.Command{
 	Use:   "storage",
 	Short: "Setup your storage modules",
