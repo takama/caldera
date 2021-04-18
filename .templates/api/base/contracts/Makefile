@@ -4,7 +4,7 @@ PROTOC_RUN = docker run --rm -v $(shell pwd):/contracts -w /contracts $(PROTOC_I
 
 all: generate
 
-generate: info{{[- if .Example ]}} events{{[- end ]}}
+generate: clean info{{[- if .Example ]}} events{{[- end ]}}
 
 info:
 	@echo "+ $@"
@@ -27,11 +27,16 @@ events: request
 	--openapiv2_out=logtostderr=true:. events/events.proto
 {{[- end ]}}
 
+clean:
+	@rm -rf */*.pb.go
+	@rm -rf */*.pb.gw.go
+	@rm -rf */*.swagger.json
 
 .PHONY: all \
+	generate \
 	info \
 {{[- if .Example ]}}
 	request \
 	events \
 {{[- end ]}}
-	generate
+	clean
