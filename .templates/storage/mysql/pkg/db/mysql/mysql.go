@@ -15,7 +15,7 @@ import (
 	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
-	// MySQL driver
+	// MySQL driver.
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 )
@@ -65,13 +65,13 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, erro
 	m.pool, err = db.Connect(cfg)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to the database: %w", err)
 	}
 
 	name := cfg.Driver
 
 	if err := m.pool.QueryRow("SELECT version()").Scan(&name); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to check the database engine version: %w", err)
 	}
 
 	log.Info("DB", zap.String("version", name))

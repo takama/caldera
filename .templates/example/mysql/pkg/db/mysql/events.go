@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/pkg/db/provider"
@@ -49,7 +50,7 @@ func (ep *eventsProvider) Create(model *events.Item) (*events.Item, error) {
 	defer stmt.Close()
 	_, err = stmt.Exec(model.Id, model.Name)
 
-	return model, err
+	return model, fmt.Errorf("failed to create event: %w", err)
 }
 
 // Find returns Event requested by ID.
@@ -93,7 +94,8 @@ func (ep *eventsProvider) Update(model *events.Item) (*events.Item, error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(model.Id, model.Name)
-	return model, err
+
+	return model, fmt.Errorf("failed to update event: %w", err)
 }
 
 // Delete removes Event object by ID.
@@ -140,7 +142,7 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 	return nil
 }
 
-func (ep *eventsProvider) find(query string, args ...interface{}) ([]events.Item, error) {
+func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Item, error) {
 	items := make([]*events.Item, 0)
 	rows, err := ep.Query(query, args...)
 
