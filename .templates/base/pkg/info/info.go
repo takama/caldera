@@ -74,7 +74,8 @@ func (s *Service) Run(addr string) *http.Server {
 				s.logger.Fatal(err.Error())
 			}
 
-			s.logger.Warn(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			s.logger.Debug(err.Error())
 		}
 	}()
 

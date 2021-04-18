@@ -49,7 +49,8 @@ func TestSignals(t *testing.T) {
 
 	defer func(*zap.Logger) {
 		if err := logger.Sync(); err != nil {
-			logger.Error(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			logger.Debug(err.Error())
 		}
 	}(logger)
 

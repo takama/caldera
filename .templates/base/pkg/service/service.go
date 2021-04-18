@@ -46,7 +46,8 @@ func Run(cfg *config.Config) error {
 	log := logger.New(&cfg.Logger)
 	defer func(*zap.Logger) {
 		if err := log.Sync(); err != nil {
-			log.Error(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			log.Debug(err.Error())
 		}
 	}(log)
 
