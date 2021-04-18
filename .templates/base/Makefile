@@ -78,6 +78,8 @@ endif
 
 {{[ toENV .Name ]}}_DB_ENV ?= 
 
+{{[- if .Storage.Postgres ]}}
+
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/postgres
@@ -89,6 +91,9 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
 	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
 endif
+{{[- end ]}}
+{{[- if .Storage.MySQL ]}}
+
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/mysql
@@ -101,6 +106,7 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
 endif
+{{[- end ]}}
 {{[- end ]}}
 
 # Namespace: dev, prod, username ...

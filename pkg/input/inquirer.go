@@ -50,13 +50,16 @@ func Inquire(cfg *config.Config) *config.Config {
 	if BoolAnswer("Do you need storage driver?") {
 		cfg.Storage.Enabled = true
 
-		switch OptionAnswer("Do you want postgres (1) or mysql (2)?", "1", "2") {
+		switch OptionAnswer("Do you want postgres (1), mysql (2) or postgres+mysql (3)?", "1", "2", "3") {
 		case "1":
 			cfg.Storage.Postgres = true
 			cfg.Storage.MySQL = false
 		case "2":
 			cfg.Storage.MySQL = true
 			cfg.Storage.Postgres = false
+		case "3":
+			cfg.Storage.MySQL = true
+			cfg.Storage.Postgres = true
 		}
 	} else {
 		cfg.Storage.Enabled = false
