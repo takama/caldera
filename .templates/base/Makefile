@@ -174,7 +174,7 @@ contracts:
 openapi: bootstrap contracts
 	@echo "+ $@"
 {{[- if .Example ]}}
-	@cp contracts/events/events.swagger.json web/public/public.swagger.json
+	@cp contracts/events/*.swagger.json web/public
 {{[- else ]}}
 	@cp contracts/info/info.swagger.json web/public/public.swagger.json
 {{[- end ]}}

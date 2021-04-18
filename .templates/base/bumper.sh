@@ -49,6 +49,7 @@ if [ "${GO_OS}" == "darwin" ]; then
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/info/info.proto
 {{[- if .Example ]}}
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/events.proto
+    sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/public.proto
 {{[- end ]}}
 {{[- end ]}}
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml
@@ -62,6 +63,7 @@ else
     sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/info/info.proto
 {{[- if .Example ]}}
     sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/events.proto
+    sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/public.proto
 {{[- end ]}}
 {{[- end ]}}
     sed -i -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml

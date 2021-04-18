@@ -75,7 +75,7 @@ func (s *Server) Run(ctx context.Context) error {
 	grpc_health_v1.RegisterHealthServer(s.srv, s.hs)
 	info.RegisterInfoServer(s.srv, s.is)
 	{{[- if .Example ]}}
-	events.RegisterEventsServer(s.srv, s.es)
+	events.RegisterPublicServer(s.srv, s.es)
 	{{[- end ]}}
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", s.cfg.Port))

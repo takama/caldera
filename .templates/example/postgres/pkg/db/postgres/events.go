@@ -33,7 +33,7 @@ func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 }
 
 // Create new Event object.
-func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
+func (ep *eventsProvider) Create(model *events.Item) (*events.Item, error) {
 	if model.Name == "" {
 		return nil, provider.ErrNotDefinedName
 	}
@@ -50,25 +50,29 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 }
 
 // Find returns Event requested by ID.
-func (ep *eventsProvider) Find(id string) (*events.Event, error) {
-	event := new(events.Event)
+func (ep *eventsProvider) Find(id string) (*events.Item, error) {
+	event := new(events.Item)
 	row := ep.QueryRow(queryEventByID, id)
 
 	return event, row.Scan(&event.Id, &event.Name)
 }
 
 // FindByName returns Events requested by Event name.
-func (ep *eventsProvider) FindByName(name string) ([]*events.Event, error) {
-	return ep.find(queryEventsByName, name)
+func (ep *eventsProvider) FindByName(name string, pageParams ...interface{}) ([]*events.Item, error) {
+	params := make([]interface{}, 0)
+	params = append(params, name)
+	params = append(params, pageParams...)
+
+	return ep.find(queryEventsByName, params...)
 }
 
 // List returns all Event objects.
-func (ep *eventsProvider) List() ([]*events.Event, error) {
-	return ep.find(queryEvents)
+func (ep *eventsProvider) List(pageParams ...interface{}) ([]*events.Item, error) {
+	return ep.find(queryEvents, pageParams...)
 }
 
 // Update Event object.
-func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
+func (ep *eventsProvider) Update(model *events.Item) (*events.Item, error) {
 	if model.Id == "" {
 		return nil, provider.ErrNotDefinedID
 	}
@@ -103,7 +107,11 @@ func (ep *eventsProvider) Delete(id string) error {
 	defer stmt.Close()
 	_, err = stmt.Exec(id)
 
-	return fmt.Errorf("failed to delete event: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to delete event: %w", err)
+	}
+
+	return nil
 }
 
 // DeleteByName removes Event objects by Event name.
@@ -121,11 +129,15 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 	defer stmt.Close()
 	_, err = stmt.Exec(name)
 
-	return fmt.Errorf("failed to delete event by name: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to delete event by name: %w", err)
+	}
+
+	return nil
 }
 
-func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Event, error) {
-	items := make([]*events.Event, 0)
+func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Item, error) {
+	items := make([]*events.Item, 0)
 	rows, err := ep.Query(query, args...)
 
 	if err != nil {
@@ -135,7 +147,7 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Eve
 	defer rows.Close()
 
 	for rows.Next() {
-		item := new(events.Event)
+		item := new(events.Item)
 		if err := rows.Scan(&item.Id, &item.Name); err != nil {
 			return nil, fmt.Errorf("failed to scan rows: %w", err)
 		}
@@ -148,8 +160,8 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Eve
 
 const (
 	queryEventByID    = `SELECT id, name FROM events WHERE id = $1`
-	queryEventsByName = `SELECT id, name FROM events WHERE name = $1`
-	queryEvents       = `SELECT id, name FROM events`
+	queryEventsByName = `SELECT id, name FROM events WHERE name = $1 LIMIT $2 OFFSET $3`
+	queryEvents       = `SELECT id, name FROM events LIMIT $1 OFFSET $2`
 	queryInsertEvent  = `INSERT INTO events (name) VALUES ($1) RETURNING id`
 	queryUpdateEvent  = `INSERT INTO events (id, name) VALUES ($1, $2)
 		ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name RETURNING id`

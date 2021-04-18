@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package events.public;
+
+import "events/events.proto";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "{{[ .Project ]}}/contracts/events";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+      title: "{{[ .Description ]}} contracts";
+      version: "v0.0.0"
+      contact: {
+          name: "{{[ .Description ]}} contracts";
+          url: "https://{{[ .Project ]}}/contracts/events/private.proto";
+      };
+  };
+  schemes: HTTPS;
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+// Interface exported by the server.
+service Public {
+  // Get Event object by ID
+  rpc GetEvent (events.RequestByID) returns (events.Response) {
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events/id/{id}";
+  }
+
+  // Find Events objects by name.
+  rpc FindEventsByName (events.RequestListByName) returns (events.Response) {
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events/name/{name}";
+  }
+
+  // List all Events.
+  rpc ListEvents (events.RequestList) returns (events.Response) {
+    option (google.api.http).get = "/{{[ .API.Version ]}}/events";
+  }
+
+  // Create a new Event object.
+  rpc CreateEvent (events.Item) returns (events.Response) {
+    option (google.api.http) = {
+      post: "/{{[ .API.Version ]}}/events",
+      body: "*"
+    };
+  }
+
+  // Update a Events object.
+  rpc UpdateEvent (events.Item) returns (events.Response) {
+    option (google.api.http) = {
+      put: "/{{[ .API.Version ]}}/events/id/{id}",
+      body: "*"
+    };
+  }
+
+  // Delete Event object by ID.
+  rpc DeleteEvent (events.RequestByID) returns (events.Response) {
+    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/id/{id}";
+  }
+
+  // Delete Events objects by Event name.
+  rpc DeleteEventsByName (events.RequestByName) returns (events.Response) {
+    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/name/{name}";
+  }
+}

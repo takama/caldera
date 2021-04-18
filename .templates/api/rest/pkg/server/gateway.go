@@ -71,10 +71,10 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 	}
 	{{[- if .Example ]}}
 
-	if err := events.RegisterEventsHandlerFromEndpoint(
+	if err := events.RegisterPublicHandlerFromEndpoint(
 		ctx, gateway, forward, opts,
 	); err != nil {
-		return fmt.Errorf("failed to register events handler: %w", err)
+		return fmt.Errorf("failed to register public handler: %w", err)
 	}
 	{{[- end ]}}
 

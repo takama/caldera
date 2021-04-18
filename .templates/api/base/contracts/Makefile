@@ -14,17 +14,13 @@ info:
 
 {{[- if .Example ]}}
 
-request:
+events:
 	@echo "+ $@"
 	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
-		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
-		--openapiv2_out=logtostderr=true:. request/request.proto
-
-events: request
-	@echo "+ $@"
-	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
-		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
 		--openapiv2_out=logtostderr=true:. events/events.proto
+	@$(PROTOC_RUN) --go_out=plugins=grpc,paths=source_relative:. \
+		--grpc-gateway_out=logtostderr=true,paths=source_relative:. \
+		--openapiv2_out=logtostderr=true:. events/public.proto
 {{[- end ]}}
 
 clean:
@@ -36,7 +32,6 @@ clean:
 	generate \
 	info \
 {{[- if .Example ]}}
-	request \
 	events \
 {{[- end ]}}
 	clean

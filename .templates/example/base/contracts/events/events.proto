@@ -2,62 +2,85 @@ syntax = "proto3";
 
 package events;
 
-import "request/request.proto";
-import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "{{[ .Project ]}}/contracts/events";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+      title: "{{[ .Description ]}} contracts";
+      version: "v0.0.0"
+      contact: {
+          name: "{{[ .Description ]}} contracts";
+          url: "https://{{[ .Project ]}}/contracts/events/events.proto";
+      };
+  };
+  schemes: HTTPS;
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
 
-// Interface exported by the server.
-service Events {
-  // Get Event object by ID
-  rpc GetEvent (request.ByID) returns (Event) {
-    option (google.api.http).get = "/{{[ .API.Version ]}}/events/id/{id}";
-  }
-
-  // Find Events objects by name.
-  rpc FindEventsByName (request.ByName) returns (stream Event) {
-    option (google.api.http).get = "/{{[ .API.Version ]}}/events/name/{name}";
-  }
-
-  // List all Events.
-  rpc ListEvents (google.protobuf.Empty) returns (stream Event) {
-    option (google.api.http).get = "/{{[ .API.Version ]}}/events";
-  }
-
-  // Create a new Event object.
-  rpc CreateEvent (Event) returns (Event) {
-    option (google.api.http) = {
-      post: "/{{[ .API.Version ]}}/events",
-      body: "*"
-    };
-  }
-
-  // Update a Events object.
-  rpc UpdateEvent (Event) returns (Event) {
-    option (google.api.http) = {
-      put: "/{{[ .API.Version ]}}/events/id/{id}",
-      body: "*"
-    };
-  }
-
-  // Delete Event object by ID.
-  rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/id/{id}";
-  }
-
-  // Delete Events objects by Event name.
-  rpc DeleteEventsByName (request.ByName) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/{{[ .API.Version ]}}/events/name/{name}";
-  }
-}
-
-// An Events example.
-message Event {
+// An Event item.
+message Item {
   // The ID of the Events.
   string id = 1;
 
   // The name of the Events.
   string name = 2;
 }
-  
+
+// It contains the events collection.
+message Response {
+  // Response message.
+  string message = 1;
+
+  // Total records.
+  uint64 total = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {type: INTEGER}];
+
+  // Result.
+  repeated Item result = 3;
+
+  // A token to retrieve the next page of results. To retrieve the next page,
+  // make a request again with the `page_token` field set to this
+  // value. This field is empty if there are no more results to retrieve.
+  string next_page_token = 4;
+}
+
+// A request by ID.
+message RequestByID {
+  // Specified ID.
+  string id = 1;
+}
+
+// A request by name.
+message RequestByName {
+  // Specified name.
+  string name = 1;
+}
+
+// A request all items by name.
+message RequestListByName {
+  // Specified name.
+  string name = 1;
+
+  // Requested page size. The maximum page size is 100; this is also the
+  // default.
+  int32 page_size = 2;
+
+  // A token identifying a page of results to return. This should be a
+  // `next_page_token` value returned from a previous result of the request.
+  // If unspecified, the first page of results is returned.
+  string page_token = 3;
+}
+
+// A Request of the list of items 
+message RequestList {
+  // Requested page size. The maximum page size is 100; this is also the
+  // default.
+  int32 page_size = 1;
+
+  // A token identifying a page of results to return. This should be a
+  // `next_page_token` value returned from a previous result of the request.
+  // If unspecified, the first page of results is returned.
+  string page_token = 2;
+}
