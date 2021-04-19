@@ -3,7 +3,7 @@
 Expand the name of the chart.
 */}}
 {{- define "name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Release.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -36,10 +36,16 @@ Common labels
 */}}
 {{- define "labels" -}}
 app.kubernetes.io/name: {{ include "name" . }}
-helm.sh/chart: {{ include "chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "chart" . }}
+{{- end -}}
+{{- define "matchLabels" -}}
+app: {{ include "fullname" . }}
+{{- end -}}
+{{- define "metaLabels" -}}
+app: {{ include "fullname" . }}
 {{- end -}}
