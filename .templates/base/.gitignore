@@ -4,5 +4,6 @@
 /public/openapi
 {{[- end ]}}
 /vendor
+{{[ ".env.mk" ]}}
 .coverprofile
 coverage.txt
