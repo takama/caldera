@@ -30,46 +30,6 @@ main:
     tls:
       ##
       enabled: true
-      ##
-      secretName: {{[ .Name ]}}.dev.net-certs
-
-    ## Ingress route hosts
-    ##
-    hosts:
-      ## gRPC service host
-      - name: grpc
-        host: {{[ .Name ]}}-grpc.dev.net
-        path: /
-        port: {{[ .API.Config.Port ]}}
-
-      ## REST service host
-      - name: rest
-        host: {{[ .Name ]}}-rest.dev.net
-        path: /
-        port: {{[ .API.Config.Gateway.Port ]}}
-        {{[- if .API.CORS.Enabled ]}}
-        ## CORS configs
-        ##
-        cors:
-          ##
-          enabled: true
-          allow:
-            credentials: true
-            origin:
-              - {{[ .Name ]}}-rest.dev.net
-            methods:
-              - GET
-              - POST
-              - OPTIONS
-            headers:
-              - authorization
-              - cache-control
-          expose:
-            headers:
-              - Content-Length
-              - Content-Range
-          maxAge: "10m"
-        {{[- end ]}}
 
   service:
     ## Logger format and level
