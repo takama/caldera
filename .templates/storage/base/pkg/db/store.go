@@ -6,6 +6,10 @@ import (
 
 	"{{[ .Project ]}}/pkg/db/provider"
 {{[- end ]}}
+{{[- if .Prometheus.Enabled ]}}
+
+	"{{[ .Project ]}}/pkg/metrics"
+{{[- end ]}}
 )
 
 // Store design database interface with providers.
@@ -14,5 +18,8 @@ type Store interface {
 	Shutdown(ctx context.Context) error
 	{{[- if .Example ]}}
 	EventsProvider() provider.Events
+	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	MetricFunc() metrics.MetricFunc
 	{{[- end ]}}
 }

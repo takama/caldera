@@ -2,24 +2,17 @@ package server
 
 import (
 	"context"
-	{{[- if not .API.Config.Insecure ]}}
-	"crypto/tls"
-	{{[- end ]}}
 	"fmt"
 	"net"
 
-	{{[- if .Example ]}}
-
-	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/contracts/info"
+	{{[- if .Example ]}}
+	"{{[ .Project ]}}/contracts/events"
 	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	{{[- if not .API.Config.Insecure ]}}
-	"google.golang.org/grpc/credentials"
-	{{[- end ]}}
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -75,22 +68,19 @@ func (s *Server) Run(ctx context.Context) error {
 	if err := s.checkProviders(); err != nil {
 		return err
 	}
+
 	{{[- end ]}}
 	// Register gRPC server
-	{{[- if .API.Config.Insecure ]}}
 	s.srv = grpc.NewServer()
-	{{[- else ]}}
-	s.srv = grpc.NewServer(s.ServerOptions()...)
-	{{[- end ]}}
 	grpc_health_v1.RegisterHealthServer(s.srv, s.hs)
 	info.RegisterInfoServer(s.srv, s.is)
 	{{[- if .Example ]}}
-	events.RegisterEventsServer(s.srv, s.es)
+	events.RegisterPublicServer(s.srv, s.es)
 	{{[- end ]}}
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", s.cfg.Port))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create server listener: %w", err)
 	}
 
 	return s.srv.Serve(listener)
@@ -113,24 +103,5 @@ func (s Server) checkProviders() error {
 	}
 
 	return nil
-}
-{{[- end ]}}
-
-{{[- if not .API.Config.Insecure ]}}
-
-// ServerOptions gives server authentication and secure/insecure options.
-func (s Server) ServerOptions() []grpc.ServerOption {
-	options := []grpc.ServerOption{}
-
-	if !s.cfg.Insecure {
-		cert, err := tls.LoadX509KeyPair(s.cfg.Certificates.Crt, s.cfg.Certificates.Key)
-		if err != nil {
-			s.log.Fatal("Failed to load key pair", zap.Error(err))
-		}
-		// Enable TLS for all incoming connections.
-		options = append(options, grpc.Creds(credentials.NewServerTLSFromCert(&cert)))
-	}
-
-	return options
 }
 {{[- end ]}}

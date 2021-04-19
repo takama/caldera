@@ -37,7 +37,7 @@ imports:
 
 lint: bootstrap
 	@echo "+ $@"
-	@golangci-lint run --enable-all ./...
+	@golangci-lint run ./...
 
 version:
 	@./bumper.sh
@@ -50,7 +50,7 @@ HAS_IMPORTS := $(shell command -v goimports;)
 
 bootstrap:
 ifndef HAS_LINT
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.32.2
 endif
 ifndef HAS_IMPORTS
 	go get -u golang.org/x/tools/cmd/goimports

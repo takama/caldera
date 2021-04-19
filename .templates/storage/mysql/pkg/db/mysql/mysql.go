@@ -3,14 +3,19 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"{{[ .Project ]}}/pkg/db"
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
+	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/db/migrations"
 	{{[- if .Example ]}}
 	"{{[ .Project ]}}/pkg/db/provider"
 	{{[- end ]}}
 
-	// MySQL driver
+	// MySQL driver.
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 )
@@ -31,6 +36,23 @@ type MySQL struct {
 	{{[- end ]}}
 }
 
+// DSN creates dsn type connection.
+func DSN(cfg *db.Config) *db.Config {
+	if cfg.DSN == "" {
+		var properties string
+
+		if len(cfg.Properties) > 0 {
+			properties = "?" + strings.Join(cfg.Properties, "&")
+		}
+
+		dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s%s",
+			cfg.Driver, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, properties)
+		cfg.DSN = dsn
+	}
+
+	return cfg
+}
+
 // New creates new postgres DB connection.
 func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, error) {
 	m := &MySQL{
@@ -43,13 +65,13 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, erro
 	m.pool, err = db.Connect(cfg)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to the database: %w", err)
 	}
 
 	name := cfg.Driver
 
 	if err := m.pool.QueryRow("SELECT version()").Scan(&name); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to check the database engine version: %w", err)
 	}
 
 	log.Info("DB", zap.String("version", name))
@@ -80,5 +102,13 @@ func (m MySQL) Shutdown(ctx context.Context) error {
 // EventsProvider returns data store provider for Events.
 func (m MySQL) EventsProvider() provider.Events {
 	return m.events
+}
+{{[- end ]}}
+
+{{[- if .Prometheus.Enabled ]}}
+
+// MetricFunc returns a func to monitor connectivity to MySQL.
+func (m MySQL) MetricFunc() metrics.MetricFunc {
+	return metrics.DBMetricFunc(m.cfg.Host, m.cfg.Name, m.pool.Stats())
 }
 {{[- end ]}}

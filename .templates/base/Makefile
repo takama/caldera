@@ -2,30 +2,21 @@ PROJECT = {{[ .Project ]}}
 APP = {{[ .Name ]}}
 BIN = {{[ .Bin ]}}
 SERVICE_NAME ?= $(shell echo "$(APP)" | tr - _)
-SERVICE_DESCRIPTION ?= "{{[ .Description ]}}"
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.0.0
+{{[- if .API.Enabled ]}}
+API_VERSION ?= {{[ .API.Version ]}}
+{{[- end ]}}
 GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
 
-{{[- if .GKE.Enabled ]}}
+{{[- if and .API.Gateway .API.UI ]}}
 
-# Configs for GKE
-GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
-GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
-GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
-
-KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
-
-REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
-{{[- else ]}}
-
-REGISTRY ?= {{[ .Github ]}}
+OPENAPI_GENERATOR_VERSION ?= v0.1.7
 {{[- end ]}}
-
-PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
+LINTER_VERSION ?= v{{[ .Linter.Version ]}}
 
 # Common configuration
 {{[- if .API.Enabled ]}}
@@ -43,35 +34,134 @@ PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 
 {{[- if .Storage.Enabled ]}}
 
-# Database configuration
+# Default database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
-{{[- if .Storage.Postgres ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 12.2
-{{[- end ]}}
-{{[- if .Storage.MySQL ]}}
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= 8.0
-{{[- end ]}}
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= {{[ .Storage.Config.Version ]}}
 {{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
 {{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
 {{[ toENV .Name ]}}_DB_PASSWORD ?= {{[ .Storage.Config.Password ]}}
-{{[ toENV .Name ]}}_DB_LOCATION ?= ~/docker/{{[ .Storage.Config.Driver ]}}
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/{{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/postgresql/data
 {{[- else ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/{{[ .Storage.Config.Driver ]}}
 {{[- end ]}}
-{{[ toENV .Name ]}}_DB_HOST ?= {{[ .Storage.Config.Host ]}}
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).{{[ .Storage.Config.Host ]}}
 {{[ toENV .Name ]}}_DB_PORT ?= {{[ .Storage.Config.Port ]}}
 {{[ toENV .Name ]}}_DB_FIXTURES_DIR ?= fixtures
 
-ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","{{[ .Storage.Config.Driver ]}}")
+ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 {{[ toENV .Name ]}}_DB_LINK ?= --link $({{[ toENV .Name ]}}_DB_HOST):$({{[ toENV .Name ]}}_DB_HOST)
 endif
+
+{{[ toENV .Name ]}}_DB_ENV ?= 
+
+{{[- if .Storage.Postgres ]}}
+
+# PostgreSQL database configuration
+ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/postgres
+{{[ toENV .Name ]}}_DB_PATH = /var/lib/postgresql/data
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).postgres
+{{[ toENV .Name ]}}_DB_PORT = 5432
+{{[ toENV .Name ]}}_DB_ENV = \
+	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
+	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
+	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
+endif
 {{[- end ]}}
+{{[- if .Storage.MySQL ]}}
+
+# MySQL database configuration
+ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/mysql
+{{[ toENV .Name ]}}_DB_PATH = /var/lib/mysql
+{{[ toENV .Name ]}}_DB_HOST ?= $(APP).mysql
+{{[ toENV .Name ]}}_DB_PORT = 3306
+{{[ toENV .Name ]}}_DB_ROOT_PASSWORD ?= mysql
+{{[ toENV .Name ]}}_DB_ENV = \
+	-e "MYSQL_ROOT_PASSWORD=$(DATASYNC_DB_ROOT_PASSWORD)" \
+	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
+	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
+	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
+endif
+{{[- end ]}}
+{{[- end ]}}
+
+# Include special environments
+ifneq ("$(wildcard .env.mk)","")
+include .env.mk
+endif
 
 # Namespace: dev, prod, username ...
 NAMESPACE ?= dev
 VALUES ?= values-$(NAMESPACE)
+
+{{[- if .GKE.Enabled ]}}
+
+# Configs for GKE
+GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
+GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
+GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
+{{[- end ]}}
+
+# Certificates and hosts
+{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(NAMESPACE)-certs
+{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(NAMESPACE)
+{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(NAMESPACE)
+{{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= $({{[ toENV .Name ]}}_REST_HOST)
+
+# Environments initialisation
+ifeq ("$(NAMESPACE)","dev")
+{{[- if .GKE.Enabled ]}}
+ifdef GKE_PROJECT_ID_DEV
+GKE_PROJECT_ID = $(GKE_PROJECT_ID_DEV)
+endif
+ifdef GKE_CLUSTER_NAME_DEV
+GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_DEV)
+endif
+{{[- end ]}}
+ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_DEV
+{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_DEV)
+endif
+ifdef {{[ toENV .Name ]}}_GRPC_HOST_DEV
+{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_DEV)
+endif
+ifdef {{[ toENV .Name ]}}_REST_HOST_DEV
+{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_DEV)
+endif
+endif
+ifeq ("$(NAMESPACE)","prod")
+{{[- if .GKE.Enabled ]}}
+ifdef GKE_PROJECT_ID_PROD
+GKE_PROJECT_ID = $(GKE_PROJECT_ID_PROD)
+endif
+ifdef GKE_CLUSTER_NAME_PROD
+GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_PROD)
+endif
+{{[- end ]}}
+ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_PROD
+{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_PROD)
+endif
+ifdef {{[ toENV .Name ]}}_GRPC_HOST_PROD
+{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_PROD)
+endif
+ifdef {{[ toENV .Name ]}}_REST_HOST_PROD
+{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_PROD)
+endif
+endif
+
+{{[- if .GKE.Enabled ]}}
+
+KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
+
+REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
+{{[- else ]}}
+
+REGISTRY ?= {{[ .Github ]}}
+{{[- end ]}}
 
 CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
 CONTAINER_NAME ?= $(APP)
@@ -85,21 +175,24 @@ REPO_COMMIT = git-$(shell git rev-parse --short HEAD)
 endif
 
 BUILD ?= $(RELEASE)
-DEPLOY_PARAMS ?= --wait
+DEPLOY_PARAMS ?= --atomic
 ifneq ("$(NAMESPACE)","prod")
 BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
-DEPLOY_PARAMS = --wait --force --atomic
+DEPLOY_PARAMS = --wait --force
 endif
 
 LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.RELEASE=$(RELEASE) \
+{{[- if .API.Enabled ]}}
+	-X $(PROJECT)/pkg/version.API=$(API_VERSION) \
+{{[- end ]}}
 	-X $(PROJECT)/pkg/version.DATE=$(RELEASE_DATE) \
 	-X $(PROJECT)/pkg/version.REPO=$(REPO_INFO) \
 	-X $(PROJECT)/pkg/version.COMMIT=$(REPO_COMMIT) \
-	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH) \
-	-X $(PROJECT)/pkg/version.DESC=$(SERVICE_DESCRIPTION)"
+	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
 GO_PACKAGES = $(shell go list $(PROJECT)/pkg/...)
+PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 
 BUILDTAGS=
 
@@ -120,7 +213,7 @@ endif
 ifneq ("$(GKE_CLUSTER_NAME)", "$(shell gcloud config get-value container/cluster)")
 	@gcloud config set container/cluster $(GKE_CLUSTER_NAME)
 endif
-ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config get-clusters | grep $(KUBE_CONTEXT))")
+ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config view -o jsonpath='{.contexts[?(@.name == "$(KUBE_CONTEXT)")].name}')")
 	@gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --region $(GKE_PROJECT_REGION) --project $(GKE_PROJECT_ID)
 endif
 ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
@@ -128,21 +221,32 @@ ifneq ("$(KUBE_CONTEXT)", "$(shell kubectl config current-context)")
 endif
 {{[- end ]}}
 
-vendor: bootstrap
+{{[- if .API.GRPC ]}}
+
+contracts:
+	@echo "+ $@"
+	@$(MAKE) -C contracts generate
+{{[- if .API.UI ]}}
+
+openapi: bootstrap contracts
+	@echo "+ $@"
+{{[- if .Example ]}}
+	@cp contracts/events/*.swagger.json web/public
+{{[- else ]}}
+	@cp contracts/info/info.swagger.json web/public/public.swagger.json
+{{[- end ]}}
+	@statik -m -f -ns public -p openapi -src web/public -dest public
+{{[- end ]}}
+{{[- end ]}}
+
+vendor: {{[- if .API.UI ]}} openapi {{[- else ]}}{{[- if .API.GRPC ]}} contracts {{[- else ]}} bootstrap {{[- end ]}}{{[- end ]}}
 	@echo "+ $@"
 ifeq ("$(wildcard go.mod)","")
 	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
 endif
 	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
 
-{{[- if .Example ]}}
-
-contracts:
-	@echo "+ $@"
-	@$(MAKE) -C contracts generate
-{{[- end ]}}
-
-compile: {{[- if .Example ]}} contracts {{[- end ]}} vendor test lint
+compile: vendor test lint
 	@echo "+ $@"
 	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
 		-ldflags $(LDFLAGS) -o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
@@ -162,38 +266,30 @@ build: compile certs
 	@echo "+ $@"
 	@docker build --pull -t $(CONTAINER_IMAGE):$(BUILD) .
 
-push: build project
+push: project build
 	@echo "+ $@"
 	@docker push $(CONTAINER_IMAGE):$(BUILD)
 
 {{[- if .Storage.Enabled ]}}
 
-HAS_DB_RUNNED := $(shell docker ps | grep $({{[ toENV .Name ]}}_DB_HOST))
-HAS_DB_EXITED := $(shell docker ps -a | grep $({{[ toENV .Name ]}}_DB_HOST))
+HAS_DB_RUNNED := $(shell docker ps -q -f name=^/$({{[ toENV .Name ]}}_DB_HOST)$$)
+HAS_DB_EXITED := $(shell docker ps -a -q -f name=^/$({{[ toENV .Name ]}}_DB_HOST)$$)
 
 db:
 	@echo "+ $@"
+ifneq ("$({{[ toENV .Name ]}}_DB_DRIVER)","stub")
 ifndef HAS_DB_RUNNED
 ifndef HAS_DB_EXITED
 	@mkdir -p $({{[ toENV .Name ]}}_DB_LOCATION)
-	@docker run -d	--name $({{[ toENV .Name ]}}_DB_DRIVER) \
+	@docker run -d	--name $({{[ toENV .Name ]}}_DB_HOST) \
 	-p $({{[ toENV .Name ]}}_DB_PORT):$({{[ toENV .Name ]}}_DB_PORT) \
-{{[- if .Storage.MySQL ]}}
-	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
-	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
-	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
-	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
-{{[- end ]}}
-{{[- if .Storage.Postgres ]}}
-	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
-	-e "POSTGRES_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
-	-e "POSTGRES_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)" \
-{{[- end ]}}
+	$({{[ toENV .Name ]}}_DB_ENV) \
 	-v $({{[ toENV .Name ]}}_DB_LOCATION):$({{[ toENV .Name ]}}_DB_PATH) \
 	$({{[ toENV .Name ]}}_DB_DRIVER):$({{[ toENV .Name ]}}_DB_DRIVER_VERSION)
 	@sleep {{[- if .Storage.Postgres ]}} 45 {{[ else ]}} 90 {{[- end ]}}
 else
 	@docker start $({{[ toENV .Name ]}}_DB_HOST)
+endif
 endif
 endif
 
@@ -206,7 +302,7 @@ migrate-up: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate up
+		$(CONTAINER_IMAGE):$(BUILD) /$(BIN) migrate up
 
 migrate-down: build db
 	@echo "+ $@"
@@ -217,7 +313,7 @@ migrate-down: build db
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
-		$(CONTAINER_IMAGE):$(RELEASE) /$(BIN) migrate down
+		$(CONTAINER_IMAGE):$(BUILD) /$(BIN) migrate down
 {{[- end ]}}
 
 run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
@@ -246,7 +342,6 @@ run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
-		-v $(shell pwd)/fixtures:/$({{[ toENV .Name ]}}_DB_FIXTURES_DIR):ro \
 {{[- end ]}}
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
 		-d $(CONTAINER_IMAGE):$(BUILD)
@@ -257,14 +352,26 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
-deploy: push project
+deploy: push
 	@echo "+ $@"
-	@helm upgrade $(CONTAINER_NAME)-$(NAMESPACE) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
-		--namespace $(NAMESPACE) --version=$(RELEASE) --set image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
+	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
+		--namespace $(NAMESPACE) --version=$(RELEASE) -i $(DEPLOY_PARAMS) \
+		--set main.image.registry=$(REGISTRY) \
+		--set main.image.tag=$(BUILD) \
+		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
+		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
+		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
 
 charts:
 	@echo "+ $@"
-	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml
+	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
+		--set main.image.registry=$(REGISTRY) \
+		--set main.image.tag=$(BUILD) \
+		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
+		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
+		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
 
 test:
 	@echo "+ $@"
@@ -287,10 +394,10 @@ imports:
 
 lint: bootstrap
 	@echo "+ $@"
-	@golangci-lint run --enable-all --skip-dirs vendor ./...
+	@GOPRIVATE=$(PRIVATE_REPOS) golangci-lint run ./...
 
-HAS_RUNNED := $(shell docker ps | grep $(CONTAINER_NAME))
-HAS_EXITED := $(shell docker ps -a | grep $(CONTAINER_NAME))
+HAS_RUNNED := $(shell docker ps -q -f name=^/$(CONTAINER_NAME)$$)
+HAS_EXITED := $(shell docker ps -a -q -f name=^/$(CONTAINER_NAME)$$)
 
 stop:
 ifdef HAS_RUNNED
@@ -316,24 +423,31 @@ clean: stop rm
 
 HAS_LINT := $(shell command -v golangci-lint;)
 HAS_IMPORTS := $(shell command -v goimports;)
+{{[- if .API.UI ]}}
+HAS_OPENAPI_GENERATOR := $(shell command -v statik;)
+{{[- end ]}}
 {{[- if .GKE.Enabled ]}}
 HAS_GCLOUD := $(shell command -v gcloud;)
-HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr)
+HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr;)
 {{[- end ]}}
 
 bootstrap:
 ifndef HAS_LINT
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	go get github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINTER_VERSION)
 endif
 ifndef HAS_IMPORTS
 	go get -u golang.org/x/tools/cmd/goimports
 endif
+{{[- if .API.UI ]}}
+ifndef HAS_OPENAPI_GENERATOR
+	go get -u github.com/rakyll/statik@$(OPENAPI_GENERATOR_VERSION)
+endif
+{{[- end ]}}
 {{[- if .GKE.Enabled ]}}
 ifndef HAS_GCLOUD
 	@echo "gcloud cli utility should be installed"
-	@echo "Pre-compiled binaries for your platform:
-	@echo https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
-	@exit 1
+	@echo "Pre-compiled binaries for your platform:"
+	@echo "https://console.cloud.google.com/storage/browser/cloud-sdk-release?authuser=0"
 endif
 ifdef HAS_GCLOUD
 ifndef HAS_DOCKER_GCR
@@ -353,10 +467,13 @@ endif
 {{[- if .GKE.Enabled ]}}
 	project \
 {{[- end ]}}
-	vendor \
-{{[- if .Example ]}}
+{{[- if .API.GRPC ]}}
 	contracts \
+{{[- if .API.UI ]}}
+	openapi \
 {{[- end ]}}
+{{[- end ]}}
+	vendor \
 	compile \
 	build \
 	certs \

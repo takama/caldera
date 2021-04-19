@@ -1,6 +1,7 @@
 package info_test
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -15,8 +16,9 @@ import (
 var ErrReturnError = errors.New("test of return Error")
 
 func testHandler(
-	t *testing.T, handler http.HandlerFunc, method, path string, code int, body string) {
-	req, err := http.NewRequest(method, path, nil)
+	t *testing.T, handler http.Handler, method, path string, code int, body string,
+) {
+	req, err := http.NewRequestWithContext(context.Background(), method, path, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -36,11 +38,11 @@ func testHandler(
 func TestProbe(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
-		t, service.ServeHTTP, "GET", "/healthz",
+		t, service, "GET", "/healthz",
 		http.StatusOK, "Ok",
 	)
 	testHandler(
-		t, service.ServeHTTP, "GET", "/readyz",
+		t, service, "GET", "/readyz",
 		http.StatusOK, "Ok",
 	)
 	service.RegisterLivenessProbe(func() error {
@@ -50,11 +52,11 @@ func TestProbe(t *testing.T) {
 		return ErrReturnError
 	})
 	testHandler(
-		t, service.ServeHTTP, "GET", "/healthz",
+		t, service, "GET", "/healthz",
 		http.StatusInternalServerError, ErrReturnError.Error()+"\n",
 	)
 	testHandler(
-		t, service.ServeHTTP, "GET", "/readyz",
+		t, service, "GET", "/readyz",
 		http.StatusInternalServerError, ErrReturnError.Error()+"\n",
 	)
 }
@@ -62,7 +64,7 @@ func TestProbe(t *testing.T) {
 func TestNotAllowed(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
-		t, service.ServeHTTP, "POST", "/",
+		t, service, "POST", "/",
 		http.StatusMethodNotAllowed, "Only GET is allowed\n",
 	)
 }
@@ -70,7 +72,7 @@ func TestNotAllowed(t *testing.T) {
 func TestOptions(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
-		t, service.ServeHTTP, "OPTIONS", "/",
+		t, service, "OPTIONS", "/",
 		http.StatusOK, "",
 	)
 }
@@ -78,19 +80,18 @@ func TestOptions(t *testing.T) {
 func TestNotFound(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
-		t, service.ServeHTTP, "GET", "/notfound",
+		t, service, "GET", "/notfound",
 		http.StatusNotFound, "404 page not found\n",
 	)
 	testHandler(
-		t, service.ServeHTTP, "OPTIONS", "/notfound",
+		t, service, "OPTIONS", "/notfound",
 		http.StatusNotFound, "404 page not found\n",
 	)
 }
 
 func TestAddHandler(t *testing.T) {
 	service := info.NewService(logger.New(new(logger.Config)))
-	service.AddHandler(
-		// nolint: unparam
+	service.AddHandlerFunc(
 		"/handler", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte("Handler"))
 			if err != nil {
@@ -99,11 +100,11 @@ func TestAddHandler(t *testing.T) {
 		},
 	)
 	testHandler(
-		t, service.ServeHTTP, "GET", "/handler",
+		t, service, "GET", "/handler",
 		http.StatusOK, "Handler",
 	)
 	testHandler(
-		t, service.ServeHTTP, "OPTIONS", "/handler",
+		t, service, "OPTIONS", "/handler",
 		http.StatusOK, "",
 	)
 }
@@ -113,6 +114,9 @@ func TestInfo(t *testing.T) {
 	data, err := json.Marshal(
 		map[string]string{
 			"version": version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+{{[- if .API.Enabled ]}}
+			"API":     version.API,
+{{[- end ]}}
 			"date":    version.DATE,
 			"repo":    version.REPO,
 		},
@@ -123,7 +127,7 @@ func TestInfo(t *testing.T) {
 	}
 
 	testHandler(
-		t, service.ServeHTTP, "GET", "/info",
+		t, service, "GET", "/info",
 		http.StatusOK, string(data),
 	)
 }

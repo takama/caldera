@@ -23,7 +23,13 @@ function detect_os {
 detect_os
 
 old_version=$(grep 'RELEASE ?= ' ./Makefile | sed -e 's/RELEASE ?= \(.*\)/\1/g')
-supposed_version=$(echo $old_version | awk -F. '{OFS=".";$NF = $NF + 1;} 1')
+release_version=$(git rev-parse --abbrev-ref HEAD | grep -E "^(release|hotfix)/.+" | cut -d"/" -f2 )
+if [ -z "$release_version" ]
+then
+  supposed_version=$(echo $old_version | awk -F. '{OFS=".";$NF = $NF + 1;} 1')
+else
+  supposed_version=${release_version}
+fi
 
 echo "Current version $old_version."
 echo -n "Please enter new version [$supposed_version]:"
@@ -40,7 +46,9 @@ fi
 if [ "${GO_OS}" == "darwin" ]; then
     sed -i '' -e "s/\(RELEASE ?= \).*/\1$new_version/" Makefile
     sed -i '' -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
+    sed -i '' -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 else
     sed -i -e "s/\(RELEASE ?= \).*/\1$new_version/" Makefile
     sed -i -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
+    sed -i -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 fi

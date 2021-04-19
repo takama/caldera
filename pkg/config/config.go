@@ -1,33 +1,41 @@
 package config
 
 const (
-	// ServiceName defines short service name
+	// ServiceName defines short service name.
 	ServiceName = "Caldera boilerplate generator"
-	// DefaultPostgresPort defines default port for PostgreSQL
+	// DefaultPostgresPort defines default port for PostgreSQL.
 	DefaultPostgresPort = 5432
-	// DefaultMySQLPort defines default port for MySQL
+	// DefaultMySQLPort defines default port for MySQL.
 	DefaultMySQLPort = 3306
-	// Base declared base templates
+	// Base declared base templates.
 	Base = "base"
-	// GKE declared GKE accounts/cluster/deployment
+	// GKE declared GKE accounts/cluster/deployment.
 	GKE = "gke"
-	// API declared type API
+	// API declared type API.
 	API = "api"
-	// APIGateway declared type API gateway: REST
+	// APIGateway declared type API gateway: REST.
 	APIGateway = "rest"
-	// APIgRPC declared type API: gRPC
+	// APIgRPC declared type API: gRPC.
 	APIgRPC = "grpc"
-	// Example declared contract API example
+	// OpenAPI declares openapi templates.
+	OpenAPI = "openapi"
+	// Example declared contract API example.
 	Example = "example"
-	// Storage declared type Storage
+	// Storage declared type Storage.
 	Storage = "storage"
-	// StoragePostgres declared storage driver type: postgres
+	// StoragePostgres declared storage driver type: postgres.
 	StoragePostgres = "postgres"
-	// StorageMySQL declared storage driver type: mysql
+	// StoragePostgresVersion declared storage version.
+	StoragePostgresVersion = "12.6"
+	// StorageMySQL declared storage driver type: mysql.
 	StorageMySQL = "mysql"
+	// StorageMySQLVersion declared storage version.
+	StorageMySQLVersion = "8.0"
+	// Metrics declared Prometheus common metrics for the service.
+	Metrics = "metrics"
 )
 
-// Config contains service configuration
+// Config contains service configuration.
 type Config struct {
 	Name        string
 	Description string
@@ -37,7 +45,10 @@ type Config struct {
 	Bin         string
 	GitInit     bool
 	Example     bool
-	GKE         struct {
+	Prometheus  struct {
+		Enabled bool
+	}
+	GKE struct {
 		Enabled bool
 		Project string
 		Region  string
@@ -49,6 +60,7 @@ type Config struct {
 		MySQL    bool
 		Config   struct {
 			Driver      string
+			Version     string
 			Host        string
 			Port        int
 			Name        string
@@ -56,7 +68,10 @@ type Config struct {
 			Password    string
 			Connections struct {
 				Max  int
-				Idle int
+				Idle struct {
+					Count int
+					Time  int
+				}
 			}
 		}
 	}
@@ -64,13 +79,13 @@ type Config struct {
 		Enabled bool
 		GRPC    bool
 		Gateway bool
+		CORS    struct {
+			Enabled bool
+		}
+		UI      bool
+		Version string
 		Config  struct {
-			Port         int
-			Insecure     bool
-			Certificates struct {
-				Crt string
-				Key string
-			}
+			Port    int
 			Gateway struct {
 				Port int
 			}
@@ -79,5 +94,8 @@ type Config struct {
 	Directories struct {
 		Templates string
 		Service   string
+	}
+	Linter struct {
+		Version string
 	}
 }

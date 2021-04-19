@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file
 // It contains global variables with configs and commands
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits, dupl
 package commands
 
 import (
@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// storageCmd represents the storage command
+// storageCmd represents the storage command.
 var storageCmd = &cobra.Command{
 	Use:   "storage",
 	Short: "Setup your storage modules",

@@ -3,6 +3,7 @@ package service
 import (
 {{[- if .API.Enabled ]}}
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 {{[- else ]}}
@@ -21,6 +22,9 @@ import (
 	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/db/stub"
 	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	"{{[ .Project ]}}/pkg/metrics"
+	{{[- end ]}}
 	"{{[ .Project ]}}/pkg/info"
 	"{{[ .Project ]}}/pkg/logger"
 	{{[- if .API.Enabled ]}}
@@ -30,6 +34,9 @@ import (
 	"{{[ .Project ]}}/pkg/version"
 
 	"go.uber.org/zap"
+	{{[- if .Prometheus.Enabled ]}}
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	{{[- end ]}}
 )
 
 // Run the service.
@@ -39,7 +46,8 @@ func Run(cfg *config.Config) error {
 	log := logger.New(&cfg.Logger)
 	defer func(*zap.Logger) {
 		if err := log.Sync(); err != nil {
-			log.Error(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			log.Debug(err.Error())
 		}
 	}(log)
 
@@ -58,11 +66,19 @@ func Run(cfg *config.Config) error {
 	switch cfg.Database.Driver {
 	{{[- if .Storage.Postgres ]}}
 	case postgres.Driver:
-		database, err = postgres.New(&cfg.Database, log, migrations.New(&cfg.Migrations))
+		database, err = postgres.New(
+			postgres.DSN(&cfg.Database),
+			log,
+			migrations.New(&cfg.Migrations),
+		)
 	{{[- end ]}}
 	{{[- if .Storage.MySQL ]}}
 	case mysql.Driver:
-		database, err = mysql.New(&cfg.Database, log, migrations.New(&cfg.Migrations))
+		database, err = mysql.New(
+			mysql.DSN(&cfg.Database),
+			log,
+			migrations.New(&cfg.Migrations),
+		)
 	{{[- end ]}}
 	case stub.Driver:
 		fallthrough
@@ -71,7 +87,7 @@ func Run(cfg *config.Config) error {
 	}
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to init a database driver: %w", err)
 	}
 	{{[- end ]}}
 
@@ -80,7 +96,7 @@ func Run(cfg *config.Config) error {
 	// Create new core server.
 	srv, err := server.New(context.Background(), &cfg.Server, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create a new server: %w", err)
 	}
 
 	{{[- if .API.Gateway ]}}
@@ -88,7 +104,7 @@ func Run(cfg *config.Config) error {
 	// Create gateway server.
 	gw, err := server.NewGateway(context.Background(), &cfg.Server, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create a REST gateway: %w", err)
 	}
 	{{[- end ]}}
 	{{[- end ]}}
@@ -112,6 +128,20 @@ func Run(cfg *config.Config) error {
 	{{[- if .Storage.Enabled ]}}
 	is.RegisterReadinessProbe(database.Check)
 	{{[- end ]}}
+	{{[- if .Prometheus.Enabled ]}}
+	is.AddHandler(metrics.DefaultPath, promhttp.Handler())
+
+	// Monitor periodically updates metric values.
+	monitor := metrics.NewMonitor(
+		log,
+		{{[- if .Storage.Enabled ]}}
+		database.MetricFunc(),
+		{{[- end ]}}
+	)
+
+	// Metrics initialization
+	metrics.Register()
+	{{[- end ]}}
 
 	// Run info/health-check service.
 	infoServer := is.Run(fmt.Sprintf(":%d", cfg.Info.Port))
@@ -128,6 +158,9 @@ func Run(cfg *config.Config) error {
 		{{[- if .Storage.Enabled ]}}
 		database,
 		{{[- end ]}}
+		{{[- if .Prometheus.Enabled ]}}
+		monitor,
+		{{[- end ]}}
 	)
 
 	{{[- if .API.Enabled ]}}
@@ -136,9 +169,9 @@ func Run(cfg *config.Config) error {
 	go func() {
 		if err := srv.Run(context.Background()); err != nil {
 			// Check for known errors
-			if err != context.DeadlineExceeded &&
-				err != context.Canceled &&
-				err != http.ErrServerClosed {
+			if !errors.Is(err, context.DeadlineExceeded) &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
 				log.Fatal(err.Error())
 			}
 
@@ -152,7 +185,7 @@ func Run(cfg *config.Config) error {
 	go func() {
 		if err := gw.Run(context.Background()); err != nil {
 			// Check for known errors
-			if err != http.ErrServerClosed {
+			if !errors.Is(err, http.ErrServerClosed) {
 				log.Fatal(err.Error())
 			}
 
@@ -160,6 +193,11 @@ func Run(cfg *config.Config) error {
 		}
 	}()
 	{{[- end ]}}
+	{{[- end ]}}
+
+	{{[- if .Prometheus.Enabled ]}}
+	// Run metrics monitor.
+	go monitor.Run()
 	{{[- end ]}}
 
 	// Wait signals.

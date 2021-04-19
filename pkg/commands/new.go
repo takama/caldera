@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// newCmd represents the new command
+// newCmd represents the new command.
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Generates new service from templates using default/config settings",

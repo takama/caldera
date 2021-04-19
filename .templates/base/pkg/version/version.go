@@ -5,6 +5,10 @@ package version
 var (
 	// RELEASE returns the release version.
 	RELEASE = "UNKNOWN"
+	{{[- if .API.Enabled ]}}
+	// API returns the API version.
+	API = "UNKNOWN"
+	{{[- end ]}}
 	// DATE returns the release date.
 	DATE = "UNKNOWN"
 	// REPO returns the git repository URL.
@@ -14,5 +18,5 @@ var (
 	// BRANCH returns deployed git brunch.
 	BRANCH = "UNKNOWN"
 	// DESC returns the service description.
-	DESC = "UNKNOWN"
+	DESC = "{{[ .Description ]}}"
 )

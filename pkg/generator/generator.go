@@ -43,6 +43,13 @@ func Run(cfg *config.Config) {
 				cfg.Directories.Service,
 			))
 		}
+
+		if cfg.API.Gateway && cfg.API.UI {
+			helper.LogF("OpenAPI templates for UI", copyTemplates(
+				path.Join(cfg.Directories.Templates, config.API, config.OpenAPI),
+				cfg.Directories.Service,
+			))
+		}
 	}
 
 	if cfg.Storage.Enabled {
@@ -87,12 +94,15 @@ func Run(cfg *config.Config) {
 		}
 	}
 
+	if cfg.Prometheus.Enabled {
+		helper.LogF("Metrics templates for Prometheus", copyTemplates(
+			path.Join(cfg.Directories.Templates, config.Metrics),
+			cfg.Directories.Service,
+		))
+	}
+
 	helper.LogF("Render templates", render(cfg))
 	helper.LogF("Could not change directory", os.Chdir(cfg.Directories.Service))
-
-	if cfg.API.Enabled {
-		helper.LogF("Generate contracts", Exec("make", "contracts"))
-	}
 
 	log.Println("Initialize vendors:")
 	helper.LogF("Init modules", Exec("make", "vendor"))
@@ -106,7 +116,7 @@ func Run(cfg *config.Config) {
 		helper.LogF("Initial commit", Exec("git", "commit", "-m", "'Initial commit'"))
 	}
 
-	fmt.Printf("New repository was created, use command 'cd %s'", cfg.Directories.Service)
+	fmt.Printf("New repository was created, use command 'cd %s'\n", cfg.Directories.Service)
 }
 
 // Exec runs the commands.

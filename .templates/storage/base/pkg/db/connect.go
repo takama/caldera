@@ -4,32 +4,26 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
-	"strings"
+	"time"
 )
 
 // Connect to SQL database specified in configuration.
 func Connect(cfg *Config) (*sql.DB, error) {
-	var properties string
-
-	if len(cfg.Properties) > 0 {
-		properties = "?" + strings.Join(cfg.Properties, "&")
-	}
-
-	dsn, err := url.Parse(fmt.Sprintf("%s://%s:%s@%s:%d/%s%s",
-		cfg.Driver, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, properties))
+	dsn, err := url.Parse(cfg.DSN)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse DSN: %w", err)
 	}
 
 	db, err := sql.Open(cfg.Driver, dsn.String())
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open SQL connection: %w", err)
 	}
 
 	db.SetMaxOpenConns(cfg.Connections.Max)
-	db.SetMaxIdleConns(cfg.Connections.Idle)
+	db.SetMaxIdleConns(cfg.Connections.Idle.Count)
+	db.SetConnMaxLifetime(time.Duration(cfg.Connections.Idle.Time) * time.Second)
 
 	return db, nil
 }
