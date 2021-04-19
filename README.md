@@ -2,9 +2,9 @@
 
 A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
-## Version v0.1.10
+## Version  v0.2.0
 
-See details in the [changelog](docs/CHANGELOG.md)
+All changes in the project described in [changelog](docs/CHANGELOG.md)
 
 ## Features of the boilerplate service
 
@@ -263,17 +263,13 @@ Using a special script to increment the release version
 
 ```sh
 make version
-Current version v0.0.1.
-Please enter new version [v0.0.2]:
+Current version v0.1.10.
+Please enter new version [v0.2.0]:
 ```
 
 ## Contributing to the project
 
 See the [contribution guidelines](docs/CONTRIBUTING.md) for information on how to participate in the Caldera project to submitting a pull request or creating a new issue.
-
-## Versioned changes
-
-All changes in the project described in [changelog](docs/CHANGELOG.md)
 
 ## License
 
