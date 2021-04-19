@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 )
 
@@ -26,7 +27,7 @@ func (s *SQL) TransactProvider() (*SQL, error) {
 	tx, err := s.db.Begin()
 
 	if err != nil {
-		return s, err
+		return s, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
 	return &SQL{db: s.db, tx: tx, ctx: s.ctx}, nil
@@ -39,6 +40,7 @@ func (s *SQL) Commit() error {
 
 	if s.tx != nil {
 		defer func() { s.tx = nil }()
+
 		return s.tx.Commit()
 	}
 
@@ -52,6 +54,7 @@ func (s *SQL) Rollback() error {
 
 	if s.tx != nil {
 		defer func() { s.tx = nil }()
+
 		return s.tx.Rollback()
 	}
 

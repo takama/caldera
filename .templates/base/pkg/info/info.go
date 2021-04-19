@@ -3,6 +3,7 @@ package info
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -23,7 +24,7 @@ type ProbeChecker func() error
 
 // Service contains info/health-check functionality.
 type Service struct {
-	handlers        map[string]http.HandlerFunc
+	handlers        map[string]http.Handler
 	logger          *zap.Logger
 	livenessProbes  []ProbeChecker
 	readinessProbes []ProbeChecker
@@ -33,13 +34,18 @@ type Service struct {
 func NewService(logger *zap.Logger) *Service {
 	return &Service{
 		logger:   logger,
-		handlers: make(map[string]http.HandlerFunc),
+		handlers: make(map[string]http.Handler),
 	}
 }
 
 // AddHandler adds new handler with given path to info service.
-func (s *Service) AddHandler(path string, handler http.HandlerFunc) {
+func (s *Service) AddHandler(path string, handler http.Handler) {
 	s.handlers[path] = handler
+}
+
+// AddHandlerFunc adds new handler func with given path to info service.
+func (s *Service) AddHandlerFunc(path string, handler http.HandlerFunc) {
+	s.AddHandler(path, handler)
 }
 
 // RegisterLivenessProbe defines liveness probe function.
@@ -62,13 +68,14 @@ func (s *Service) Run(addr string) *http.Server {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			// Check for known errors
-			if err != context.DeadlineExceeded &&
-				err != context.Canceled &&
-				err != http.ErrServerClosed {
+			if !errors.Is(err, context.DeadlineExceeded) &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
 				s.logger.Fatal(err.Error())
 			}
 
-			s.logger.Warn(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			s.logger.Debug(err.Error())
 		}
 	}()
 
@@ -90,7 +97,8 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			for path, handler := range s.handlers {
 				if route == path {
-					handler(w, r)
+					handler.ServeHTTP(w, r)
+
 					return
 				}
 			}
@@ -106,6 +114,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				for path := range s.handlers {
 					if route == path {
 						w.Header().Set("Allow", "GET")
+
 						return
 					}
 				}
@@ -124,6 +133,9 @@ func (s *Service) info(w http.ResponseWriter) {
 	data, err := json.Marshal(
 		map[string]string{
 			"version": version.RELEASE + "-" + version.COMMIT + "-" + version.BRANCH,
+{{[- if .API.Enabled ]}}
+			"API":     version.API,
+{{[- end ]}}
 			"date":    version.DATE,
 			"repo":    version.REPO,
 		},
@@ -131,6 +143,7 @@ func (s *Service) info(w http.ResponseWriter) {
 
 	if err != nil {
 		s.writeError(w, err)
+
 		return
 	}
 
@@ -145,6 +158,7 @@ func (s *Service) liveness(w http.ResponseWriter) {
 	for _, checker := range s.livenessProbes {
 		if err := checker(); err != nil {
 			s.writeError(w, err)
+
 			return
 		}
 	}
@@ -158,6 +172,7 @@ func (s *Service) readiness(w http.ResponseWriter) {
 	for _, checker := range s.readinessProbes {
 		if err := checker(); err != nil {
 			s.writeError(w, err)
+
 			return
 		}
 	}

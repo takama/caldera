@@ -1,0 +1,98 @@
+{{- if .Values.ingress.enabled -}}
+{{- $serviceName := .Values.service.name }}
+{{- $release := .Release }}
+{{- $fullname := include "fullname" . }}
+{{- $name := include "name" . }}
+{{- $chart := include "chart" . }}
+{{- $ingress := .Values.ingress }}
+
+{{- if .Values.ingress.contour.enabled -}}
+{{- range $key, $service := .Values.ingress.hosts }}
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  annotations:
+  {{- range $key, $value := $ingress.contour.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    app: {{ $fullname }}
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $release.Name }}
+    app.kubernetes.io/managed-by: {{ $release.Service }}
+    helm.sh/chart: {{ $chart }}
+  name: {{ $name }}-{{ $key }}
+spec:
+  virtualhost:
+    fqdn: {{ $service.host }}
+    {{- if $ingress.tls.enabled }}
+    tls:
+      secretName: {{ $ingress.tls.secretName }}
+    {{- end }}
+    {{[- if .API.CORS.Enabled ]}}
+    {{- if $service.cors }}
+    {{- if $service.cors.enabled }}
+    corsPolicy:
+        allowCredentials: true
+        allowOrigin:
+        {{- range $value := $service.cors.allow.origin }}
+          - {{ $value }}
+        {{- end }}
+        allowMethods:
+        {{- range $value := $service.cors.allow.methods }}
+          - {{ $value }}
+        {{- end }}
+        allowHeaders:
+        {{- range $value := $service.cors.allow.headers }}
+          - {{ $value }}
+        {{- end }}
+        exposeHeaders:
+        {{- range $value := $service.cors.expose.headers }}
+          - {{ $value }}
+        {{- end }}
+        maxAge: {{ $service.cors.maxAge | quote }}
+    {{- end }}
+    {{- end }}
+    {{[- end ]}}
+  routes:
+  - conditions:
+    - prefix: {{ $service.path }}
+    services:
+      - name: {{ $serviceName }}
+        port: {{ $service.port }}
+
+{{- end }}
+{{- else }}
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+  {{- range $key, $value := $ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    app: {{ $fullname }}
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $release.Name }}
+    app.kubernetes.io/managed-by: {{ $release.Service }}
+    helm.sh/chart: {{ $chart }}
+  name: {{ $name }}
+spec:
+  {{- if $ingress.tls.enabled }}
+  tls:
+  - secretName: {{ $ingress.tls.secretName }}
+  {{- end }}
+  rules:
+  {{- range $key, $service := .Values.ingress.hosts }}
+  - host: {{ $service.host }}
+    http:
+      paths:
+      - path: {{ $service.path }}
+        backend:
+          serviceName: {{ $serviceName }}
+          servicePort: {{ $service.port }}
+  {{- end }}
+{{- end }}
+{{- end -}}

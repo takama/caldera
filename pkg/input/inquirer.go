@@ -8,81 +8,58 @@ import (
 	"github.com/takama/caldera/pkg/config"
 )
 
-// Inquire for configuration
+// Inquire for configuration.
 // nolint: funlen, gocognit
 func Inquire(cfg *config.Config) *config.Config {
 	cfg.Github = StringAnswer("Provide name for your Github account", cfg.Github)
-	cfg.Name = StringAnswer("Provide name for your service", cfg.Name)
+	cfg.Name = StringAnswer("Provide a name for your service", cfg.Name)
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))
 	cfg.Project = StringAnswer("Provide project name", path.Join("github.com", cfg.Github, cfg.Name))
 	cfg.PrivateRepo = StringAnswer(
 		"Provide private repositories for import if applicable",
-		cfg.PrivateRepo,
+		strings.Join(strings.Fields(strings.ReplaceAll(
+			path.Join("github.com", cfg.Github)+","+cfg.PrivateRepo, ",", " ",
+		)), ","),
 	)
 	cfg.Bin = StringAnswer("Provide binary file name", cfg.Name)
-	apis := []string{config.APIGateway, config.APIgRPC}
 
-	var count int
+	if BoolAnswer("Do you need an API for the service?") {
+		cfg.API.Enabled = true
 
-	question := "Do you need API for the service? "
+		switch OptionAnswer("Do you want gRPC (1) or gRPC+REST (2)?", "1", "2") {
+		case "2":
+			cfg.API.Gateway = true
 
-	for len(apis) > 0 {
-		if count > 0 {
-			question = "Do you need one more API for the service?"
+			if BoolAnswer("Do you need CORS?") {
+				cfg.API.CORS.Enabled = true
+			}
+
+			if BoolAnswer("Do you want to setup OpenAPI UI?") {
+				cfg.API.UI = true
+			}
+
+			fallthrough
+		case "1":
+			cfg.API.GRPC = true
 		}
 
-		if BoolAnswer(question) {
-			cfg.API.Enabled = true
-
-			switch OptionAnswer("What kind of API do you need?", apis...) {
-			case config.APIGateway:
-				apis = delete(apis, config.APIGateway)
-				apis = delete(apis, config.APIgRPC)
-				cfg.API.Gateway = true
-				cfg.API.GRPC = true
-			case config.APIgRPC:
-				apis = delete(apis, config.APIgRPC)
-				cfg.API.GRPC = true
-			}
-		} else {
-			if count == 0 {
-				cfg.API.Enabled = false
-			}
-			break
-		}
-		count++
+		cfg.API.Version = StringAnswer("Default API version", cfg.API.Version)
 	}
 
-	if cfg.API.Enabled {
-		if BoolAnswer("Do you want to terminate API with TLS") {
-			cfg.API.Config.Insecure = false
-			cfg.API.Config.Certificates.Crt = StringAnswer(
-				"Provide certificate file path",
-				cfg.API.Config.Certificates.Crt,
-			)
-			cfg.API.Config.Certificates.Key = StringAnswer(
-				"Provide certificate key file path",
-				cfg.API.Config.Certificates.Key,
-			)
-		} else {
-			cfg.API.Config.Insecure = true
-		}
-	}
-
-	storages := []string{config.StoragePostgres, config.StorageMySQL}
-	question = "Do you need storage driver?"
-
-	if BoolAnswer(question) {
+	if BoolAnswer("Do you need storage driver?") {
 		cfg.Storage.Enabled = true
 
-		switch OptionAnswer("What kind of storage driver do you need?", storages...) {
-		case config.StoragePostgres:
+		switch OptionAnswer("Do you want postgres (1), mysql (2) or postgres+mysql (3)?", "1", "2", "3") {
+		case "1":
 			cfg.Storage.Postgres = true
 			cfg.Storage.MySQL = false
-		case config.StorageMySQL:
+		case "2":
 			cfg.Storage.MySQL = true
 			cfg.Storage.Postgres = false
+		case "3":
+			cfg.Storage.MySQL = true
+			cfg.Storage.Postgres = true
 		}
 	} else {
 		cfg.Storage.Enabled = false
@@ -91,6 +68,10 @@ func Inquire(cfg *config.Config) *config.Config {
 	if cfg.API.Enabled && cfg.Storage.Enabled &&
 		BoolAnswer("Do you need Contract API example for the service?") {
 		cfg.Example = true
+	}
+
+	if BoolAnswer("Do you need to expose metrics for Prometheus?") {
+		cfg.Prometheus.Enabled = true
 	}
 
 	if BoolAnswer("Do you want to deploy your service to the Google Kubernetes Engine?") {
@@ -114,24 +95,14 @@ func Inquire(cfg *config.Config) *config.Config {
 		}
 	}
 
+	cfg.Linter.Version = StringAnswer("Default Golang CI Linter version", cfg.Linter.Version)
 	cfg.Directories.Service = StringAnswer("New service directory", cfg.Directories.Service)
 
-	if BoolAnswer("Do you want initialize service repository with git") {
+	if BoolAnswer("Do you want initialize service repository with git?") {
 		cfg.GitInit = true
 	} else {
 		cfg.GitInit = false
 	}
 
 	return cfg
-}
-
-func delete(src []string, value string) (dst []string) {
-	for i, v := range src {
-		if v == value {
-			// nolint: gocritic
-			dst = append(src[:i], src[i+1:]...)
-		}
-	}
-
-	return
 }

@@ -31,7 +31,6 @@ func Run() {
 	helper.LogF("Service bootstrap error", RootCmd.Execute())
 }
 
-// nolint: funlen
 func init() {
 	viper.SetEnvPrefix(config.ServiceName)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
@@ -60,7 +59,9 @@ func init() {
 	RootCmd.PersistentFlags().StringP("database-password", "P", "{{[ .Storage.Config.Password ]}}", "A database user password")
 	RootCmd.PersistentFlags().StringSlice("database-props", []string{"sslmode=disable"}, "A database properties")
 	RootCmd.PersistentFlags().Int("max-conn", 10, "Maximum of database connections")
-	RootCmd.PersistentFlags().Int("idle-conn", 1, "Count of idle database connections")
+	RootCmd.PersistentFlags().Int("idle-count", 1, "Count of idle database connections")
+	RootCmd.PersistentFlags().Int("idle-time", {{[ .Storage.Config.Connections.Idle.Time ]}},
+		"Maximum amount of time in seconds a connection may be idle")
 	RootCmd.PersistentFlags().StringP("fixtures-dir", "F", "fixtures", "A database fixtures directory")
 
 	helper.LogF("Flag error",
@@ -80,7 +81,9 @@ func init() {
 	helper.LogF("Flag error",
 		viper.BindPFlag("database.connections.max", RootCmd.PersistentFlags().Lookup("max-conn")))
 	helper.LogF("Flag error",
-		viper.BindPFlag("database.connections.idle", RootCmd.PersistentFlags().Lookup("idle-conn")))
+		viper.BindPFlag("database.connections.idle.count", RootCmd.PersistentFlags().Lookup("idle-count")))
+	helper.LogF("Flag error",
+		viper.BindPFlag("database.connections.idle.time", RootCmd.PersistentFlags().Lookup("idle-time")))
 	helper.LogF("Flag error",
 		viper.BindPFlag("database.fixtures.dir", RootCmd.PersistentFlags().Lookup("fixtures-dir")))
 
@@ -101,7 +104,9 @@ func init() {
 	helper.LogF("Env error",
 		viper.BindEnv("database.connections.max", strings.ToUpper(config.ServiceName+".db.connections.max")))
 	helper.LogF("Env error",
-		viper.BindEnv("database.connections.idle", strings.ToUpper(config.ServiceName+".db.connections.idle")))
+		viper.BindEnv("database.connections.idle.count", strings.ToUpper(config.ServiceName+".db.connections.idle.count")))
+	helper.LogF("Env error",
+		viper.BindEnv("database.connections.idle.time", strings.ToUpper(config.ServiceName+".db.connections.idle.time")))
 	helper.LogF("Env error",
 		viper.BindEnv("database.fixtures.dir", strings.ToUpper(config.ServiceName+".db.fixtures.dir")))
 	{{[- end ]}}
@@ -115,7 +120,7 @@ func initConfig() {
 	} else
 	// Check for env variable with config path.
 	if cfgPath := os.Getenv(
-		strings.ToUpper(strings.Replace(config.ServiceName, "-", "_", -1)) + "_CONFIG_PATH",
+		strings.ToUpper(strings.ReplaceAll(config.ServiceName, "-", "_")) + "_CONFIG_PATH",
 	); cfgPath != "" {
 		viper.SetConfigFile(cfgPath)
 	}

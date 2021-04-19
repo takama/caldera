@@ -2,6 +2,10 @@
 
 A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
+## Version  v0.2.0
+
+All changes in the project described in [changelog](docs/CHANGELOG.md)
+
 ## Features of the boilerplate service
 
 - gRPC/REST API example using protobuf
@@ -46,22 +50,24 @@ In this mode, you'll be asked about the general properties associated with the n
 
 ```txt
 ./caldera
-Caldera boilerplate version: v0.0.1 build date: 2018-09-15T12:02:17+07
+Caldera boilerplate version: v0.2.0 build date: 2021-04-17T23:37:17+07
 
 Provide name for your Github account (my-account):
 Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
-What kind of API do you need? (rest,grpc): grpc
-Do you need one more API for the service? (y/n): y
-What kind of API do you need? (rest): rest
+Do you want gRPC (1) or gRPC+REST (2)?: 2
+Do you need CORS? (y/n): y
+Default API version (v1):
 Do you need storage driver? (y/n): y
-What kind of storage driver do you need? (postgres,mysql): postgres
+Do you want postgres (1) or mysql (2)?: 1
 Do you need Contract API example for the service? (y/n): y
+Do you need to expose metrics for Prometheus? (y/n): y
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
-Provide compute zone of your project on the GCP (europe-west1-b):
+Provide compute zone of your project on the GCP (europe-west4):
 Provide cluster name in the GKE (my-cluster-name):
+Default Golang CI Linter version (1.32.2):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
 New service directory (~/go/src/github.com/my-account/my-service):
 Do you want initialize service repository with git (y/n): y
@@ -102,7 +108,8 @@ Flags:
   -u, --username string   A name of database user (default "postgres")
   -p, --password string   An user password (default "postgres")
       --max-conn int      Maximum available connections (default 10)
-      --idle-conn int     Count of idle connections (default 1)
+      --idle-count int    Count of idle connections (default 1)
+      --idle-time int     Maximum amount of time in seconds a connection may be idle (default 60)
 ```
 
 Save an `API` parameters for `REST/gRPC` (REST always used gRCP gateway):
@@ -256,17 +263,13 @@ Using a special script to increment the release version
 
 ```sh
 make version
-Current version v0.0.1.
-Please enter new version [v0.0.2]:
+Current version v0.1.10.
+Please enter new version [v0.2.0]:
 ```
 
 ## Contributing to the project
 
 See the [contribution guidelines](docs/CONTRIBUTING.md) for information on how to participate in the Caldera project to submitting a pull request or creating a new issue.
-
-## Versioned changes
-
-All changes in the project described in [changelog](docs/CHANGELOG.md)
 
 ## License
 

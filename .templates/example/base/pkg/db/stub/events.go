@@ -16,7 +16,7 @@ import (
 type eventsProvider struct {
 	mutex sync.RWMutex
 	cfg   *db.Config
-	Data  []*events.Event
+	Data  []*events.Item
 }
 
 // Transaction returns provider with transaction.
@@ -40,7 +40,7 @@ func (ep *eventsProvider) Context(ctx context.Context) provider.Events {
 }
 
 // Create new Event object.
-func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
+func (ep *eventsProvider) Create(model *events.Item) (*events.Item, error) {
 	ep.mutex.Lock()
 	defer ep.mutex.Unlock()
 
@@ -61,7 +61,7 @@ func (ep *eventsProvider) Create(model *events.Event) (*events.Event, error) {
 }
 
 // Find returns Event requested by ID.
-func (ep *eventsProvider) Find(id string) (*events.Event, error) {
+func (ep *eventsProvider) Find(id string) (*events.Item, error) {
 	ind, item := ep.findByID(id)
 
 	if ind == -1 {
@@ -72,14 +72,15 @@ func (ep *eventsProvider) Find(id string) (*events.Event, error) {
 }
 
 // FindByName returns Events requested by Event name.
-func (ep *eventsProvider) FindByName(name string) ([]*events.Event, error) {
+func (ep *eventsProvider) FindByName(name string, pageParams ...interface{}) ([]*events.Item, error) {
 	_, items := ep.findByName(name)
+
 	return items, nil
 }
 
 // List returns all Event objects.
-func (ep *eventsProvider) List() ([]*events.Event, error) {
-	items := make([]*events.Event, len(ep.Data))
+func (ep *eventsProvider) List(pageParams ...interface{}) ([]*events.Item, error) {
+	items := make([]*events.Item, len(ep.Data))
 
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
@@ -89,7 +90,7 @@ func (ep *eventsProvider) List() ([]*events.Event, error) {
 }
 
 // Update Event object.
-func (ep *eventsProvider) Update(model *events.Event) (*events.Event, error) {
+func (ep *eventsProvider) Update(model *events.Item) (*events.Item, error) {
 	ind, _ := ep.findByID(model.Id)
 	if ind == -1 {
 		return nil, provider.ErrNotExistingEvent
@@ -133,7 +134,7 @@ func (ep *eventsProvider) DeleteByName(name string) error {
 	return nil
 }
 
-func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
+func (ep *eventsProvider) findByID(id string) (int, *events.Item) {
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
 
@@ -146,9 +147,9 @@ func (ep *eventsProvider) findByID(id string) (int, *events.Event) {
 	return -1, nil
 }
 
-func (ep *eventsProvider) findByName(name string) ([]int, []*events.Event) {
+func (ep *eventsProvider) findByName(name string) ([]int, []*events.Item) {
 	indices := make([]int, 0)
-	items := make([]*events.Event, 0)
+	items := make([]*events.Item, 0)
 
 	ep.mutex.RLock()
 	defer ep.mutex.RUnlock()
@@ -164,7 +165,7 @@ func (ep *eventsProvider) findByName(name string) ([]int, []*events.Event) {
 }
 
 func (ep *eventsProvider) load() error {
-	ep.Data = make([]*events.Event, 0)
+	ep.Data = make([]*events.Item, 0)
 	path := filepath.Join(ep.cfg.Fixtures.Dir, "events/data.json")
 	f, err := readFile(path)
 
@@ -183,5 +184,5 @@ func readFile(path string) (*os.File, error) {
 		return nil, nil
 	}
 
-	return os.Open(path) // nolint: gosec
+	return os.Open(path)
 }

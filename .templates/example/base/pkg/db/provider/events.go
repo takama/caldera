@@ -10,11 +10,11 @@ import (
 type Events interface {
 	TransactProvider() (EventsTransact, error)
 	Context(ctx context.Context) Events
-	Create(model *events.Event) (*events.Event, error)
-	Find(id string) (*events.Event, error)
-	FindByName(name string) ([]*events.Event, error)
-	List() ([]*events.Event, error)
-	Update(model *events.Event) (*events.Event, error)
+	Create(model *events.Item) (*events.Item, error)
+	Find(id string) (*events.Item, error)
+	FindByName(name string, pageParams ...interface{}) ([]*events.Item, error)
+	List(pageParams ...interface{}) ([]*events.Item, error)
+	Update(model *events.Item) (*events.Item, error)
 	Delete(id string) error
 	DeleteByName(name string) error
 }

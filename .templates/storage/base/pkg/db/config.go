@@ -3,6 +3,7 @@ package db
 // Config contains params to setup database connection.
 type Config struct {
 	Driver      string
+	DSN         string
 	Host        string
 	Port        int
 	Name        string
@@ -16,7 +17,12 @@ type Config struct {
 // Connections configures DB connections state.
 type Connections struct {
 	Max  int
-	Idle int
+	Idle Idle
+}
+
+type Idle struct {
+	Count int
+	Time  int
 }
 
 // Fixtures attributes.

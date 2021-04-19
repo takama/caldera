@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	// shutdownTimeout declares timeout of shutdown operation.
+	shutdownTimeout = 15 * time.Second
+)
+
 // ErrNotImplemented declares error for method that isn't implemented.
 var ErrNotImplemented = errors.New("this method is not implemented")
 
@@ -16,11 +21,6 @@ var ErrEmptyServerPointer = errors.New("server pointer should not be nil")
 type Operations struct {
 	shutdowns []Shutdowner
 }
-
-const (
-	// shutdownTimeout declares timeout of shutdown operation
-	shutdownTimeout = 15 * time.Second
-)
 
 // NewOperator creates operator.
 func NewOperator(sd ...Shutdowner) *Operations {

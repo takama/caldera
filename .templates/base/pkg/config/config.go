@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 {{[- if .Storage.Enabled ]}}
 	"{{[ .Project ]}}/pkg/db"
 	"{{[ .Project ]}}/pkg/db/migrations"
@@ -16,21 +18,16 @@ import (
 
 // Default values: host, port, etc.
 const (
-	// ServiceName - default service name
+	// ServiceName - default service name.
 	ServiceName = "{{[ .Name ]}}"
-
-	APIVersion = "v1"
 
 	DefaultConfigPath = "config/default.conf"
 
 	{{[- if .API.Enabled ]}}
 
+	APIVersion = "{{[ .API.Version ]}}"
+
 	DefaultServerPort     = {{[ .API.Config.Port ]}}
-	{{[- if not .API.Config.Insecure ]}}
-	DefaultServerInsecure = false
-	DefaultServerCrtPath  = "certs/tls.crt"
-	DefaultServerKeyPath  = "certs/tls.key" 
-	{{[- end ]}}
 	{{[- if .API.Gateway ]}}
 	DefaultGatewayPort    = {{[ .API.Config.Gateway.Port ]}}
 	{{[- end ]}}
@@ -59,13 +56,6 @@ func New() (*Config, error) {
 		{{[- if .API.Enabled ]}}
 		Server: server.Config{
 			Port: DefaultServerPort,
-			{{[- if not .API.Config.Insecure ]}}
-			Insecure: DefaultServerInsecure,
-			Certificates: server.Certificates{
-				Crt: DefaultServerCrtPath,
-				Key: DefaultServerKeyPath,
-			},
-			{{[- end ]}}
 			{{[- if .API.Gateway ]}}
 			Gateway: server.Gateway{
 				Port: DefaultGatewayPort,
@@ -83,7 +73,7 @@ func New() (*Config, error) {
 	}
 
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	return cfg, nil

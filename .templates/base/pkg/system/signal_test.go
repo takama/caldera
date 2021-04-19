@@ -49,7 +49,8 @@ func TestSignals(t *testing.T) {
 
 	defer func(*zap.Logger) {
 		if err := logger.Sync(); err != nil {
-			logger.Error(err.Error())
+			// Usually here are stdout/stderr errors for sync operations which are unsupported for it
+			logger.Debug(err.Error())
 		}
 	}(logger)
 
@@ -71,6 +72,9 @@ func TestSignals(t *testing.T) {
 
 	maintenanceSignals := signals.Get(system.Maintenance)
 	verifySignal(t, syscall.SIGUSR1, maintenanceSignals, system.Maintenance)
+
+	ignoredSignals := signals.Get(system.Ignore)
+	verifySignal(t, syscall.SIGURG, ignoredSignals, system.Ignore)
 
 	handling := &testHandling{ch: make(chan system.SignalType, 1)}
 
@@ -100,6 +104,7 @@ func sendSignal(t *testing.T, ch <-chan system.SignalType, proc *os.Process, sig
 	err := proc.Signal(testSignal)
 	if err != nil {
 		t.Error("Sending signal:", err)
+
 		return
 	}
 
@@ -131,6 +136,12 @@ func TestSignalStringer(t *testing.T) {
 
 	if s.String() != "MAINTENANCE" {
 		t.Error("Expected signal type MAINTENANCE, got", s.String())
+	}
+
+	s = system.Ignore
+
+	if s.String() != "IGNORE" {
+		t.Error("Expected signal type IGNORE, got", s.String())
 	}
 
 	s = customSignalType

@@ -1,4 +1,19 @@
-# Version v0.1.10
+# Version v0.2.0
+
+## v0.2.0
+
+- Added sub-charts for Helm deployment.
+- Added special vatiables environment to keep it outside of GIT.
+- Added CORS handling.
+- Managed system sygnals to be ignored.
+- Added possibility to use multiple database drivers.
+- Added Prometheus monitoring package.
+- Used gRPC gateway v2 and OpenApi v2 instead of swagger
+- Redesigned dev/prod envs in Makefile.
+- Updated Go version and packeages.
+- Fixed issue [#27](https://github.com/takama/caldera/issues/27) ([@takama](https://github.com/takama))
+- Updated protoc [#37](https://github.com/takama/caldera/issues/37) ([@takama](https://github.com/takama))
+- Added OpenAPI swagger UI [#38](https://github.com/takama/caldera/issues/38) ([@takama](https://github.com/takama))
 
 ## v0.1.10
 

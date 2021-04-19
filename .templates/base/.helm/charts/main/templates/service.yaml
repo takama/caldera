@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "name" . }}
+  {{- if .Values.service.annotations }}
+  annotations:
+  {{- range $key, $value := .Values.service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  labels:
+    app: {{ template "fullname" . }}
+    app.kubernetes.io/name: {{ .Values.service.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
+spec:
+  ports:
+  {{[- if .API.Enabled ]}}
+  - port: {{ .Values.service.grpc.port }}
+    protocol: TCP
+    name: grpc
+  {{[- if .API.Gateway ]}}
+  - port: {{ .Values.service.gateway.port }}
+    protocol: TCP
+    name: gateway
+  {{[- end ]}}
+  {{[- end ]}}
+  - port: {{ .Values.service.info.port }}
+    protocol: TCP
+    name: info
+{{- if .Values.service.headless }}
+  clusterIP: None
+{{- end }}
+  selector:
+    app: {{ template "fullname" . }}
+  type: {{ .Values.service.type }}

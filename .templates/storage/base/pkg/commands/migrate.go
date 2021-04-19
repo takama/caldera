@@ -32,7 +32,9 @@ last version/initial state if no version specified.`,
 func init() {
 	RootCmd.AddCommand(migrateCmd)
 
-	migrateCmd.PersistentFlags().String("dir", "migrations", "A database migrations directory")
+	migrateCmd.PersistentFlags().String(
+		"dir", "migrations/{{[ .Storage.Config.Driver ]}}", "A database migrations directory",
+	)
 	migrateCmd.PersistentFlags().Bool("active", true, "A database migrations are active")
 	helper.LogF("Flag error",
 		viper.BindPFlag("migrations.dir", migrateCmd.PersistentFlags().Lookup("dir")))

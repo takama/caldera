@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SignalType describe
+// SignalType describe.
 type SignalType int
 
 const (
@@ -20,6 +20,8 @@ const (
 	Reload
 	// Maintenance defines signals for maintenance process.
 	Maintenance
+	// Ignore defines signals which will be ignored.
+	Ignore
 )
 
 func (s SignalType) String() string {
@@ -30,6 +32,8 @@ func (s SignalType) String() string {
 		return "RELOAD"
 	case Maintenance:
 		return "MAINTENANCE"
+	case Ignore:
+		return "IGNORE"
 	default:
 		return strconv.Itoa(int(s))
 	}
@@ -45,6 +49,7 @@ type Signals struct {
 	shutdown    []os.Signal
 	reload      []os.Signal
 	maintenance []os.Signal
+	ignore      []os.Signal
 }
 
 // NewSignals creates default signals.
@@ -59,6 +64,7 @@ func NewSignals() *Signals {
 		shutdown:    []os.Signal{syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT},
 		reload:      []os.Signal{syscall.SIGHUP},
 		maintenance: []os.Signal{syscall.SIGUSR1},
+		ignore:      []os.Signal{syscall.SIGURG},
 	}
 	signal.Notify(signals.interrupt)
 
@@ -80,6 +86,9 @@ func (s *Signals) Get(sigType SignalType) (signals []os.Signal) {
 	case Maintenance:
 		signals = make([]os.Signal, len(s.maintenance))
 		copy(signals, s.maintenance)
+	case Ignore:
+		signals = make([]os.Signal, len(s.ignore))
+		copy(signals, s.ignore)
 	}
 
 	return
@@ -97,6 +106,8 @@ func (s *Signals) Add(sig os.Signal, sigType SignalType) {
 		s.reload = append(s.reload, sig)
 	case Maintenance:
 		s.maintenance = append(s.maintenance, sig)
+	case Ignore:
+		s.ignore = append(s.ignore, sig)
 	}
 }
 
@@ -112,6 +123,8 @@ func (s *Signals) Remove(sig os.Signal, sigType SignalType) {
 		s.reload = removeSignal(sig, s.reload)
 	case Maintenance:
 		s.maintenance = removeSignal(sig, s.maintenance)
+	case Ignore:
+		s.ignore = removeSignal(sig, s.ignore)
 	}
 }
 
@@ -121,9 +134,17 @@ func (s *Signals) Wait(logger *zap.Logger, operator Operator) error {
 		select {
 		case <-s.quit:
 			logger.Info("Gracefully closed")
+
 			return nil
 		case sig := <-s.interrupt:
 			s.mutex.RLock()
+
+			if isSignalAvailable(sig, s.ignore) {
+				s.mutex.RUnlock()
+
+				continue
+			}
+
 			logger.Info("Receiving signal", zap.String("type", sig.String()))
 
 			switch {
@@ -156,6 +177,8 @@ func (s *Signals) Wait(logger *zap.Logger, operator Operator) error {
 				}
 
 				s.quit <- struct{}{}
+			default:
+				s.mutex.RUnlock()
 			}
 		}
 	}
@@ -176,8 +199,8 @@ func isSignalAvailable(signal os.Signal, list []os.Signal) bool {
 func removeSignal(signal os.Signal, list []os.Signal) (signals []os.Signal) {
 	for ind, sig := range list {
 		if sig == signal {
-			// nolint: gocritic
 			signals = append(list[:ind], list[ind+1:]...)
+
 			return
 		}
 	}
