@@ -70,7 +70,7 @@ ingress:
     ##
     enabled: true
     ##
-    secretName: {{[ .Name ]}}.prod.net-certs
+    secretName: {{[ .Name ]}}-certs
 
   ## Annotations
   ##
@@ -82,14 +82,14 @@ ingress:
   ##
   hosts:
     ## gRPC service host
-    - name: grpc
-      host: {{[ .Name ]}}-grpc.prod.net
+    grpc:
+      host: {{[ .Name ]}}-grpc.host
       path: /
       port: {{[ .API.Config.Port ]}}
 
     ## REST service host
-    - name: rest
-      host: {{[ .Name ]}}-rest.prod.net
+    rest:
+      host: {{[ .Name ]}}-rest.host
       path: /
       port: {{[ .API.Config.Gateway.Port ]}}
       {{[- if .API.CORS.Enabled ]}}
@@ -101,7 +101,7 @@ ingress:
         allow:
           credentials: true
           origin:
-            - {{[ .Name ]}}-rest.prod.net
+            - {{[ .Name ]}}-rest.host
           methods:
             - GET
             - POST
