@@ -18,23 +18,6 @@ OPENAPI_GENERATOR_VERSION ?= v0.1.7
 {{[- end ]}}
 LINTER_VERSION ?= v{{[ .Linter.Version ]}}
 
-{{[- if .GKE.Enabled ]}}
-
-# Configs for GKE
-GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
-GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
-GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
-
-KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
-
-REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
-{{[- else ]}}
-
-REGISTRY ?= {{[ .Github ]}}
-{{[- end ]}}
-
-PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
-
 # Common configuration
 {{[- if .API.Enabled ]}}
 {{[ toENV .Name ]}}_SERVER_PORT ?= {{[ .API.Config.Port ]}}
@@ -75,6 +58,7 @@ endif
 
 {{[- if .Storage.Postgres ]}}
 
+# PostgreSQL database configuration
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/postgres
@@ -89,14 +73,16 @@ endif
 {{[- end ]}}
 {{[- if .Storage.MySQL ]}}
 
+# MySQL database configuration
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/mysql
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/mysql
 {{[ toENV .Name ]}}_DB_HOST ?= $(APP).mysql
 {{[ toENV .Name ]}}_DB_PORT = 3306
+{{[ toENV .Name ]}}_DB_ROOT_PASSWORD ?= mysql
 {{[ toENV .Name ]}}_DB_ENV = \
-	-e "MYSQL_ROOT_PASSWORD={{[ randStr ]}}" \
+	-e "MYSQL_ROOT_PASSWORD=$(DATASYNC_DB_ROOT_PASSWORD)" \
 	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
@@ -104,9 +90,78 @@ endif
 {{[- end ]}}
 {{[- end ]}}
 
+# Include special environments
+ifneq ("$(wildcard .env.mk)","")
+include .env.mk
+endif
+
 # Namespace: dev, prod, username ...
 NAMESPACE ?= dev
 VALUES ?= values-$(NAMESPACE)
+
+{{[- if .GKE.Enabled ]}}
+
+# Configs for GKE
+GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
+GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
+GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
+{{[- end ]}}
+
+# Certificates and hosts
+{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(NAMESPACE)-certs
+{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(NAMESPACE)
+{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(NAMESPACE)
+{{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= $({{[ toENV .Name ]}}_REST_HOST)
+
+# Environments initialisation
+ifeq ("$(NAMESPACE)","dev")
+{{[- if .GKE.Enabled ]}}
+ifdef GKE_PROJECT_ID_DEV
+GKE_PROJECT_ID = $(GKE_PROJECT_ID_DEV)
+endif
+ifdef GKE_CLUSTER_NAME_DEV
+GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_DEV)
+endif
+{{[- end ]}}
+ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_DEV
+{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_DEV)
+endif
+ifdef {{[ toENV .Name ]}}_GRPC_HOST_DEV
+{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_DEV)
+endif
+ifdef {{[ toENV .Name ]}}_REST_HOST_DEV
+{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_DEV)
+endif
+endif
+ifeq ("$(NAMESPACE)","prod")
+{{[- if .GKE.Enabled ]}}
+ifdef GKE_PROJECT_ID_PROD
+GKE_PROJECT_ID = $(GKE_PROJECT_ID_PROD)
+endif
+ifdef GKE_CLUSTER_NAME_PROD
+GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_PROD)
+endif
+{{[- end ]}}
+ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_PROD
+{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_PROD)
+endif
+ifdef {{[ toENV .Name ]}}_GRPC_HOST_PROD
+{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_PROD)
+endif
+ifdef {{[ toENV .Name ]}}_REST_HOST_PROD
+{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_PROD)
+endif
+endif
+
+{{[- if .GKE.Enabled ]}}
+
+KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
+
+REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
+{{[- else ]}}
+
+REGISTRY ?= {{[ .Github ]}}
+{{[- end ]}}
 
 CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
 CONTAINER_NAME ?= $(APP)
@@ -137,6 +192,7 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
 GO_PACKAGES = $(shell go list $(PROJECT)/pkg/...)
+PRIVATE_REPOS ?= {{[ .PrivateRepo ]}}
 
 BUILDTAGS=
 
@@ -299,11 +355,23 @@ logs:
 deploy: push
 	@echo "+ $@"
 	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
-		--namespace $(NAMESPACE) --version=$(RELEASE) --set main.image.tag=$(BUILD) -i $(DEPLOY_PARAMS)
+		--namespace $(NAMESPACE) --version=$(RELEASE) -i $(DEPLOY_PARAMS) \
+		--set main.image.registry=$(REGISTRY) \
+		--set main.image.tag=$(BUILD) \
+		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
+		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
+		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
 
 charts:
 	@echo "+ $@"
-	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml
+	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
+		--set main.image.registry=$(REGISTRY) \
+		--set main.image.tag=$(BUILD) \
+		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
+		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
+		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
 
 test:
 	@echo "+ $@"
