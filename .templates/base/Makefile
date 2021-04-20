@@ -95,26 +95,28 @@ ifneq ("$(wildcard .env.mk)","")
 include .env.mk
 endif
 
-# Namespace: dev, prod, username ...
+# Namespace: public, commerce, billing,
 NAMESPACE ?= dev
-VALUES ?= values-$(NAMESPACE)
+# Cluster: dev, prod, ...
+CLUSTER ?= {{[ .GKE.Cluster ]}}
+VALUES ?= values-$(CLUSTER)
 
 {{[- if .GKE.Enabled ]}}
 
 # Configs for GKE
 GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
 GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
-GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
+GKE_CLUSTER_NAME ?= $(CLUSTER)
 {{[- end ]}}
 
 # Certificates and hosts
-{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(NAMESPACE)-certs
-{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(NAMESPACE)
-{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(NAMESPACE)
+{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(CLUSTER)-certs
+{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(CLUSTER)
+{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(CLUSTER)
 {{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= $({{[ toENV .Name ]}}_REST_HOST)
 
 # Environments initialisation
-ifeq ("$(NAMESPACE)","dev")
+ifeq ("$(CLUSTER)","dev")
 {{[- if .GKE.Enabled ]}}
 ifdef GKE_PROJECT_ID_DEV
 GKE_PROJECT_ID = $(GKE_PROJECT_ID_DEV)
@@ -133,7 +135,7 @@ ifdef {{[ toENV .Name ]}}_REST_HOST_DEV
 {{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_DEV)
 endif
 endif
-ifeq ("$(NAMESPACE)","prod")
+ifeq ("$(CLUSTER)","prod")
 {{[- if .GKE.Enabled ]}}
 ifdef GKE_PROJECT_ID_PROD
 GKE_PROJECT_ID = $(GKE_PROJECT_ID_PROD)
@@ -176,8 +178,8 @@ endif
 
 BUILD ?= $(RELEASE)
 DEPLOY_PARAMS ?= --atomic
-ifneq ("$(NAMESPACE)","prod")
-BUILD = $(RELEASE)-$(REPO_COMMIT)-$(NAMESPACE)
+ifneq ("$(CLUSTER)","prod")
+BUILD = $(RELEASE)-$(REPO_COMMIT)-$(CLUSTER)
 DEPLOY_PARAMS = --wait --force
 endif
 
@@ -365,7 +367,7 @@ deploy: push
 
 charts:
 	@echo "+ $@"
-	@helm template .helm -n $(APP)-$(NAMESPACE) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
+	@helm template .helm -n $(CONTAINER_NAME) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
 		--set main.image.registry=$(REGISTRY) \
 		--set main.image.tag=$(BUILD) \
 		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
