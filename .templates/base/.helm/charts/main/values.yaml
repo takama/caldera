@@ -76,6 +76,9 @@ ingress:
   ##
   annotations:
     ## Uses reserved external IP name
+    ## kubernetes.io/ingress.allow-http: "false"
+    ## prometheus.io/probe: "true"
+    ## kubernetes.io/ingress.class: nginx
     ## kubernetes.io/ingress.global-static-ip-name: grpc-lb
 
   ## Ingress route hosts
