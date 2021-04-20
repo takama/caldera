@@ -27,6 +27,10 @@ maxSurge: 1
 ##
 gracePeriod: 30
 
+## Name of service account if applicable
+##
+serviceAccount: datasync
+
 image:
   ## Docker Registry/Hub image name and tag
   ##

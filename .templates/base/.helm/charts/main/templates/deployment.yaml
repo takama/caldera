@@ -38,6 +38,9 @@ spec:
                 - "{{ template "fullname" . }}"
             topologyKey: kubernetes.io/hostname
       {{- end }}
+      {{- if .Values.serviceAccount }}
+      serviceAccount: {{.Values.serviceAccount }}
+      {{- end }}
       {{- if .Values.image.pullSecretName }}
       imagePullSecrets:
       - name: {{ .Values.image.pullSecretName }}
