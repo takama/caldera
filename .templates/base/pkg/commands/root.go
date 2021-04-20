@@ -5,6 +5,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -125,8 +126,10 @@ func initConfig() {
 		viper.SetConfigFile(cfgPath)
 	}
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Cannot open config file: %s", err)
 	}
+
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
 }

@@ -65,7 +65,7 @@ spec:
 {{- end }}
 {{- else }}
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -82,7 +82,13 @@ metadata:
 spec:
   {{- if $ingress.tls.enabled }}
   tls:
-  - secretName: {{ $ingress.tls.secretName }}
+  - hosts:
+  {{- range $key, $service := .Values.ingress.hosts }}
+    - {{ $service.host }}
+  {{- end }}
+  {{- if $ingress.tls.secret.enabled }}
+  - secretName: {{ $ingress.tls.secret.name }}
+  {{- end }}
   {{- end }}
   rules:
   {{- range $key, $service := .Values.ingress.hosts }}
@@ -90,9 +96,12 @@ spec:
     http:
       paths:
       - path: {{ $service.path }}
+        pathType: Prefix
         backend:
-          serviceName: {{ $serviceName }}
-          servicePort: {{ $service.port }}
+          service:
+            name: {{ $serviceName }}
+            port:
+              number: {{ $service.port }}
   {{- end }}
 {{- end }}
 {{- end -}}
