@@ -27,6 +27,10 @@ maxSurge: 1
 ##
 gracePeriod: 30
 
+## Name of service account if applicable
+##
+serviceAccount: {{[ .Name ]}}
+
 image:
   ## Docker Registry/Hub image name and tag
   ##
@@ -70,12 +74,17 @@ ingress:
     ##
     enabled: true
     ##
-    secretName: {{[ .Name ]}}-certs
+    secret:
+      enabled: false
+      name: {{[ .Name ]}}-certs
 
   ## Annotations
   ##
   annotations:
     ## Uses reserved external IP name
+    ## kubernetes.io/ingress.allow-http: "false"
+    ## prometheus.io/probe: "true"
+    ## kubernetes.io/ingress.class: nginx
     ## kubernetes.io/ingress.global-static-ip-name: grpc-lb
 
   ## Ingress route hosts
@@ -223,11 +232,11 @@ service:
 
     ## Database host name
     ##
-    host: {{[ .Storage.Config.Host ]}}
+    host: {{[ .Storage.Config.Driver ]}}-db-config
 
     ## Database port number
     ##
-    port: {{[ .Storage.Config.Port ]}}
+    port: {{[ .Storage.Config.Driver ]}}-db-config
 
     ## Database username secret
     ##
@@ -242,11 +251,14 @@ service:
     ## sslmode should equal "disable" when we use Cloud SQL Proxy
     ## which provides secure connection to Cloud SQL
     properties:
+      # - debug=true
       - sslmode=disable
+      # - sslmode=require
       # - sslmode=verify-ca
-      # - sslrootcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/server-ca.pem
-      # - sslcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-cert.pem
-      # - sslkey=/etc/ssl/{{[ .Storage.Config.Driver ]}}/client-key.pem
+      # - sslmode=verify-full
+      # - sslrootcert=/etc/ssl/postgres/ca.crt
+      # - sslkey=/etc/ssl/postgres/tls.key
+      # - sslcert=/etc/ssl/postgres/tls.crt
 
     ## Database connections
     ##

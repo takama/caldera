@@ -31,7 +31,7 @@ data:
         "driver": "{{ .Values.service.database.driver }}",
         "dsn": "{{ .Values.service.database.dsn }}",
         "host": "{{ .Values.service.database.host }}",
-        "port": {{ .Values.service.database.port }},
+        "port": "{{ .Values.service.database.port }}",
         "name": "{{ .Values.service.database.name }}",
         "username": "{{ .Values.service.database.driver }}",
         "password": "{{ .Values.service.database.driver }}",

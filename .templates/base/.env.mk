@@ -1,3 +1,4 @@
+NAMESPACE ?= default
 {{[ toENV .Name ]}}_DB_ROOT_PASSWORD ?= {{[ randStr ]}}
 {{[- if .GKE.Enabled ]}}
 GKE_PROJECT_ID_DEV ?= dev-project-id
