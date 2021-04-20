@@ -63,6 +63,20 @@ spec:
           value: /etc/{{ .Values.service.name | replace "-" "_" }}/default.conf
         {{[- if .Storage.Enabled ]}}
         {{- if .Values.service.database.enabled}}
+        {{- if .Values.service.database.host }}
+        - name: {{ printf "%s_DB_HOST" $serviceName | upper | replace "-" "_" }}
+          valueFrom:
+            configMapKeyRef:
+              key: host
+              name: {{ .Values.service.database.host }}
+        {{- end }}
+        {{- if .Values.service.database.port }}
+        - name: {{ printf "%s_DB_PORT" $serviceName | upper | replace "-" "_" }}
+          valueFrom:
+            configMapKeyRef:
+              key: port
+              name: {{ .Values.service.database.port }}
+        {{- end }}
         {{- if .Values.service.database.name }}
         - name: {{ printf "%s_DB_DRIVER" .Values.service.name | upper | replace "-" "_" }}
           value: {{ .Values.service.database.driver }}
