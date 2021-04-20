@@ -1,20 +1,31 @@
-# Version v0.2.0
+# Version v0.2.1
+
+## v0.2.1
+
+- Used default namespace and changed `NAMESPACE` to `CLUSTER`
+- Fixed possible hidden issues with config file
+- Fixed problem with port presented as the secret name
+- Used database `ConfigMap` for host/port
+- Added `nginx` annotations example
+- Added default service account
+- Extended TLS secret name block
+- Added TLS hosts
+- Changed ingress version
 
 ## v0.2.0
 
 - Added sub-charts for Helm deployment.
 - Added special vatiables environment to keep it outside of GIT.
 - Added CORS handling.
-- Managed system sygnals to be ignored.
-- Added possibility to use multiple database drivers.
+- Managed system signals to be ignored.
+- Added the possibility to use multiple database drivers.
 - Added Prometheus monitoring package.
 - Used gRPC gateway v2 and OpenApi v2 instead of swagger
 - Redesigned dev/prod envs in Makefile.
-- Updated Go version and packeages.
+- Updated Go version and packages.
 - Fixed issue [#27](https://github.com/takama/caldera/issues/27) ([@takama](https://github.com/takama))
 - Updated protoc [#37](https://github.com/takama/caldera/issues/37) ([@takama](https://github.com/takama))
-- Added OpenAPI swagger UI [#38](https://github.com/takama/caldera/issues/38) ([@takama](https://github.com/takama))
-
+- Added OpenAPI Swagger UI [#38](https://github.com/takama/caldera/issues/38) ([@takama](https://github.com/takama))
 ## v0.1.10
 
 - Fixed label for service name ([@takama](https://github.com/takama))
