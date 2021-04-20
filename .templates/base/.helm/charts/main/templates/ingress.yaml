@@ -82,7 +82,9 @@ metadata:
 spec:
   {{- if $ingress.tls.enabled }}
   tls:
-  - secretName: {{ $ingress.tls.secretName }}
+  {{- if $ingress.tls.secret.enabled }}
+  - secretName: {{ $ingress.tls.secret.name }}
+  {{- end }}
   {{- end }}
   rules:
   {{- range $key, $service := .Values.ingress.hosts }}
