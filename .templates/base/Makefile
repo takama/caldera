@@ -96,7 +96,7 @@ include .env.mk
 endif
 
 # Namespace: public, commerce, billing,
-NAMESPACE ?= dev
+NAMESPACE ?= default
 # Cluster: dev, prod, ...
 CLUSTER ?= {{[ .GKE.Cluster ]}}
 VALUES ?= values-$(CLUSTER)
