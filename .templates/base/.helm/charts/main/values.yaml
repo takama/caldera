@@ -29,7 +29,7 @@ gracePeriod: 30
 
 ## Name of service account if applicable
 ##
-serviceAccount: datasync
+serviceAccount: {{[ .Name ]}}
 
 image:
   ## Docker Registry/Hub image name and tag
