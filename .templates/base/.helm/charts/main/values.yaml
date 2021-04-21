@@ -228,7 +228,7 @@ service:
 
     ## Database name secret
     ##
-    name: {{[ .Storage.Config.Name ]}}-db-credentials
+    name: {{[ .Storage.Config.Driver ]}}-db-{{[ .Storage.Config.Name ]}}-credentials
 
     ## Database host name
     ##
@@ -240,11 +240,11 @@ service:
 
     ## Database username secret
     ##
-    username: {{[ .Storage.Config.Name ]}}-db-credentials
+    username: {{[ .Storage.Config.Driver ]}}-db-{{[ .Storage.Config.Name ]}}-credentials
 
     ## Database password secret
     ##
-    password: {{[ .Storage.Config.Name ]}}-db-credentials
+    password: {{[ .Storage.Config.Driver ]}}-db-{{[ .Storage.Config.Name ]}}-credentials
 
     ## Connection properties like ssl-mode, sslkey and others
     ##
