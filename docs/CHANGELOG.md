@@ -1,4 +1,9 @@
-# Version v0.2.1
+# Version v0.2.2
+
+## v0.2.2
+
+- Changed default name of a database credentials secret in the helm charts values
+- Updated question about drivers
 
 ## v0.2.1
 
