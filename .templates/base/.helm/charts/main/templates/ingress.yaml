@@ -26,9 +26,9 @@ metadata:
 spec:
   virtualhost:
     fqdn: {{ $service.host }}
-    {{- if $ingress.tls.enabled }}
+    {{- if and $ingress.tls.enabled $ingress.tls.secret.enabled }}
     tls:
-      secretName: {{ $ingress.tls.secretName }}
+      secretName: {{ $ingress.tls.secret.name }}
     {{- end }}
     {{[- if .API.CORS.Enabled ]}}
     {{- if $service.cors }}
