@@ -65,7 +65,7 @@ Do you need Contract API example for the service? (y/n): y
 Do you need to expose metrics for Prometheus? (y/n): y
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
-Provide compute zone of your project on the GCP (europe-west4):
+Provide compute region of your project on the GCP (europe-west4):
 Provide cluster name in the GKE (my-cluster-name):
 Default Golang CI Linter version (1.32.2):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):
