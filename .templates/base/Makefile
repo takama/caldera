@@ -12,6 +12,42 @@ GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
 
+# Include special environments
+# Uncomment this to use your specific envs and secrets
+# ifneq ("$(wildcard .env.mk)","")
+# include .env.mk
+# endif
+
+# Namespace: public, commerce, billing,
+NAMESPACE ?= default
+# Cluster: dev, prod, ...
+CLUSTER ?= dev
+VALUES ?= values-$(CLUSTER)
+
+# Certificates and hosts
+{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(CLUSTER)-certs
+{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(CLUSTER)
+{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(CLUSTER)
+{{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= localhost,127.0.0.1,$({{[ toENV .Name ]}}_REST_HOST)
+
+{{[- if .GKE.Enabled ]}}
+
+# Configs for GKE
+GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
+GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
+GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
+
+KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
+
+REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
+{{[- else ]}}
+
+REGISTRY ?= {{[ .Github ]}}
+{{[- end ]}}
+
+CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
+CONTAINER_NAME ?= $(APP)
+
 {{[- if and .API.Gateway .API.UI ]}}
 
 OPENAPI_GENERATOR_VERSION ?= v0.1.7
@@ -82,91 +118,13 @@ ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 {{[ toENV .Name ]}}_DB_PORT = 3306
 {{[ toENV .Name ]}}_DB_ROOT_PASSWORD ?= mysql
 {{[ toENV .Name ]}}_DB_ENV = \
-	-e "MYSQL_ROOT_PASSWORD=$(DATASYNC_DB_ROOT_PASSWORD)" \
+	-e "MYSQL_ROOT_PASSWORD=$({{[ toENV .Name ]}}_DB_ROOT_PASSWORD)" \
 	-e "MYSQL_DATABASE=$({{[ toENV .Name ]}}_DB_NAME)" \
 	-e "MYSQL_USER=$({{[ toENV .Name ]}}_DB_USERNAME)" \
 	-e "MYSQL_PASSWORD=$({{[ toENV .Name ]}}_DB_PASSWORD)"
 endif
 {{[- end ]}}
 {{[- end ]}}
-
-# Include special environments
-ifneq ("$(wildcard .env.mk)","")
-include .env.mk
-endif
-
-# Namespace: public, commerce, billing,
-NAMESPACE ?= default
-# Cluster: dev, prod, ...
-CLUSTER ?= {{[ .GKE.Cluster ]}}
-VALUES ?= values-$(CLUSTER)
-
-{{[- if .GKE.Enabled ]}}
-
-# Configs for GKE
-GKE_PROJECT_ID ?= {{[ .GKE.Project ]}}
-GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
-GKE_CLUSTER_NAME ?= $(CLUSTER)
-{{[- end ]}}
-
-# Certificates and hosts
-{{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(APP)-$(CLUSTER)-certs
-{{[ toENV .Name ]}}_GRPC_HOST ?= $(APP)-grpc.$(CLUSTER)
-{{[ toENV .Name ]}}_REST_HOST ?= $(APP)-rest.$(CLUSTER)
-{{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= $({{[ toENV .Name ]}}_REST_HOST)
-
-# Environments initialisation
-ifeq ("$(CLUSTER)","dev")
-{{[- if .GKE.Enabled ]}}
-ifdef GKE_PROJECT_ID_DEV
-GKE_PROJECT_ID = $(GKE_PROJECT_ID_DEV)
-endif
-ifdef GKE_CLUSTER_NAME_DEV
-GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_DEV)
-endif
-{{[- end ]}}
-ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_DEV
-{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_DEV)
-endif
-ifdef {{[ toENV .Name ]}}_GRPC_HOST_DEV
-{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_DEV)
-endif
-ifdef {{[ toENV .Name ]}}_REST_HOST_DEV
-{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_DEV)
-endif
-endif
-ifeq ("$(CLUSTER)","prod")
-{{[- if .GKE.Enabled ]}}
-ifdef GKE_PROJECT_ID_PROD
-GKE_PROJECT_ID = $(GKE_PROJECT_ID_PROD)
-endif
-ifdef GKE_CLUSTER_NAME_PROD
-GKE_CLUSTER_NAME = $(GKE_CLUSTER_NAME_PROD)
-endif
-{{[- end ]}}
-ifdef {{[ toENV .Name ]}}_SSL_CERT_NAME_PROD
-{{[ toENV .Name ]}}_SSL_CERT_NAME = $({{[ toENV .Name ]}}_SSL_CERT_NAME_PROD)
-endif
-ifdef {{[ toENV .Name ]}}_GRPC_HOST_PROD
-{{[ toENV .Name ]}}_GRPC_HOST = $({{[ toENV .Name ]}}_GRPC_HOST_PROD)
-endif
-ifdef {{[ toENV .Name ]}}_REST_HOST_PROD
-{{[ toENV .Name ]}}_REST_HOST = $({{[ toENV .Name ]}}_REST_HOST_PROD)
-endif
-endif
-
-{{[- if .GKE.Enabled ]}}
-
-KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
-
-REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
-{{[- else ]}}
-
-REGISTRY ?= {{[ .Github ]}}
-{{[- end ]}}
-
-CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
-CONTAINER_NAME ?= $(APP)
 
 REPO_INFO = $(shell git config --get remote.origin.url)
 REPO_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -360,7 +318,7 @@ deploy: push
 		--namespace $(NAMESPACE) --version=$(RELEASE) -i $(DEPLOY_PARAMS) \
 		--set main.image.registry=$(REGISTRY) \
 		--set main.image.tag=$(BUILD) \
-		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
 		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
 		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
 		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
@@ -370,7 +328,7 @@ charts:
 	@helm template .helm -n $(CONTAINER_NAME) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
 		--set main.image.registry=$(REGISTRY) \
 		--set main.image.tag=$(BUILD) \
-		--set main.ingress.tls.secretName=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
 		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
 		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
 		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
