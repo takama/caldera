@@ -256,9 +256,9 @@ service:
       # - sslmode=require
       # - sslmode=verify-ca
       # - sslmode=verify-full
-      # - sslrootcert=/etc/ssl/postgres/ca.crt
-      # - sslkey=/etc/ssl/postgres/tls.key
-      # - sslcert=/etc/ssl/postgres/tls.crt
+      # - sslrootcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/ca.crt
+      # - sslkey=/etc/ssl/{{[ .Storage.Config.Driver ]}}/tls.key
+      # - sslcert=/etc/ssl/{{[ .Storage.Config.Driver ]}}/tls.crt
 
     ## Database connections
     ##

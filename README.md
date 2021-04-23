@@ -2,7 +2,7 @@
 
 A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
-## Version  v0.2.2
+## Version  v0.2.3
 
 All changes in the project described in [changelog](docs/CHANGELOG.md)
 
@@ -65,7 +65,7 @@ Do you need Contract API example for the service? (y/n): y
 Do you need to expose metrics for Prometheus? (y/n): y
 Do you want to deploy your service to the Google Kubernetes Engine? (y/n): y
 Provide ID of your project on the GCP (my-project-id):
-Provide compute zone of your project on the GCP (europe-west4):
+Provide compute region of your project on the GCP (europe-west4):
 Provide cluster name in the GKE (my-cluster-name):
 Default Golang CI Linter version (1.32.2):
 Templates directory (~/go/src/github.com/takama/caldera/.templates):

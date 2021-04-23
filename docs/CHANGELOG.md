@@ -1,4 +1,11 @@
-# Version v0.2.2
+# Version v0.2.3
+
+## v0.2.3
+
+- Used compute region instead of zone
+- Used default driver to specify database certificates path
+- Fixed ingress TLS secret name value
+- Simplified initial environment data for Makefile
 
 ## v0.2.2
 
