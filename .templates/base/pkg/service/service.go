@@ -131,6 +131,9 @@ func Run(cfg *config.Config) error {
 	{{[- if .Prometheus.Enabled ]}}
 	is.AddHandler(metrics.DefaultPath, promhttp.Handler())
 
+	// Metrics initialization
+	metrics.Register()
+
 	// Monitor periodically updates metric values.
 	monitor := metrics.NewMonitor(
 		log,
@@ -139,8 +142,8 @@ func Run(cfg *config.Config) error {
 		{{[- end ]}}
 	)
 
-	// Metrics initialization
-	metrics.Register()
+	// Run metrics monitor.
+	go monitor.Run()
 	{{[- end ]}}
 
 	// Run info/health-check service.
@@ -193,11 +196,6 @@ func Run(cfg *config.Config) error {
 		}
 	}()
 	{{[- end ]}}
-	{{[- end ]}}
-
-	{{[- if .Prometheus.Enabled ]}}
-	// Run metrics monitor.
-	go monitor.Run()
 	{{[- end ]}}
 
 	// Wait signals.
