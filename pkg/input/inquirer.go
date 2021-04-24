@@ -12,6 +12,7 @@ import (
 // nolint: funlen, gocognit
 func Inquire(cfg *config.Config) *config.Config {
 	cfg.Github = StringAnswer("Provide name for your Github account", cfg.Github)
+	cfg.Namespace = StringAnswer("Provide a name for your module or namespace", cfg.Namespace)
 	cfg.Name = StringAnswer("Provide a name for your service", cfg.Name)
 	cfg.Description = StringAnswer("Provide description for your service",
 		strings.Title(strings.NewReplacer("-", " ", ".", " ", "_", " ").Replace(cfg.Name)))

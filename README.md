@@ -2,7 +2,7 @@
 
 A command line utility Caldera allows you to create a boilerplate service that ready to run inside the container. This will save two or more days of developers working, who decided to create their first (micro) service.
 
-## Version  v0.2.3
+## Version  v0.2.4
 
 All changes in the project described in [changelog](docs/CHANGELOG.md)
 
@@ -53,6 +53,7 @@ In this mode, you'll be asked about the general properties associated with the n
 Caldera boilerplate version: v0.2.0 build date: 2021-04-17T23:37:17+07
 
 Provide name for your Github account (my-account):
+Provide a name for your module or namespace (default):
 Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
