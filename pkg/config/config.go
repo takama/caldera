@@ -3,6 +3,8 @@ package config
 const (
 	// ServiceName defines short service name.
 	ServiceName = "Caldera boilerplate generator"
+	// DefaultNamespace defines default namespace in Kubernetes environment.
+	DefaultNamespace = "default"
 	// DefaultPostgresPort defines default port for PostgreSQL.
 	DefaultPostgresPort = 5432
 	// DefaultMySQLPort defines default port for MySQL.
@@ -37,6 +39,7 @@ const (
 
 // Config contains service configuration.
 type Config struct {
+	Namespace   string
 	Name        string
 	Description string
 	Github      string

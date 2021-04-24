@@ -53,6 +53,7 @@ In this mode, you'll be asked about the general properties associated with the n
 Caldera boilerplate version: v0.2.0 build date: 2021-04-17T23:37:17+07
 
 Provide name for your Github account (my-account):
+Provide a name for your module or namespace (default):
 Provide name for your service (my-service): new-service
 Provide description for your service (New service): Very new service
 Do you need API for the service? (y/n): y
