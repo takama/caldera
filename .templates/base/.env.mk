@@ -1,6 +1,6 @@
 # Used defaut namespace for the environment
 # Namespace: public, commerce, billing,
-NAMESPACE ?= default
+NAMESPACE ?= {{[ .Namespace ]}}
 
 # Cluster: dev, prod, ...
 CLUSTER ?= dev
@@ -18,6 +18,6 @@ GKE_PROJECT_REGION ?= {{[ .GKE.Region ]}}
 
 # SSL/hosts environments initialisation
 {{[ toENV .Name ]}}_SSL_CERT_NAME ?= $(CLUSTER)-certs
-{{[ toENV .Name ]}}_GRPC_HOST ?= {{[ .Name ]}}-grpc.$(CLUSTER).host
-{{[ toENV .Name ]}}_REST_HOST ?= {{[ .Name ]}}-rest.$(CLUSTER).host
+{{[ toENV .Name ]}}_GRPC_HOST ?= $(NAMESPACE)-{{[ .Name ]}}-grpc.$(CLUSTER).host
+{{[ toENV .Name ]}}_REST_HOST ?= $(NAMESPACE)-{{[ .Name ]}}-rest.$(CLUSTER).host
 {{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS ?= $({{[ toENV .Name ]}}_REST_HOST),localhost,127.0.0.1

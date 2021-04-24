@@ -19,7 +19,7 @@ CA_DIR ?= certs
 # endif
 
 # Namespace: public, commerce, billing,
-NAMESPACE ?= default
+NAMESPACE ?= {{[ .Namespace ]}}
 # Cluster: dev, prod, ...
 CLUSTER ?= dev
 VALUES ?= values-$(CLUSTER)
@@ -39,14 +39,14 @@ GKE_CLUSTER_NAME ?= {{[ .GKE.Cluster ]}}
 
 KUBE_CONTEXT ?= gke_$(GKE_PROJECT_ID)_$(GKE_PROJECT_REGION)_$(GKE_CLUSTER_NAME)
 
-REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)
+REGISTRY ?= gcr.io/$(GKE_PROJECT_ID)/$(NAMESPACE)
 {{[- else ]}}
 
 REGISTRY ?= {{[ .Github ]}}
 {{[- end ]}}
 
 CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
-CONTAINER_NAME ?= $(APP)
+CONTAINER_NAME ?= $(NAMESPACE).$(APP)
 
 {{[- if and .API.Gateway .API.UI ]}}
 
@@ -73,16 +73,16 @@ LINTER_VERSION ?= v{{[ .Linter.Version ]}}
 # Default database configuration
 {{[ toENV .Name ]}}_DB_DRIVER ?= {{[ .Storage.Config.Driver ]}}
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION ?= {{[ .Storage.Config.Version ]}}
-{{[ toENV .Name ]}}_DB_NAME ?= {{[ .Storage.Config.Name ]}}
+{{[ toENV .Name ]}}_DB_NAME ?= $(NAMESPACE)-$(APP)
 {{[ toENV .Name ]}}_DB_USERNAME ?= {{[ .Storage.Config.Username ]}}
 {{[ toENV .Name ]}}_DB_PASSWORD ?= {{[ .Storage.Config.Password ]}}
-{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/{{[ .Storage.Config.Driver ]}}
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(NAMESPACE)/$(APP)/{{[ .Storage.Config.Driver ]}}
 {{[- if .Storage.Postgres ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/postgresql/data
 {{[- else ]}}
 {{[ toENV .Name ]}}_DB_PATH ?= /var/lib/{{[ .Storage.Config.Driver ]}}
 {{[- end ]}}
-{{[ toENV .Name ]}}_DB_HOST ?= $(APP).{{[ .Storage.Config.Host ]}}
+{{[ toENV .Name ]}}_DB_HOST ?= $(CONTAINER_NAME).{{[ .Storage.Config.Host ]}}
 {{[ toENV .Name ]}}_DB_PORT ?= {{[ .Storage.Config.Port ]}}
 {{[ toENV .Name ]}}_DB_FIXTURES_DIR ?= fixtures
 
@@ -97,9 +97,9 @@ endif
 # PostgreSQL database configuration
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
-{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/postgres
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(NAMESPACE)/$(APP)/postgres
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/postgresql/data
-{{[ toENV .Name ]}}_DB_HOST ?= $(APP).postgres
+{{[ toENV .Name ]}}_DB_HOST ?= $(CONTAINER_NAME).postgres
 {{[ toENV .Name ]}}_DB_PORT = 5432
 {{[ toENV .Name ]}}_DB_ENV = \
 	-e "POSTGRES_DB=$({{[ toENV .Name ]}}_DB_NAME)" \
@@ -112,9 +112,9 @@ endif
 # MySQL database configuration
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","mysql")
 {{[ toENV .Name ]}}_DB_DRIVER_VERSION = 8.0
-{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(APP)/mysql
+{{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(NAMESPACE)/$(APP)/mysql
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/mysql
-{{[ toENV .Name ]}}_DB_HOST ?= $(APP).mysql
+{{[ toENV .Name ]}}_DB_HOST ?= $(CONTAINER_NAME).mysql
 {{[ toENV .Name ]}}_DB_PORT = 3306
 {{[ toENV .Name ]}}_DB_ROOT_PASSWORD ?= mysql
 {{[ toENV .Name ]}}_DB_ENV = \
@@ -214,12 +214,12 @@ compile: vendor test lint
 certs:
 ifeq ("$(wildcard $(CA_DIR)/ca-certificates.crt)","")
 	@echo "+ $@"
-	@docker run --name $(CONTAINER_NAME)-certs -d alpine:latest \
+	@docker run --name $(CONTAINER_NAME).certs -d alpine:latest \
 	sh -c "apk --update upgrade && apk add ca-certificates && update-ca-certificates"
-	@docker wait $(CONTAINER_NAME)-certs
+	@docker wait $(CONTAINER_NAME).certs
 	@mkdir -p $(CA_DIR)
-	@docker cp $(CONTAINER_NAME)-certs:/etc/ssl/certs/ca-certificates.crt $(CA_DIR)
-	@docker rm -f $(CONTAINER_NAME)-certs
+	@docker cp $(CONTAINER_NAME).certs:/etc/ssl/certs/ca-certificates.crt $(CA_DIR)
+	@docker rm -f $(CONTAINER_NAME).certs
 endif
 
 build: compile certs
@@ -314,9 +314,10 @@ logs:
 
 deploy: push
 	@echo "+ $@"
-	@helm upgrade $(CONTAINER_NAME) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
+	@helm upgrade $(APP) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) -i $(DEPLOY_PARAMS) \
 		--set main.image.registry=$(REGISTRY) \
+		--set main.image.name=$(APP) \
 		--set main.image.tag=$(BUILD) \
 		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
 		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
@@ -325,8 +326,9 @@ deploy: push
 
 charts:
 	@echo "+ $@"
-	@helm template .helm -n $(CONTAINER_NAME) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
+	@helm template .helm -n $(APP) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
 		--set main.image.registry=$(REGISTRY) \
+		--set main.image.name=$(APP) \
 		--set main.image.tag=$(BUILD) \
 		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
 		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
