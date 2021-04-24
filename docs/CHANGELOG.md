@@ -1,5 +1,9 @@
-# Version v0.2.3
+# Version v0.2.4
 
+## v0.2.4
+
+- Added namespace for the service
+- Used namespaced names in the service
 ## v0.2.3
 
 - Used compute region instead of zone
