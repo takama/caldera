@@ -2,84 +2,38 @@ run:
   concurrency: 4
 
 linters-settings:
+  cyclop:
+    max-complexity: 20
   dupl:
-    threshold: 100
+    threshold: 120
   funlen:
     lines: 100
-    statements: 50
+    statements: 60
   gocritic:
     disabled-checks:
       - appendAssign
 
 linters:
   presets:
-    - style
     - bugs
+    - comment
     - complexity
+    - error
     - format
+    - import
+    - metalinter
+    - module
     - performance
+    - sql
+    - style
+    - test
     - unused
-  disable-all: false
-  enable:
-    - asciicheck
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
-    - exhaustive
-    - exportloopref
-    - funlen
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - godox
-    - goerr113
-    - gofmt
-    - goimports
-    - goheader
-    - golint
-    - gomnd
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - interfacer
-    - lll
-    - maligned
-    - misspell
-    - nakedret
-    - nestif
-    - nlreturn
-    - noctx
-    - nolintlint
-    - prealloc
-    - rowserrcheck
-    - scopelint
-    - sqlclosecheck
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - testpackage
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - wrapcheck
-    - whitespace
-    - wsl
   disable:
+    - forbidigo
     - gci
     - gofumpt
+    - golint
     - exhaustivestruct
-
-service:
-  golangci-lint-version: 1.32.x # use the fixed version to not introduce new linters unexpectedly
+    - interfacer
+    - maligned
+    - scopelint
