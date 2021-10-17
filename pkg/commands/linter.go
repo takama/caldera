@@ -28,7 +28,7 @@ var linterCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(linterCmd)
 
-	linterCmd.PersistentFlags().String("linter-version", "1.32.2", "Golang CI Linter default version")
+	linterCmd.PersistentFlags().String("linter-version", "1.42.1", "Golang CI Linter default version")
 	helper.LogF(
 		"Flag error",
 		viper.BindPFlag("linter.version", linterCmd.PersistentFlags().Lookup("linter-version")),
