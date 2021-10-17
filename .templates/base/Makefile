@@ -12,6 +12,12 @@ GOOS ?= linux
 GOARCH ?= amd64
 CA_DIR ?= certs
 
+{{[- if and .API.Gateway .API.UI ]}}
+
+OPENAPI_GENERATOR_VERSION ?= v0.1.7
+{{[- end ]}}
+LINTER_VERSION ?= v{{[ .Linter.Version ]}}
+
 # Include special environments
 # Uncomment this to use your specific envs and secrets
 # ifneq ("$(wildcard .env.mk)","")
@@ -47,12 +53,6 @@ REGISTRY ?= {{[ .Github ]}}
 
 CONTAINER_IMAGE ?= $(REGISTRY)/$(APP)
 CONTAINER_NAME ?= $(NAMESPACE).$(APP)
-
-{{[- if and .API.Gateway .API.UI ]}}
-
-OPENAPI_GENERATOR_VERSION ?= v0.1.7
-{{[- end ]}}
-LINTER_VERSION ?= v{{[ .Linter.Version ]}}
 
 # Common configuration
 {{[- if .API.Enabled ]}}
@@ -96,7 +96,7 @@ endif
 
 # PostgreSQL database configuration
 ifeq ("$({{[ toENV .Name ]}}_DB_DRIVER)","postgres")
-{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 12.6
+{{[ toENV .Name ]}}_DB_DRIVER_VERSION = 14.0
 {{[ toENV .Name ]}}_DB_LOCATION ?= ~/.caldera/$(NAMESPACE)/$(APP)/postgres
 {{[ toENV .Name ]}}_DB_PATH = /var/lib/postgresql/data
 {{[ toENV .Name ]}}_DB_HOST ?= $(CONTAINER_NAME).postgres
@@ -202,7 +202,7 @@ openapi: bootstrap contracts
 vendor: {{[- if .API.UI ]}} openapi {{[- else ]}}{{[- if .API.GRPC ]}} contracts {{[- else ]}} bootstrap {{[- end ]}}{{[- end ]}}
 	@echo "+ $@"
 ifeq ("$(wildcard go.mod)","")
-	@GOPRIVATE=$(PRIVATE_REPOS) go mod init {{[ .Project ]}}
+	@GOPRIVATE=$(PRIVATE_REPOS) go mod init $(PROJECT)
 endif
 	@GOPRIVATE=$(PRIVATE_REPOS) go mod tidy
 
@@ -259,6 +259,7 @@ migrate-up: build db
 		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
+		-e "{{[ toENV .Name ]}}_DB_NAME=$({{[ toENV .Name ]}}_DB_NAME)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
@@ -270,6 +271,7 @@ migrate-down: build db
 		-e "{{[ toENV .Name ]}}_LOGGER_LEVEL=$({{[ toENV .Name ]}}_LOGGER_LEVEL)" \
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
+		-e "{{[ toENV .Name ]}}_DB_NAME=$({{[ toENV .Name ]}}_DB_NAME)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 		-v $(shell pwd)/config/default.conf:$({{[ toENV .Name ]}}_CONFIG_PATH):ro \
@@ -300,6 +302,7 @@ run: clean build {{[- if .Storage.Enabled ]}} db {{[- end ]}}
 		-e "{{[ toENV .Name ]}}_CONFIG_PATH=$({{[ toENV .Name ]}}_CONFIG_PATH)" \
 {{[- if .Storage.Enabled ]}}
 		-e "{{[ toENV .Name ]}}_DB_DRIVER=$({{[ toENV .Name ]}}_DB_DRIVER)" \
+		-e "{{[ toENV .Name ]}}_DB_NAME=$({{[ toENV .Name ]}}_DB_NAME)" \
 		-e "{{[ toENV .Name ]}}_DB_HOST=$({{[ toENV .Name ]}}_DB_HOST)" \
 		-e "{{[ toENV .Name ]}}_DB_PORT=$({{[ toENV .Name ]}}_DB_PORT)" \
 {{[- end ]}}
@@ -312,28 +315,26 @@ logs:
 	@echo "+ $@"
 	@docker logs -f $(CONTAINER_NAME)
 
+{{[ toENV .Name ]}}_CHARTS_SET = \
+	--set main.image.registry=$(REGISTRY) \
+	--set main.image.name=$(APP) \
+	--set main.image.tag=$(BUILD) \
+	--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
+	--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
+	--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
+	--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
+
+
 deploy: push
 	@echo "+ $@"
 	@helm upgrade $(APP) -f .helm/$(VALUES).yaml .helm --kube-context $(KUBE_CONTEXT) \
 		--namespace $(NAMESPACE) --version=$(RELEASE) -i $(DEPLOY_PARAMS) \
-		--set main.image.registry=$(REGISTRY) \
-		--set main.image.name=$(APP) \
-		--set main.image.tag=$(BUILD) \
-		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
-		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
-		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
-		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
+		$({{[ toENV .Name ]}}_CHARTS_SET)
 
 charts:
 	@echo "+ $@"
 	@helm template .helm -n $(APP) --namespace $(NAMESPACE) -f .helm/$(VALUES).yaml \
-		--set main.image.registry=$(REGISTRY) \
-		--set main.image.name=$(APP) \
-		--set main.image.tag=$(BUILD) \
-		--set main.ingress.tls.secret.name=$({{[ toENV .Name ]}}_SSL_CERT_NAME) \
-		--set main.ingress.hosts.grpc.host=$({{[ toENV .Name ]}}_GRPC_HOST) \
-		--set main.ingress.hosts.rest.host=$({{[ toENV .Name ]}}_REST_HOST) \
-		--set main.ingress.hosts.rest.cors.allow.origin="{$({{[ toENV .Name ]}}_CORS_ALLOWED_HOSTS)}"
+		$({{[ toENV .Name ]}}_CHARTS_SET)
 
 test:
 	@echo "+ $@"
@@ -395,14 +396,14 @@ HAS_DOCKER_GCR := $(shell command -v docker-credential-gcr;)
 
 bootstrap:
 ifndef HAS_LINT
-	go get github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINTER_VERSION)
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINTER_VERSION)
 endif
 ifndef HAS_IMPORTS
-	go get -u golang.org/x/tools/cmd/goimports
+	go install golang.org/x/tools/cmd/goimports
 endif
 {{[- if .API.UI ]}}
 ifndef HAS_OPENAPI_GENERATOR
-	go get -u github.com/rakyll/statik@$(OPENAPI_GENERATOR_VERSION)
+	go install github.com/rakyll/statik@$(OPENAPI_GENERATOR_VERSION)
 endif
 {{[- end ]}}
 {{[- if .GKE.Enabled ]}}
