@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file
 // It contains global variables with configs and commands
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
@@ -36,12 +36,18 @@ func init() {
 		"dir", "migrations/{{[ .Storage.Config.Driver ]}}", "A database migrations directory",
 	)
 	migrateCmd.PersistentFlags().Bool("active", true, "A database migrations are active")
+	migrateCmd.PersistentFlags().String(
+		"dialect", "{{[ .Storage.Config.Driver ]}}", "A database migrations dialect",
+	)
 	helper.LogF("Flag error",
 		viper.BindPFlag("migrations.dir", migrateCmd.PersistentFlags().Lookup("dir")))
 	helper.LogF("Flag error",
 		viper.BindPFlag("migrations.active", migrateCmd.PersistentFlags().Lookup("active")))
+	helper.LogF("Flag error",
+		viper.BindPFlag("migrations.dialect", migrateCmd.PersistentFlags().Lookup("dialect")))
 	helper.LogF("Env error", viper.BindEnv("migrations.dir"))
 	helper.LogF("Env error", viper.BindEnv("migrations.active"))
+	helper.LogF("Env error", viper.BindEnv("migrations.dialect"))
 }
 
 func doMigration(cmd *cobra.Command, action migrateAction) {
@@ -51,7 +57,8 @@ func doMigration(cmd *cobra.Command, action migrateAction) {
 	helper.LogF("Database connect error", err)
 	// setup migration connection
 	mig := migrations.New(&cfg.Migrations)
-	mig.Setup(dbSQL)
+	err = mig.Setup(dbSQL)
+	helper.LogF("Failed to setup migration", err)
 
 	v, err := cmd.PersistentFlags().GetInt64("version")
 	helper.LogE("Migrate version not used", err)

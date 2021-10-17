@@ -2,6 +2,7 @@ package migrations
 
 // Config contains migrations attributes.
 type Config struct {
-	Dir    string
-	Active bool
+	Dir     string
+	Active  bool
+	Dialect string
 }
