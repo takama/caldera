@@ -41,7 +41,11 @@ func (s *SQL) Commit() error {
 	if s.tx != nil {
 		defer func() { s.tx = nil }()
 
-		return s.tx.Commit()
+		if err := s.tx.Commit(); err != nil {
+			return fmt.Errorf("failed to commit changes %w", err)
+		}
+
+		return nil
 	}
 
 	return ErrNotDefinedTransaction
@@ -55,7 +59,11 @@ func (s *SQL) Rollback() error {
 	if s.tx != nil {
 		defer func() { s.tx = nil }()
 
-		return s.tx.Rollback()
+		if err := s.tx.Rollback(); err != nil {
+			return fmt.Errorf("failed to rollback changes %w", err)
+		}
+
+		return nil
 	}
 
 	return ErrNotDefinedTransaction
@@ -70,20 +78,23 @@ func (s *SQL) Context(ctx context.Context) *SQL {
 }
 
 // Query does sql request and returns rows.
-func (s *SQL) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	if s.tx == nil {
-		if s.ctx == nil {
-			return s.db.Query(query, args...)
-		}
-
-		return s.db.QueryContext(s.ctx, query, args...)
+func (s *SQL) Query(query string, args ...interface{}) (rows *sql.Rows, err error) {
+	switch {
+	case s.tx != nil && s.ctx != nil:
+		rows, err = s.tx.QueryContext(s.ctx, query, args...)
+	case s.tx != nil && s.ctx == nil:
+		rows, err = s.tx.Query(query, args...)
+	case s.tx == nil && s.ctx != nil:
+		rows, err = s.db.QueryContext(s.ctx, query, args...)
+	default:
+		rows, err = s.db.Query(query, args...)
 	}
 
-	if s.ctx == nil {
-		return s.tx.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query %w", err)
 	}
 
-	return s.tx.QueryContext(s.ctx, query, args...)
+	return
 }
 
 // QueryRow does sql request and returns row.
@@ -104,18 +115,21 @@ func (s *SQL) QueryRow(query string, args ...interface{}) *sql.Row {
 }
 
 // Prepare does sql request and return sql statement.
-func (s *SQL) Prepare(query string) (*sql.Stmt, error) {
-	if s.tx == nil {
-		if s.ctx == nil {
-			return s.db.Prepare(query)
-		}
-
-		return s.db.PrepareContext(s.ctx, query)
+func (s *SQL) Prepare(query string) (stmt *sql.Stmt, err error) {
+	switch {
+	case s.tx != nil && s.ctx != nil:
+		stmt, err = s.tx.PrepareContext(s.ctx, query)
+	case s.tx != nil && s.ctx == nil:
+		stmt, err = s.tx.Prepare(query)
+	case s.tx == nil && s.ctx != nil:
+		stmt, err = s.db.PrepareContext(s.ctx, query)
+	default:
+		stmt, err = s.db.Prepare(query)
 	}
 
-	if s.ctx == nil {
-		return s.tx.Prepare(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare query %w", err)
 	}
 
-	return s.tx.PrepareContext(s.ctx, query)
+	return
 }

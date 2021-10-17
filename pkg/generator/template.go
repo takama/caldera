@@ -18,7 +18,7 @@ const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 // render executes templates in service directory with configured data.
 func render(cfg *config.Config) error {
-	return filepath.Walk(
+	if err := filepath.Walk(
 		cfg.Directories.Service,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -65,7 +65,11 @@ func render(cfg *config.Config) error {
 
 			return nil
 		},
-	)
+	); err != nil {
+		return fmt.Errorf("failed to render template files %w", err)
+	}
+
+	return nil
 }
 
 // randomString generates a random string with the requested length from the source of chars.

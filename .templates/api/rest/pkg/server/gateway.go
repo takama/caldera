@@ -84,7 +84,9 @@ func (gw *GatewayServer) Run(ctx context.Context) error {
 // Shutdown process graceful shutdown for the gateway server.
 func (gw GatewayServer) Shutdown(ctx context.Context) error {
 	if gw.srv != nil {
-		return gw.srv.Shutdown(ctx)
+		if err := gw.Shutdown(ctx); err != nil {
+			return fmt.Errorf("failed to shutdown gateway: %w", err)
+		}
 	}
 
 	return nil
@@ -115,7 +117,11 @@ func (gw *GatewayServer) Serve(handler{{[- if .API.UI ]}}, openapi{{[- end ]}} h
 	gw.srv.Handler = mux
 	{{[- end ]}}
 
-	return gw.srv.ListenAndServe()
+	if err := gw.srv.ListenAndServe(); err != nil{
+		return fmt.Errorf("failed to serve gateway: %w", err)
+	}
+
+	return nil
 }
 
 {{[- if .API.UI ]}}

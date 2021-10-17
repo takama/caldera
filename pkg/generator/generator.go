@@ -15,7 +15,7 @@ import (
 // nolint: funlen
 func Run(cfg *config.Config) {
 	if cfg.Storage.Config.Name == "" {
-		cfg.Storage.Config.Name = cfg.Name
+		cfg.Storage.Config.Name = fmt.Sprintf("%s-%s", cfg.Namespace, cfg.Name)
 	}
 
 	if cfg.Storage.MySQL {
@@ -126,5 +126,9 @@ func Exec(commands ...string) error {
 	execCmd.Stdout = os.Stdout
 	execCmd.Stdin = os.Stdin
 
-	return execCmd.Run()
+	if err := execCmd.Run(); err != nil {
+		return fmt.Errorf("failed to execute command %w", err)
+	}
+
+	return nil
 }

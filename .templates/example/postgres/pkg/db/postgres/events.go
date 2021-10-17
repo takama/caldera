@@ -46,7 +46,11 @@ func (ep *eventsProvider) Create(model *events.Item) (*events.Item, error) {
 
 	defer stmt.Close()
 
-	return model, stmt.QueryRow(model.Name).Scan(&model.Id)
+	if err := stmt.QueryRow(model.Name).Scan(&model.Id); err != nil {
+		return model, fmt.Errorf("failed to create new event: %w", err)
+	}
+
+	return model, nil
 }
 
 // Find returns Event requested by ID.
@@ -54,7 +58,11 @@ func (ep *eventsProvider) Find(id string) (*events.Item, error) {
 	event := new(events.Item)
 	row := ep.QueryRow(queryEventByID, id)
 
-	return event, row.Scan(&event.Id, &event.Name)
+	if err := row.Scan(&event.Id, &event.Name); err != nil {
+		return event, fmt.Errorf("failed to find event(s): %w", err)
+	}
+
+	return event, nil
 }
 
 // FindByName returns Events requested by Event name.
@@ -89,7 +97,11 @@ func (ep *eventsProvider) Update(model *events.Item) (*events.Item, error) {
 
 	defer stmt.Close()
 
-	return model, stmt.QueryRow(model.Id, model.Name).Scan(&model.Id)
+	if err := stmt.QueryRow(model.Id, model.Name).Scan(&model.Id); err != nil {
+		return model, fmt.Errorf("failed to update event(s): %w", err)
+	}
+
+	return model, nil
 }
 
 // Delete removes Event object by ID.
@@ -155,7 +167,11 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Ite
 		items = append(items, item)
 	}
 
-	return items, rows.Err()
+	if err := rows.Err(); err != nil {
+		return items, fmt.Errorf("failed to find event(s): %w", err)
+	}
+
+	return items, nil
 }
 
 const (
