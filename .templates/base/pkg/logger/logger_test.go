@@ -19,7 +19,12 @@ type syncBufferMock struct {
 }
 
 func (sbm *syncBufferMock) Write(p []byte) (n int, err error) {
-	return sbm.buffer.Write(p)
+	n, err = sbm.buffer.Write(p)
+	if err != nil {
+		return n, fmt.Errorf("failed to write buffer %w", err)
+	}
+
+	return
 }
 
 func (sbm syncBufferMock) String() string {
@@ -35,6 +40,8 @@ func (sbm syncBufferMock) Sync() error {
 }
 
 func TestLevel(t *testing.T) {
+	t.Parallel()
+
 	data := []struct {
 		level logger.Level
 		str   string
@@ -88,6 +95,8 @@ func TestLevel(t *testing.T) {
 }
 
 func TestFormatter(t *testing.T) {
+	t.Parallel()
+
 	data := []struct {
 		formatter logger.Formatter
 		str       string
@@ -114,6 +123,8 @@ func TestFormatter(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
+	t.Parallel()
+
 	b := syncBufferMock{}
 	log := logger.New(&logger.Config{
 		Format: logger.TextFormatter.String(),

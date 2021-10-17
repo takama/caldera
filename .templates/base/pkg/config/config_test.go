@@ -7,6 +7,8 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	t.Parallel()
+
 	cfg, err := config.New()
 
 	if err != nil {
