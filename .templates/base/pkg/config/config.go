@@ -78,3 +78,12 @@ func New() (*Config, error) {
 
 	return cfg, nil
 }
+{{[- if .Storage.Enabled ]}}
+
+func (cfg Config) Secure() *Config {
+	c := cfg
+	c.Database.Password = "***"
+
+	return &c
+}
+{{[- end ]}}
