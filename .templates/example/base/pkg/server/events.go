@@ -16,6 +16,8 @@ const (
 	errorMessage = "Error"
 	okMessage    = "Ok"
 	maxPageSize  = 100
+	numbersBase  = 10
+	bitSize      = 32
 )
 
 type eventsServer struct {
@@ -206,7 +208,7 @@ func (es eventsServer) offsetPaging(pageSize int32, pageToken string) (limit, of
 			return limit, offset
 		}
 
-		number, err := strconv.ParseInt(string(data), 10, 32)
+		number, err := strconv.ParseInt(string(data), numbersBase, bitSize)
 		if err != nil {
 			es.log.Error("error parse offset from string", zap.Error(err))
 

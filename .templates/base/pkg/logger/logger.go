@@ -61,7 +61,6 @@ const (
 )
 
 // New creates and configure new zap logger.
-// nolint: funlen
 func New(cfg *Config) *zap.Logger {
 	// Define our level-handling logic.
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {

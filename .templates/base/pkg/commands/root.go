@@ -26,6 +26,14 @@ var RootCmd = &cobra.Command{
 	Long:  `Service long description`,
 }
 
+const (
+	defaultDBPort          = {{[ .Storage.Config.Port ]}}
+	defaultDBProperty      = "{{[ .Storage.Config.Property ]}}"
+	defaultDBMaxConnectons = {{[ .Storage.Config.Connections.Max ]}}
+	defaultDBIdleCount     = {{[ .Storage.Config.Connections.Idle.Count ]}}
+	defaultDBIdleTaim      = {{[ .Storage.Config.Connections.Idle.Time ]}}
+)
+
 // Run adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Run() {
@@ -52,64 +60,36 @@ func init() {
 
 	{{[- if .Storage.Enabled ]}}
 
-	RootCmd.PersistentFlags().StringP("database-driver", "d", "{{[ .Storage.Config.Driver ]}}", "A database driver")
-	RootCmd.PersistentFlags().StringP("database-host", "H", "{{[ .Storage.Config.Host ]}}", "A database host")
-	RootCmd.PersistentFlags().IntP("database-port", "p", {{[ .Storage.Config.Port ]}}, "A database post number")
-	RootCmd.PersistentFlags().StringP("database-name", "n", "{{[ .Storage.Config.Name ]}}", "A database name")
-	RootCmd.PersistentFlags().StringP("database-username", "U", "{{[ .Storage.Config.Username ]}}", "A database user name")
-	RootCmd.PersistentFlags().StringP("database-password", "P", "{{[ .Storage.Config.Password ]}}", "A database user password")
-	RootCmd.PersistentFlags().StringSlice("database-props", []string{"sslmode=disable"}, "A database properties")
-	RootCmd.PersistentFlags().Int("max-conn", 10, "Maximum of database connections")
-	RootCmd.PersistentFlags().Int("idle-count", 1, "Count of idle database connections")
-	RootCmd.PersistentFlags().Int("idle-time", {{[ .Storage.Config.Connections.Idle.Time ]}},
+	var dbFlags = []bind{
+		{"driver", "driver"},
+		{"host", "host"},
+		{"port", "port"},
+		{"name", "name"},
+		{"username", "username"},
+		{"password", "password"},
+		{"properties", "props"},
+		{"connections.max", "max-conn"},
+		{"connections.idle.count", "idle-count"},
+		{"connections.idle.time", "idle-time"},
+		{"fixtures.dir", "fixtures-dir"},
+	}
+
+	RootCmd.PersistentFlags().StringP("db-driver", "D", "{{[ .Storage.Config.Driver ]}}", "A database driver")
+	RootCmd.PersistentFlags().StringP("db-host", "H", "{{[ .Storage.Config.Host ]}}", "A database host")
+	RootCmd.PersistentFlags().IntP("db-port", "P", defaultDBPort, "A database post number")
+	RootCmd.PersistentFlags().StringP("db-name", "d", "{{[ .Storage.Config.Name ]}}", "A database name")
+	RootCmd.PersistentFlags().StringP("db-username", "u", "{{[ .Storage.Config.Username ]}}", "A database user name")
+	RootCmd.PersistentFlags().StringP("db-password", "p", "{{[ .Storage.Config.Password ]}}", "A database user password")
+	RootCmd.PersistentFlags().StringSlice("db-props", []string{defaultDBProperty}, "A database properties")
+	RootCmd.PersistentFlags().Int("db-max-conn", defaultDBMaxConnectons, "Maximum of database connections")
+	RootCmd.PersistentFlags().Int("db-idle-count", defaultDBIdleCount, "Count of idle database connections")
+	RootCmd.PersistentFlags().Int("db-idle-time", defaultDBIdleTaim,
 		"Maximum amount of time in seconds a connection may be idle")
-	RootCmd.PersistentFlags().StringP("fixtures-dir", "F", "fixtures", "A database fixtures directory")
+	RootCmd.PersistentFlags().StringP("db-fixtures-dir", "F", "fixtures", "A database fixtures directory")
 
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.driver", RootCmd.PersistentFlags().Lookup("database-driver")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.host", RootCmd.PersistentFlags().Lookup("database-host")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.port", RootCmd.PersistentFlags().Lookup("database-port")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.name", RootCmd.PersistentFlags().Lookup("database-name")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.username", RootCmd.PersistentFlags().Lookup("database-username")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.password", RootCmd.PersistentFlags().Lookup("database-password")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.properties", RootCmd.PersistentFlags().Lookup("database-props")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.connections.max", RootCmd.PersistentFlags().Lookup("max-conn")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.connections.idle.count", RootCmd.PersistentFlags().Lookup("idle-count")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.connections.idle.time", RootCmd.PersistentFlags().Lookup("idle-time")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("database.fixtures.dir", RootCmd.PersistentFlags().Lookup("fixtures-dir")))
+	bindFlags("database", "db", dbFlags, RootCmd)
 
-	helper.LogF("Env error",
-		viper.BindEnv("database.driver", strings.ToUpper(config.ServiceName+".db.driver")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.host", strings.ToUpper(config.ServiceName+".db.host")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.port", strings.ToUpper(config.ServiceName+".db.port")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.name", strings.ToUpper(config.ServiceName+".db.name")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.username", strings.ToUpper(config.ServiceName+".db.username")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.password", strings.ToUpper(config.ServiceName+".db.password")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.properties", strings.ToUpper(config.ServiceName+".db.properties")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.connections.max", strings.ToUpper(config.ServiceName+".db.connections.max")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.connections.idle.count", strings.ToUpper(config.ServiceName+".db.connections.idle.count")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.connections.idle.time", strings.ToUpper(config.ServiceName+".db.connections.idle.time")))
-	helper.LogF("Env error",
-		viper.BindEnv("database.fixtures.dir", strings.ToUpper(config.ServiceName+".db.fixtures.dir")))
+	bindCustomEnvs("database", "db", dbFlags)
 	{{[- end ]}}
 }
 

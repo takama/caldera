@@ -12,6 +12,8 @@ import (
 var ErrSimple = errors.New("Error")
 
 func TestLogE(t *testing.T) {
+	t.Parallel()
+
 	var data bytes.Buffer
 
 	log.SetOutput(&data)
@@ -36,6 +38,8 @@ func TestLogE(t *testing.T) {
 }
 
 func TestLogF(t *testing.T) {
+	t.Parallel()
+
 	helper.LogF("message", nil)
 
 	if t.Failed() {

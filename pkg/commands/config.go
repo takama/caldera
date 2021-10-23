@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file
 // It contains global variables with configs and commands
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
@@ -25,11 +25,16 @@ var configCmd = &cobra.Command{
 	},
 }
 
+const (
+	defaultServerPort  = 8000
+	defaultGatewayPort = 8480
+)
+
 func init() {
 	apiCmd.AddCommand(configCmd)
 
-	configCmd.PersistentFlags().Int("port", 8000, "A service port number")
-	configCmd.PersistentFlags().Int("gateway-port", 8480, "A service rest gateway port number")
+	configCmd.PersistentFlags().Int("port", defaultServerPort, "A service port number")
+	configCmd.PersistentFlags().Int("gateway-port", defaultGatewayPort, "A service rest gateway port number")
 	helper.LogF("Flag error", viper.BindPFlag("api.config.port", configCmd.PersistentFlags().Lookup("port")))
 	helper.LogF(
 		"Flag error",

@@ -83,7 +83,11 @@ func (s *Server) Run(ctx context.Context) error {
 		return fmt.Errorf("failed to create server listener: %w", err)
 	}
 
-	return s.srv.Serve(listener)
+	if err := s.srv.Serve(listener); err != nil {
+		return fmt.Errorf("failed to run server: %w", err)
+	}
+
+	return nil
 }
 
 // Shutdown process graceful shutdown for the server.

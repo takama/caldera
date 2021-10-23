@@ -29,10 +29,14 @@ const (
 	StoragePostgres = "postgres"
 	// StoragePostgresVersion declared storage version.
 	StoragePostgresVersion = "12.6"
-	// StorageMySQL declared storage driver type: mysql.
+	// StoragePostgresDefaultProperty defined default postgres propery.
+	StoragePostgresDefaultProperty = "sslmode=disable"
+	// StorageMySQL declares storage driver type: mysql.
 	StorageMySQL = "mysql"
 	// StorageMySQLVersion declared storage version.
 	StorageMySQLVersion = "8.0"
+	// StorageMySQLDefaultProperty defined default Mysql propery.
+	StorageMySQLDefaultProperty = "tls=false"
 	// Metrics declared Prometheus common metrics for the service.
 	Metrics = "metrics"
 )
@@ -69,6 +73,7 @@ type Config struct {
 			Name        string
 			Username    string
 			Password    string
+			Property    string
 			Connections struct {
 				Max  int
 				Idle struct {

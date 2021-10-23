@@ -2,13 +2,16 @@ package migrations
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/pressly/goose"
 )
 
+const errApplyMigration = "failed to apply mifration %w"
+
 // Migrator design migration interface.
 type Migrator interface {
-	Setup(db *sql.DB)
+	Setup(db *sql.DB) error
 	Migrate() error
 	MigrateUp(version int64) error
 	MigrateDown(version int64) error
@@ -28,14 +31,22 @@ func New(cfg *Config) *Sequence {
 }
 
 // Setup configure migration.
-func (s *Sequence) Setup(db *sql.DB) {
+func (s *Sequence) Setup(db *sql.DB) error {
 	s.db = db
+
+	if err := goose.SetDialect(s.cfg.Dialect); err != nil {
+		return fmt.Errorf("failed to set migration dialect %w", err)
+	}
+
+	return nil
 }
 
 // Migrate process migration up to last version.
 func (s Sequence) Migrate() error {
 	if s.cfg.Active && s.db != nil {
-		return goose.Up(s.db, s.cfg.Dir)
+		if err := goose.Up(s.db, s.cfg.Dir); err != nil {
+			return fmt.Errorf(errApplyMigration, err)
+		}
 	}
 
 	return nil
@@ -46,10 +57,16 @@ func (s Sequence) Migrate() error {
 func (s Sequence) MigrateUp(version int64) error {
 	if s.cfg.Active && s.db != nil {
 		if version == 0 {
-			return goose.Up(s.db, s.cfg.Dir)
+			if err := goose.Up(s.db, s.cfg.Dir); err != nil {
+				return fmt.Errorf(errApplyMigration, err)
+			}
+
+			return nil
 		}
 
-		return goose.UpTo(s.db, s.cfg.Dir, version)
+		if err := goose.UpTo(s.db, s.cfg.Dir, version); err != nil {
+			return fmt.Errorf(errApplyMigration, err)
+		}
 	}
 
 	return nil
@@ -60,10 +77,16 @@ func (s Sequence) MigrateUp(version int64) error {
 func (s Sequence) MigrateDown(version int64) error {
 	if s.cfg.Active && s.db != nil {
 		if version == 0 {
-			return goose.Down(s.db, s.cfg.Dir)
+			if err := goose.Down(s.db, s.cfg.Dir); err != nil {
+				return fmt.Errorf(errApplyMigration, err)
+			}
+
+			return nil
 		}
 
-		return goose.DownTo(s.db, s.cfg.Dir, version)
+		if err := goose.DownTo(s.db, s.cfg.Dir, version); err != nil {
+			return fmt.Errorf(errApplyMigration, err)
+		}
 	}
 
 	return nil

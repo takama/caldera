@@ -45,8 +45,8 @@ func DSN(cfg *db.Config) *db.Config {
 			properties = "?" + strings.Join(cfg.Properties, "&")
 		}
 
-		dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s%s",
-			cfg.Driver, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, properties)
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s%s",
+			cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, properties)
 		cfg.DSN = dsn
 	}
 
@@ -82,19 +82,33 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*MySQL, erro
 	{{[- end ]}}
 
 	// setup migration connection
-	mig.Setup(m.pool)
+	if err := mig.Setup(m.pool); err != nil {
+		return m, fmt.Errorf("failed to setup migration %w", err)
+	}
 
-	return m, mig.Migrate()
+	if err := mig.Migrate(); err != nil {
+		return m, fmt.Errorf("failed to init connection with migration %w", err)
+	}
+
+	return m, nil
 }
 
 // Check readiness for database.
 func (m MySQL) Check() error {
-	return m.pool.Ping()
+	if err := m.pool.Ping(); err != nil {
+		return fmt.Errorf("failed to check mysql connection %w", err)
+	}
+
+	return nil
 }
 
 // Shutdown process graceful shutdown for the server.
 func (m MySQL) Shutdown(ctx context.Context) error {
-	return m.pool.Close()
+	if err := m.pool.Close(); err != nil {
+		return fmt.Errorf("failed to close mysql connection %w", err)
+	}
+
+	return nil
 }
 
 {{[- if .Example ]}}

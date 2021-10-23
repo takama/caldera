@@ -52,9 +52,10 @@ if [ "${GO_OS}" == "darwin" ]; then
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/public.proto
 {{[- end ]}}
 {{[- end ]}}
+    sed -i '' -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/Chart.yaml
+    sed -i '' -e "s/\(appVersion:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/Chart.yaml
+    sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/values.yaml
     sed -i '' -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml
-    sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
-    sed -i '' -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml
     sed -i '' -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
     sed -i '' -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 else
@@ -66,9 +67,10 @@ else
     sed -i -e "s/\(version:\)\(\s*\).*/\1 \"$new_version\"/" contracts/events/public.proto
 {{[- end ]}}
 {{[- end ]}}
+    sed -i -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/Chart.yaml
+    sed -i -e "s/\(appVersion:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/Chart.yaml
+    sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/charts/main/values.yaml
     sed -i -e "s/\(version:\)\(\s*\).*/\1 $new_version/" .helm/Chart.yaml
-    sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-dev.yaml
-    sed -i -e "s/\(tag:\)\(\s*\).*/\1 $new_version/" .helm/values-prod.yaml
     sed -i -e "s/\(# Version\)\(\s*\).*/\1 $new_version/" docs/CHANGELOG.md
     sed -i -e "s/\(## Version\)\(\s*\).*/\1 $new_version/" README.md
 fi

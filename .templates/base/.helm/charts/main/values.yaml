@@ -252,7 +252,7 @@ service:
     ## which provides secure connection to Cloud SQL
     properties:
       # - debug=true
-      - sslmode=disable
+      - {{[ .Storage.Config.Property ]}}
       # - sslmode=require
       # - sslmode=verify-ca
       # - sslmode=verify-full

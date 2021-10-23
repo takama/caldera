@@ -174,15 +174,24 @@ func (ep *eventsProvider) load() error {
 	}
 	defer f.Close()
 
-	return json.NewDecoder(bufio.NewReader(f)).Decode(&ep)
+	if err := json.NewDecoder(bufio.NewReader(f)).Decode(&ep); err != nil {
+		return fmt.Errorf("failed to decode data %w", err)
+	}
+
+	return nil
 }
 
 func readFile(path string) (*os.File, error) {
-	_, err := os.Stat(path)
 	// if file does not exist, return "empty data" without error
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, nil
 	}
 
-	return os.Open(path)
+	f, err := os.Open(path)
+
+	if err != nil {
+		return f, fmt.Errorf("failed to read file %w", err)
+	}
+
+	return f, nil
 }

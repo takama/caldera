@@ -18,6 +18,8 @@ var ErrReturnError = errors.New("test of return Error")
 func testHandler(
 	t *testing.T, handler http.Handler, method, path string, code int, body string,
 ) {
+	t.Helper()
+
 	req, err := http.NewRequestWithContext(context.Background(), method, path, nil)
 	if err != nil {
 		t.Error(err)
@@ -36,6 +38,8 @@ func testHandler(
 }
 
 func TestProbe(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service, "GET", "/healthz",
@@ -62,6 +66,8 @@ func TestProbe(t *testing.T) {
 }
 
 func TestNotAllowed(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service, "POST", "/",
@@ -70,6 +76,8 @@ func TestNotAllowed(t *testing.T) {
 }
 
 func TestOptions(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service, "OPTIONS", "/",
@@ -78,6 +86,8 @@ func TestOptions(t *testing.T) {
 }
 
 func TestNotFound(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	testHandler(
 		t, service, "GET", "/notfound",
@@ -90,6 +100,8 @@ func TestNotFound(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	service.AddHandlerFunc(
 		"/handler", func(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +122,8 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestInfo(t *testing.T) {
+	t.Parallel()
+
 	service := info.NewService(logger.New(new(logger.Config)))
 	data, err := json.Marshal(
 		map[string]string{
@@ -133,10 +147,11 @@ func TestInfo(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	service := info.NewService(logger.New(new(logger.Config)))
-	h := service.Run(":0")
+	t.Parallel()
 
-	if h == nil {
+	service := info.NewService(logger.New(new(logger.Config)))
+
+	if service.Run(":0") == nil {
 		t.Error("Expected HTTP handler, got nil")
 	}
 }

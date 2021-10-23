@@ -51,6 +51,11 @@ func Run(cfg *config.Config) error {
 		}
 	}(log)
 
+	log.Debug(
+		config.ServiceName,
+		zap.Any("config", cfg{{[- if .Storage.Enabled ]}}.Secure(){{[- end ]}}),
+	)
+
 	log.Info(
 		config.ServiceName,
 		zap.String("version", version.RELEASE+"-"+version.COMMIT+"-"+version.BRANCH),
@@ -199,5 +204,9 @@ func Run(cfg *config.Config) error {
 	{{[- end ]}}
 
 	// Wait signals.
-	return system.NewSignals().Wait(log, operator)
+	if err := system.NewSignals().Wait(log, operator); err != nil {
+		return fmt.Errorf("failed to run service %w", err)
+	}
+
+	return nil
 }
