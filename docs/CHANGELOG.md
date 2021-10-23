@@ -1,9 +1,26 @@
-# Version v0.2.4
+# Version v0.2.5
+
+## v0.2.5
+
+- Updated linter `golangci-lint` versions
+- Updated nolint instructions
+- Updated protocol buffers compilers
+- Updated tests & wrapped errors
+- Added default database property
+- Changes migration sequence
+- Removed Postgres crypto extension
+- Redesigned flags initialization
+- Added migration dialect
+- Fixed YAML parameters
+- Used secure config for debug purpose
+- Included main chart and values in version control
+- Updated initial parameters
 
 ## v0.2.4
 
 - Added namespace for the service
 - Used namespaced names in the service
+
 ## v0.2.3
 
 - Used compute region instead of zone
