@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -27,5 +28,5 @@ func (hs *healthServer) Watch(
 	in *grpc_health_v1.HealthCheckRequest,
 	srv grpc_health_v1.Health_WatchServer,
 ) error {
-	return status.Error(codes.Unimplemented, "Watch is not implemented")
+	return fmt.Errorf("failed to watch %w", status.Error(codes.Unimplemented, "Watch is not implemented"))
 }

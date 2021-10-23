@@ -9,7 +9,6 @@ import (
 )
 
 // Inquire for configuration.
-// nolint: funlen, gocognit
 func Inquire(cfg *config.Config) *config.Config {
 	cfg.Github = StringAnswer("Provide name for your Github account", cfg.Github)
 	cfg.Namespace = StringAnswer("Provide a name for your module or namespace", cfg.Namespace)

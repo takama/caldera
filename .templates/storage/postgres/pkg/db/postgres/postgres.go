@@ -82,19 +82,33 @@ func New(cfg *db.Config, log *zap.Logger, mig migrations.Migrator) (*Postgres, e
 	{{[- end ]}}
 
 	// setup migration connection
-	mig.Setup(p.pool)
+	if err := mig.Setup(p.pool); err != nil {
+		return p, fmt.Errorf("failed to setup migration %w", err)
+	}
 
-	return p, mig.Migrate()
+	if err := mig.Migrate(); err != nil {
+		return p, fmt.Errorf("failed to init connection with migration %w", err)
+	}
+
+	return p, nil
 }
 
 // Check readiness for database.
 func (p Postgres) Check() error {
-	return p.pool.Ping()
+	if err := p.pool.Ping(); err != nil {
+		return fmt.Errorf("failed to check postgress connection %w", err)
+	}
+
+	return nil
 }
 
 // Shutdown process graceful shutdown for the server.
 func (p Postgres) Shutdown(ctx context.Context) error {
-	return p.pool.Close()
+	if err := p.pool.Close(); err != nil {
+		return fmt.Errorf("failed to close postgress connection %w", err)
+	}
+
+	return nil
 }
 
 {{[- if .Example ]}}

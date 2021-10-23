@@ -48,9 +48,12 @@ func (ep *eventsProvider) Create(model *events.Item) (*events.Item, error) {
 	}
 
 	defer stmt.Close()
-	_, err = stmt.Exec(model.Id, model.Name)
 
-	return model, fmt.Errorf("failed to create event: %w", err)
+	if _, err = stmt.Exec(model.Id, model.Name); err != nil {
+		return model, fmt.Errorf("failed to create event: %w", err)
+	}
+
+	return model, nil
 }
 
 // Find returns Event requested by ID.
@@ -58,7 +61,11 @@ func (ep *eventsProvider) Find(id string) (*events.Item, error) {
 	event := new(events.Item)
 	row := ep.QueryRow(queryEventByID, id)
 
-	return event, row.Scan(&event.Id, &event.Name)
+	if err := row.Scan(&event.Id, &event.Name); err != nil {
+		return event, fmt.Errorf("failed to find event(s): %w", err)
+	}
+
+	return event, nil
 }
 
 // FindByName returns Events requested by Event name.
@@ -93,9 +100,11 @@ func (ep *eventsProvider) Update(model *events.Item) (*events.Item, error) {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.Id, model.Name)
+	if _, err = stmt.Exec(model.Id, model.Name); err != nil {
+		return model, fmt.Errorf("failed to update event: %w", err)
+	}
 
-	return model, fmt.Errorf("failed to update event: %w", err)
+	return model, nil
 }
 
 // Delete removes Event object by ID.
@@ -161,16 +170,20 @@ func (ep *eventsProvider) find(query string, args ...interface{}) ([]*events.Ite
 		items = append(items, item)
 	}
 
-	return items, rows.Err()
+	if err := rows.Err(); err != nil {
+		return items, fmt.Errorf("failed to find event(s): %w", rows.Err())
+	}
+
+	return items, nil
 }
 
 const (
-	queryEventByID    = `SELECT id, name FROM events WHERE id = $1`
-	queryEventsByName = `SELECT id, name FROM events WHERE name = $1 LIMIT $2 OFFSET $3`
-	queryEvents       = `SELECT id, name FROM events LIMIT $1 OFFSET $2`
-	queryInsertEvent  = `INSERT INTO events (id, name) VALUES ($1, $2)`
-	queryUpdateEvent  = `INSERT INTO events (id, name) VALUES ($1, $2)
-		ON DUPLICATE KEY UPDATE name = $2`
-	queryDeleteEventByID    = `DELETE FROM events WHERE id = $1`
-	queryDeleteEventsByName = `DELETE FROM events WHERE name = $1`
+	queryEventByID    = `SELECT id, name FROM events WHERE id = ?`
+	queryEventsByName = `SELECT id, name FROM events WHERE name = ? LIMIT ? OFFSET ?`
+	queryEvents       = `SELECT id, name FROM events LIMIT ? OFFSET ?`
+	queryInsertEvent  = `INSERT INTO events (id, name) VALUES (?, ?)`
+	queryUpdateEvent  = `INSERT INTO events (id, name) VALUES (?, ?)
+		ON DUPLICATE KEY UPDATE name = ?`
+	queryDeleteEventByID    = `DELETE FROM events WHERE id = ?`
+	queryDeleteEventsByName = `DELETE FROM events WHERE name = ?`
 )

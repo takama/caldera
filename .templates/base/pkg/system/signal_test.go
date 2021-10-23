@@ -44,6 +44,8 @@ func (th testHandling) Shutdown() []error {
 }
 
 func TestSignals(t *testing.T) {
+	t.Parallel()
+
 	// Setup logger
 	logger := zap.NewExample()
 
@@ -101,8 +103,9 @@ func TestSignals(t *testing.T) {
 }
 
 func sendSignal(t *testing.T, ch <-chan system.SignalType, proc *os.Process, signal system.SignalType) {
-	err := proc.Signal(testSignal)
-	if err != nil {
+	t.Helper()
+
+	if err := proc.Signal(testSignal); err != nil {
 		t.Error("Sending signal:", err)
 
 		return
@@ -114,12 +117,16 @@ func sendSignal(t *testing.T, ch <-chan system.SignalType, proc *os.Process, sig
 }
 
 func verifySignal(t *testing.T, signal os.Signal, signals []os.Signal, sigType system.SignalType) {
+	t.Helper()
+
 	if !isSignalAvailable(signal, signals) {
 		t.Error("Absent of the signal:", signal, "among", sigType, "signal type")
 	}
 }
 
 func TestSignalStringer(t *testing.T) {
+	t.Parallel()
+
 	s := system.Shutdown
 
 	if s.String() != "SHUTDOWN" {
@@ -152,6 +159,8 @@ func TestSignalStringer(t *testing.T) {
 }
 
 func TestRemoveNotExistingSignal(t *testing.T) {
+	t.Parallel()
+
 	s := system.NewSignals()
 	count := len(s.Get(system.Maintenance))
 

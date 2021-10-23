@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file
 // It contains global variables with configs and commands
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
@@ -33,21 +33,23 @@ Otherwise, the default settings will be used.`,
 			fmt.Println("Error parsing of configuration, used default:", err)
 		}
 		cfg = input.Inquire(cfg)
-		if cfg.Storage.MySQL &&
-			cfg.Storage.Config.Port == config.DefaultPostgresPort {
+		if cfg.Storage.MySQL {
 			cfg.Storage.Config.Driver = config.StorageMySQL
+			cfg.Storage.Config.Version = config.StorageMySQLVersion
 			cfg.Storage.Config.Host = config.StorageMySQL
 			cfg.Storage.Config.Port = config.DefaultMySQLPort
 			cfg.Storage.Config.Username = config.StorageMySQL
 			cfg.Storage.Config.Password = config.StorageMySQL
+			cfg.Storage.Config.Property = config.StorageMySQLDefaultProperty
 		}
-		if cfg.Storage.Postgres &&
-			cfg.Storage.Config.Port == config.DefaultMySQLPort {
+		if cfg.Storage.Postgres {
 			cfg.Storage.Config.Driver = config.StoragePostgres
+			cfg.Storage.Config.Version = config.StoragePostgresVersion
 			cfg.Storage.Config.Host = config.StoragePostgres
 			cfg.Storage.Config.Port = config.DefaultPostgresPort
 			cfg.Storage.Config.Username = config.StoragePostgres
 			cfg.Storage.Config.Password = config.StoragePostgres
+			cfg.Storage.Config.Property = config.StoragePostgresDefaultProperty
 		}
 		generator.Run(cfg)
 	},

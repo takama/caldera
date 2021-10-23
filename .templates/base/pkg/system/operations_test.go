@@ -9,22 +9,19 @@ import (
 )
 
 func TestStubHandling(t *testing.T) {
+	t.Parallel()
+
 	operator := system.NewOperator(&http.Server{})
-	err := operator.Reload()
 
-	if !errors.Is(err, system.ErrNotImplemented) {
+	if err := operator.Reload(); !errors.Is(err, system.ErrNotImplemented) {
 		t.Error("Expected error", system.ErrNotImplemented, "got", err)
 	}
 
-	err = operator.Maintenance()
-
-	if !errors.Is(err, system.ErrNotImplemented) {
+	if err := operator.Maintenance(); !errors.Is(err, system.ErrNotImplemented) {
 		t.Error("Expected error", system.ErrNotImplemented, "got", err)
 	}
 
-	errs := operator.Shutdown()
-
-	if len(errs) > 0 {
+	if errs := operator.Shutdown(); len(errs) > 0 {
 		t.Error("Expected success, got errors", errs)
 	}
 }

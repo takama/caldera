@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file.
 // It contains global variables with configs and commands.
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
@@ -29,35 +29,38 @@ which should observe a liveness/readiness of registered modules`,
 }
 
 func init() {
-	RootCmd.AddCommand(serveCmd)
+	var infoFlags = []bind{
+		{"port", "port"},
+		{"statistics", "statistics"},
+	}
 
 	{{[- if .API.Enabled ]}}
 
-	serveCmd.PersistentFlags().Int("server-port", config.DefaultServerPort, "Service listening port number")
-	{{[- if .API.Gateway ]}}
-	serveCmd.PersistentFlags().Int("gw-port", config.DefaultGatewayPort, "Gateway listening port number")
+	var serverFlags = []bind{
+		{"port", "port"},
+		{{[- if .API.Gateway ]}}
+		{"gateway.port", "gw-port"},
+		{{[- end ]}}
+	}
 	{{[- end ]}}
-	{{[- end ]}}
+
+	RootCmd.AddCommand(serveCmd)
+
 	serveCmd.PersistentFlags().Int("info-port", config.DefaultInfoPort, "Health port number")
 	serveCmd.PersistentFlags().Bool("info-statistics", config.DefaultInfoStatistics, "Collect statistics information")
 	{{[- if .API.Enabled ]}}
-	helper.LogF("Flag error",
-		viper.BindPFlag("server.port", serveCmd.PersistentFlags().Lookup("server-port")))
+	serveCmd.PersistentFlags().Int("server-port", config.DefaultServerPort, "Service listening port number")
 	{{[- if .API.Gateway ]}}
-	helper.LogF("Flag error",
-		viper.BindPFlag("server.gateway.port", serveCmd.PersistentFlags().Lookup("gw-port")))
+	serveCmd.PersistentFlags().Int("server-gw-port", config.DefaultGatewayPort, "Gateway listening port number")
 	{{[- end ]}}
 	{{[- end ]}}
-	helper.LogF("Flag error",
-		viper.BindPFlag("info.port", serveCmd.PersistentFlags().Lookup("info-port")))
-	helper.LogF("Flag error",
-		viper.BindPFlag("info.statistics", serveCmd.PersistentFlags().Lookup("info-statistics")))
+
+	bindFlags("info", "info", infoFlags, serveCmd)
 	{{[- if .API.Enabled ]}}
-	helper.LogF("Env error", viper.BindEnv("server.port"))
-	{{[- if .API.Gateway ]}}
-	helper.LogF("Env error", viper.BindEnv("server.gateway.port"))
+	bindFlags("server", "server", serverFlags, serveCmd)
 	{{[- end ]}}
+	bindEnvs("info", infoFlags)
+	{{[- if .API.Enabled ]}}
+	bindEnvs("server", serverFlags)
 	{{[- end ]}}
-	helper.LogF("Env error", viper.BindEnv("info.port"))
-	helper.LogF("Env error", viper.BindEnv("info.statistics"))
 }

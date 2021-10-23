@@ -1,5 +1,5 @@
 APP = caldera
-RELEASE ?= v0.2.4
+RELEASE ?= v0.2.5
 RELEASE_DATE = $(shell date +%FT%T%Z)
 PROJECT = github.com/takama/caldera
 
@@ -50,10 +50,10 @@ HAS_IMPORTS := $(shell command -v goimports;)
 
 bootstrap:
 ifndef HAS_LINT
-	go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.32.2
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
 endif
 ifndef HAS_IMPORTS
-	go get -u golang.org/x/tools/cmd/goimports
+	go install golang.org/x/tools/cmd/goimports
 endif
 
 

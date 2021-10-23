@@ -1,6 +1,6 @@
 // Package commands process flags/environment variables/config file
 // It contains global variables with configs and commands
-// nolint: gochecknoglobals, gochecknoinits, unparam
+// nolint: gochecknoglobals, gochecknoinits
 package commands
 
 import (
@@ -17,6 +17,12 @@ var (
 	databasePort    int
 	databaseDriver  string
 	databaseVersion string
+)
+
+const (
+	defaultMaxConnections = 10
+	defaultIdleCount      = 1
+	defaultIdleTaim       = 60
 )
 
 // driverCmd represents the driver command.
@@ -51,9 +57,9 @@ func init() {
 	driverCmd.PersistentFlags().String("name", "", "A database name")
 	driverCmd.PersistentFlags().StringP("username", "u", databaseDriver, "A name of database user")
 	driverCmd.PersistentFlags().StringP("password", "p", databaseDriver, "An user password")
-	driverCmd.PersistentFlags().Int("max-conn", 10, "Maximum available connections")
-	driverCmd.PersistentFlags().Int("idle-count", 1, "Count of idle connections")
-	driverCmd.PersistentFlags().Int("idle-time", 60,
+	driverCmd.PersistentFlags().Int("max-conn", defaultMaxConnections, "Maximum available connections")
+	driverCmd.PersistentFlags().Int("idle-count", defaultIdleCount, "Count of idle connections")
+	driverCmd.PersistentFlags().Int("idle-time", defaultIdleTaim,
 		"Maximum amount of time in seconds a connection may be idle")
 	helper.LogF(
 		"Flag error",

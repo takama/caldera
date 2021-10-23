@@ -12,7 +12,7 @@ import (
 
 // copyTemplates copies templates files from source to destination directory.
 func copyTemplates(src, dst string) error {
-	return filepath.Walk(
+	if err := filepath.Walk(
 		src,
 		func(srcPath string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -33,7 +33,11 @@ func copyTemplates(src, dst string) error {
 
 			return nil
 		},
-	)
+	); err != nil {
+		return fmt.Errorf("failed to copy template files %w", err)
+	}
+
+	return nil
 }
 
 func copyFile(src, dst string, info os.FileInfo) error {
@@ -59,5 +63,9 @@ func copyFile(src, dst string, info os.FileInfo) error {
 		return fmt.Errorf("could not copy file: %w", err)
 	}
 
-	return os.Chmod(dst, info.Mode())
+	if err := os.Chmod(dst, info.Mode()); err != nil {
+		return fmt.Errorf("failed to assing file mode %w", err)
+	}
+
+	return nil
 }

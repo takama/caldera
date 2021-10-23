@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "chart" . }}
 data:
-  default.conf: |-
+  default.conf: |
     {
       {{[- if .API.Enabled ]}}
       "server": {
@@ -37,7 +37,7 @@ data:
         "password": "{{ .Values.service.database.driver }}",
         {{- if .Values.service.database.properties }}
         "properties": [
-         {{- range $i, $value := .Values.service.database.properties }}
+          {{- range $i, $value := .Values.service.database.properties }}
           {{- if gt $i 0 }},{{- end }}
           "{{ $value }}"
           {{- end }}
